@@ -236,7 +236,8 @@
   },
   "auth": {
     "signIn": "Entrar",
-    "signOut": "Sair"
+    "signOut": "Sair",
+    "loggedIn": "Conectado"
   },
   "download": {
     "resume": "Baixar Currículo"

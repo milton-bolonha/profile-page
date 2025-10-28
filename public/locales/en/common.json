@@ -236,7 +236,8 @@
   },
   "auth": {
     "signIn": "Sign in",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "loggedIn": "Logged in"
   },
   "download": {
     "resume": "Download Resume"

@@ -4,6 +4,16 @@ import { LanguageSwitcher } from '@/components/commons/LanguageSwitcher';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Image from 'next/image';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
+import { CustomSignInButton } from "@/components/commons/clerk/SignInButton";
+import { CustomSignOutButton } from "@/components/commons/clerk/SignOutButton";
+import { UserButton } from "@clerk/nextjs";
+
+// Importar SignedIn e SignedOut dinamicamente
+// @ts-expect-error
+const SignedIn = dynamic(() => import("@clerk/nextjs").then((mod) => mod.SignedIn), { ssr: false });
+// @ts-expect-error
+const SignedOut = dynamic(() => import("@clerk/nextjs").then((mod) => mod.SignedOut), { ssr: false });
 
 interface MenuProps {
   isVisible: boolean;
@@ -81,6 +91,25 @@ export const Menu = ({ isVisible, onClose }: MenuProps) => {
           >
             {t('navigation.contact')}
           </Link>
+
+          {/* Botões de Login */}
+          {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && (
+            <div className="mt-4 flex flex-col gap-3 items-center w-full">
+              <SignedIn>
+                <div className="flex items-center gap-3">
+                  <UserButton />
+                  <span className="text-sm text-gray-600 dark:text-gray-300">
+                    {t('auth.loggedIn') || 'Logged in'}
+                  </span>
+                </div>
+                <CustomSignOutButton />
+              </SignedIn>
+              
+              <SignedOut>
+                <CustomSignInButton />
+              </SignedOut>
+            </div>
+          )}
         </nav>
       </div>
     </div>
