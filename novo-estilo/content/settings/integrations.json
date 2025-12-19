@@ -1,0 +1,13 @@
+{
+  "cloudinaryIntegration": {
+    "cloudApiKey": "232148336835128",
+    "cloudName": "dj0et6kq4",
+    "folderName": "moderntips"
+  },
+  "googleIntegration": {
+    "adsClientID": "ca-pub-4309295381222992",
+    "adsSlot": "2083202812",
+    "gaID": "G-WFBMSN7KBE",
+    "adsAccount": "sites-9053884276298326"
+  }
+}

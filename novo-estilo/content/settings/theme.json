@@ -1,0 +1,34 @@
+{
+  "postsSettings": {
+    "postsToShow": 9,
+    "postMaxW": "520",
+    "leftColumn": true,
+    "rightColumn": true,
+    "bottomRow": true,
+    "adsInsidePost": false,
+    "postStyleVariation": "0"
+  },
+  "pagesSettings": {
+    "pageBottomPadding": 30,
+    "pageHeaderPadding": 22,
+    "pageMaxW": "1100"
+  },
+  "header": {
+    "logoAlign": "left",
+    "headerHeight": 60,
+    "bottomMainMenu": true,
+    "headerMainMenu": "right",
+    "headerMainMenuType": "category"
+  },
+  "themeColors": {
+    "brand_color": "#3cb8ff",
+    "ctaColor": "#3cb8ff",
+    "background_color": "#ffffff",
+    "darkBrandColor": "#3cb8ff",
+    "secondaryColor": "#0c0f1e",
+    "darkBackgroundColor": "#000"
+  },
+  "generalThemeSettings": {
+    "themeStyle": "0"
+  }
+}
