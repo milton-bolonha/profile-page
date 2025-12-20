@@ -8,58 +8,33 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
-      colors: {
-        'h-gray-500': '#737994',
-        'h-blue-500': '#8CAAEE',
-        'h-blue-900': '#303446',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
-        card: {
-          DEFAULT: 'hsl(var(--card))',
-          foreground: 'hsl(var(--card-foreground))',
-        },
-        popover: {
-          DEFAULT: 'hsl(var(--popover))',
-          foreground: 'hsl(var(--popover-foreground))',
-        },
-        primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
-        },
-        secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
-        },
-        muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
-        },
-        accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
-        },
-        destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))',
-        },
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
-      },
-      borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
-      },
-      width: {
-        120: '30rem',
-        125: '31.25rem',
-      },
-      height: {
-        125: '31.25rem',
-      },
       fontFamily: {
         sans: ['Inter Variable', 'sans-serif'],
+        mono: ['Space Mono', 'monospace'],
+        display: ['Cal Sans', 'Inter Variable', 'sans-serif'],
+      },
+      colors: {
+        black: '#000000',  // FORCE PURE BLACK!
+        white: '#ffffff',
+        background: '#000000',
+        foreground: '#ffffff',
+        primary: {
+          DEFAULT: '#f0f0f0',
+          foreground: '#000000',
+        },
+        secondary: {
+          DEFAULT: '#111111',
+          foreground: '#ffffff',
+        },
+        muted: {
+          DEFAULT: '#333333',
+          foreground: '#888888',
+        },
+        accent: {
+          DEFAULT: '#333333',
+          foreground: '#ffffff',
+        },
+        border: 'rgba(255, 255, 255, 0.1)',
       },
     },
   },

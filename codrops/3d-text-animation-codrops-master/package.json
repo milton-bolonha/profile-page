@@ -1,0 +1,19 @@
+{
+  "name": "3d-text-animation-codrops",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^7.1.9"
+  },
+  "dependencies": {
+    "@types/gsap": "^1.20.2",
+    "gsap": "^3.13.0",
+    "typescript": "^5.9.3"
+  }
+}

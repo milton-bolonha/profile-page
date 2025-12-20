@@ -37,7 +37,7 @@ export const Header = () => {
 
   return (
     <header
-      className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 text-sm flex py-3 px-5 justify-between items-center sticky top-0 z-20 shadow-sm"
+      className="bg-black border-b border-white/10 text-sm flex py-3 px-5 justify-between items-center sticky top-0 z-20 shadow-sm"
     >
       {/* Download Resume Button */}
       <div className="flex items-center">

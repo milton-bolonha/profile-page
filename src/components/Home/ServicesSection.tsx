@@ -1,59 +1,104 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
+import MagneticButton from '@/components/ui/MagneticButton';
+import { TextMotion } from '@/components/ui/TextMotion';
+import { useEffect, useRef } from 'react';
 import servicesData from '../../../content/home/services.json';
 
 export const ServicesSection = () => {
   const { t } = useLanguage();
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    // Adicionar efeito de borda animada no hover
+    cardRefs.current.forEach((ref, index) => {
+      if (ref) {
+        ref.addEventListener('mouseenter', () => {
+          ref.style.boxShadow = '0 0 30px rgba(255, 255, 255, 0.1)';
+        });
+        ref.addEventListener('mouseleave', () => {
+          ref.style.boxShadow = 'none';
+        });
+      }
+    });
+  }, []);
 
   return (
-    <section className="py-20 bg-gray-50 dark:bg-gray-800">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            {t('home.services.title')}
+    <section id="services" className="relative bg-black overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/3 rounded-full blur-[150px]" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="text-center mb-20">
+          <div className="inline-block px-4 py-2 bg-white/5 backdrop-blur-sm rounded-full border border-white/10 mb-6">
+            <span className="text-sm font-medium text-white/80 tracking-wide">Serviços</span>
+          </div>
+          
+          <h2 className="text-4xl md:text-5xl font-semibold text-white mb-6" style={{ fontFamily: 'Noto Serif Variable, serif', lineHeight: '1.3' }}>
+            <TextMotion trigger={true} stagger={0.05}>
+              {t('home.services.title')}
+            </TextMotion>
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-xl text-white/60 max-w-2xl mx-auto">
             {t('home.services.subtitle')}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {servicesData.services.map((service) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {servicesData.services.map((service, index) => (
             <div
               key={service.id}
-              className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
+              ref={(el) => (cardRefs.current[index] = el)}
+              className="group relative p-8 rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-500 bg-white/[0.02] hover:bg-white/[0.05]"
             >
-              {service.icon && <div className="text-5xl mb-4">{service.icon}</div>}
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
-                {t(service.titleKey)}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
-                {t(service.descriptionKey)}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {service.techs.map((tech, idx) => (
-                  <span
-                    key={idx}
-                    className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100 text-sm rounded-full font-medium"
-                  >
-                    {tech}
-                  </span>
-                ))}
+              <div className="space-y-6">
+                {service.icon && (
+                  <div className="text-4xl opacity-80 group-hover:scale-110 transition-transform duration-300">
+                    {service.icon}
+                  </div>
+                )}
+                
+                <h3 className="text-2xl text-white">
+                  {t(service.titleKey)}
+                </h3>
+                
+                <p className="text-white/60 leading-relaxed">
+                  {t(service.descriptionKey)}
+                </p>
+                
+                <div className="flex flex-wrap gap-2 pt-4 border-t border-white/10">
+                  {service.techs.slice(0, 3).map((tech, idx) => (
+                    <span
+                      key={idx}
+                      className="text-xs text-white/50"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="text-center mt-12">
-          <Link
-            href="/sobre"
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
-          >
-            {t('home.services.viewAll')}
-          </Link>
+        <div className="text-center mt-16">
+          <MagneticButton>
+            <Link
+              href="/sobre"
+              className="inline-flex items-center gap-2 text-white hover:text-white/80 font-medium group transition-all duration-300"
+            >
+              <span className="relative">
+                Ver todos os serviços
+                <span className="absolute bottom-0 left-0 w-0 h-px bg-white group-hover:w-full transition-all duration-300" />
+              </span>
+              <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
+          </MagneticButton>
         </div>
       </div>
     </section>
   );
 };
-

@@ -1,58 +1,77 @@
 import React, { useState } from "react";
-import { PageSection } from "./PageSection";
+import { TextMotion } from '@/components/ui/TextMotion';
 
 const faqData = [
   {
     question: "Como funciona a mentoria I/O?",
-    answer:
-      "Nossa mentoria é individual e personalizada. Durante 6 semanas, você terá sessões semanais com nossos mentores especializados, receberá material didático exclusivo e terá acesso à nossa IA @goshDev para suporte contínuo.",
+    answer: "Nossa mentoria é individual e personalizada. Durante 6 semanas, você terá sessões semanais com nossos mentores especializados, receberá material didático exclusivo e terá acesso à nossa IA @goshDev para suporte contínuo.",
   },
   {
     question: "Qual é o investimento para a mentoria?",
-    answer:
-      "Oferecemos um investimento acessível comparado aos cursos massivos do mercado. Entre em contato conosco via WhatsApp para conhecer nossos planos e condições especiais.",
+    answer: "Oferecemos um investimento acessível comparado aos cursos massivos do mercado. Entre em contato conosco via WhatsApp para conhecer nossos planos e condições especiais.",
   },
   {
     question: "A mentoria é adequada para iniciantes?",
-    answer:
-      "Sim! Nossa metodologia é inclusiva e adaptada para diferentes níveis. Seja você iniciante ou já tenha alguma experiência, nossos mentores vão personalizar o conteúdo para suas necessidades específicas.",
+    answer: "Sim! Nossa metodologia é inclusiva e adaptada para diferentes níveis. Seja você iniciante ou já tenha alguma experiência, nossos mentores vão personalizar o conteúdo para suas necessidades específicas.",
   },
   {
     question: "Que tecnologias vocês ensinam?",
-    answer:
-      "Focamos nas tecnologias mais demandadas do mercado internacional: desenvolvimento web moderno, frameworks atuais, metodologias ágeis e ferramentas de produtividade. Sempre com foco em resultados práticos.",
+    answer: "Focamos nas tecnologias mais demandadas do mercado internacional: desenvolvimento web moderno, frameworks atuais, metodologias ágeis e ferramentas de produtividade. Sempre com foco em resultados práticos.",
   },
   {
     question: "Como posso me inscrever?",
-    answer:
-      "É simples! Clique no botão 'Fale Com Um/a Mentor/a' ou entre em contato via WhatsApp (12 98106-2959). Vamos agendar uma conversa inicial gratuita para entender suas necessidades.",
-  },
-  {
-    question: "Vocês oferecem garantia de resultados?",
-    answer:
-      "Oferecemos acompanhamento individual e metodologia comprovada. Nossos mentorados já faturaram mais de R$424mil. Cada mentoria é feita sob medida para maximizar suas chances de sucesso.",
-  },
-  {
-    question: "Qual é a duração total do programa?",
-    answer:
-      "O programa completo tem duração de 6 semanas, com sessões semanais de acompanhamento. Além disso, você terá acesso contínuo aos materiais e à nossa IA @goshDev.",
-  },
-  {
-    question: "Posso fazer a mentoria mesmo morando fora do Brasil?",
-    answer:
-      "Sim! Nossa mentoria é 100% online e especializada em carreira internacional. Nossos mentores têm experiência no mercado global e podem te ajudar a conquistar oportunidades no exterior.",
-  },
-  {
-    question: "O que é a @goshDev?",
-    answer:
-      "A @goshDev é nossa Inteligência Artificial exclusiva, criada em 2025. Ela oferece suporte ilimitado para dúvidas técnicas e de carreira, funcionando como um assistente virtual personalizado para nossos mentorados.",
-  },
-  {
-    question: "Vocês trabalham com freelancers e startups?",
-    answer:
-      "Sim! Somos especializados em freelancer e startup. Nossa metodologia 'Projeto Você StartUP' e 'Trilha Ignição' são específicas para quem quer empreender ou trabalhar como freelancer no mercado internacional.",
+    answer: "É simples! Clique no botão 'Fale Com Um/a Mentor/a' ou entre em contato via WhatsApp (12 98106-2959). Vamos agendar uma conversa inicial gratuita para entender suas necessidades.",
   },
 ];
+
+const FAQItem = ({ faq, index, isOpen, onToggle }: any) => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePosition({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
+  return (
+    <div
+      className="relative border border-white/10 rounded-2xl overflow-hidden"
+      onMouseMove={handleMouseMove}
+      style={{
+        background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(255,255,255,0.06), transparent 40%), linear-gradient(135deg, black 0%, #1a1a1a 100%)`,
+      }}
+    >
+      {/* Radial gradient bottom-right */}
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-radial from-gray-800/20 to-transparent pointer-events-none" />
+      
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between p-6 text-left group relative z-10"
+      >
+        <h3 className="text-lg text-white pr-8 group-hover:text-white/80 transition-colors">
+          {faq.question}
+        </h3>
+        <svg 
+          className={`w-5 h-5 text-white/60 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {isOpen && (
+        <div className="px-6 pb-6 border-t border-white/10 relative z-10">
+          <p className="text-white/60 leading-relaxed pt-4">
+            {faq.answer}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const FAQSection = () => {
   const [openItems, setOpenItems] = useState<Record<number, boolean>>({});
@@ -65,75 +84,62 @@ export const FAQSection = () => {
   };
 
   return (
-    <PageSection
-      id="faq"
-      title="Perguntas Frequentes"
-      titleSize="text-4xl md:text-6xl"
-      subtitle="Tire suas dúvidas sobre nossas mentorias e descubra como podemos<br />te ajudar a transformar sua carreira"
-      bgImage=""
-      vPadding="py-20"
-    >
-      <div className="space-y-6 max-w-4xl mx-auto">
-        {faqData.map((faq, index) => (
-          <div
-            key={index}
-            className="bg-card/90 dark:bg-card/80 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-border/50"
-          >
-            <button
-              onClick={() => toggleItem(index)}
-              className="w-full flex items-center justify-between p-6 cursor-pointer hover:bg-muted/50 transition-colors text-left"
-            >
-              <h3 className="text-lg font-semibold text-foreground pr-4">
-                {faq.question}
-              </h3>
-              <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center transition-transform duration-300">
-                <svg
-                  className={`w-4 h-4 text-primary transition-transform duration-300 ${
-                    openItems[index] ? "rotate-180" : ""
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </div>
-            </button>
-            {openItems[index] && (
-              <div className="px-6 pb-6">
-                <p className="text-muted-foreground leading-relaxed">
-                  {faq.answer}
-                </p>
-              </div>
-            )}
-          </div>
-        ))}
+    <section className="relative bg-black overflow-hidden" id="faq">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/3 rounded-full blur-[150px]" />
       </div>
 
-      <div className="mt-12 text-center">
-        <div className="bg-card/90 dark:bg-card/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg max-w-2xl mx-auto border border-border/50">
-          <h2 className="text-2xl font-bold text-foreground mb-4">
-            Ainda tem dúvidas?
+      <div className="max-w-6xl min-w-[1200px] mx-auto px-6 relative z-10">
+        <div className="text-center mb-20">
+          <div className="inline-block px-4 py-2 bg-white/5 backdrop-blur-sm rounded-full border border-white/10 mb-6">
+            <span className="text-sm font-medium text-white/80 tracking-wide">FAQ</span>
+          </div>
+          
+          <h2 className="text-4xl md:text-5xl font-semibold text-white mb-6" style={{ fontFamily: 'Noto Serif Variable, serif', lineHeight: '1.3' }}>
+            <TextMotion trigger={true} stagger={0.05}>
+              Perguntas Frequentes
+            </TextMotion>
           </h2>
-          <p className="text-muted-foreground mb-6">
-            Nossa equipe está pronta para esclarecer qualquer questão e te
-            ajudar a dar o próximo passo na sua carreira.
+          <p className="text-xl text-white/60">
+            Tire suas dúvidas sobre nossas mentorias
           </p>
-          <a
-            href="https://wa.me/5512981062959"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center rounded-md px-8 py-2 text-md font-semibold transition-transform hover:scale-[1.02] focus-visible:outline-2 focus-visible:outline-offset-2 bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            Fale Com Um/a Mentor/a
-          </a>
+        </div>
+
+        {/* FAQ Items */}
+        <div className="space-y-4">
+          {faqData.map((faq, index) => (
+            <FAQItem
+              key={index}
+              faq={faq}
+              index={index}
+              isOpen={openItems[index]}
+              onToggle={() => toggleItem(index)}
+            />
+          ))}
+        </div>
+
+        <div className="mt-16 text-center">
+          <div className="p-8 rounded-2xl border border-white/10 bg-white/[0.02]">
+            <h3 className="text-2xl text-white mb-4">
+              Ainda tem dúvidas?
+            </h3>
+            <p className="text-white/60 mb-6">
+              Nossa equipe está pronta para esclarecer qualquer questão
+            </p>
+            <a
+              href="https://wa.me/5512981062959"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-white text-black hover:bg-white/90 font-medium py-3 px-8 rounded-full transition-all duration-300"
+            >
+              Fale Com Um/a Mentor/a
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </a>
+          </div>
         </div>
       </div>
-    </PageSection>
+    </section>
   );
 };

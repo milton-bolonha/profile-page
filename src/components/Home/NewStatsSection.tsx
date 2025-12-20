@@ -1,24 +1,27 @@
 import React from "react";
-import { PageSection } from "./PageSection";
+import { NumberCounter } from "@/components/ui/NumberCounter";
+import { TextMotion } from "@/components/ui/TextMotion";
 
 const stats = [
   {
-    number: "47",
+    number: 47,
     label: "Mentorados",
     description: "Profissionais transformados",
   },
   {
-    number: "465",
+    number: 465,
     label: "Sessões",
     description: "Horas de mentoria realizadas",
   },
   {
-    number: "R$424mil",
-    label: "Mentorados Já Faturaram",
+    number: 424,
+    label: "Faturamento",
     description: "Resultados comprovados",
+    prefix: "$",
+    suffix: "k",
   },
   {
-    number: "2",
+    number: 2,
     label: "Mentores",
     description: "Especialistas experientes",
   },
@@ -26,32 +29,51 @@ const stats = [
 
 export const NewStatsSection = () => {
   return (
-    <PageSection
-      id="estatisticas"
-      title="Nossos Números"
-      titleSize="text-4xl md:text-6xl"
-      subtitle="Nos últimos anos, ajudei profissionais e equipes a destravarem suas<br />carreiras e projetos com clareza, visão de mercado e ação<br />coordenada. Cada mentoria é feita sob medida, não é o mesmo remédio<br />para todo paciente, pois ninguém cresce de verdade com receita pronta."
-      bgImage=""
-      vPadding="py-20"
-    >
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-        {stats.map((stat, index) => (
-          <div
-            key={index}
-            className="text-center bg-card/80 dark:bg-card/40 backdrop-blur-sm rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-border/50"
-          >
-            <div className="text-4xl md:text-5xl font-bold text-primary mb-2">
-              {stat.number}
-            </div>
-            <div className="text-xl font-semibold text-foreground mb-2">
-              {stat.label}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              {stat.description}
-            </div>
-          </div>
-        ))}
+    <section className="relative bg-black overflow-hidden" id="stats">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-white/3 rounded-full blur-[120px]" />
       </div>
-    </PageSection>
+
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="text-center mb-20">
+          <div className="inline-block px-4 py-2 bg-white/5 backdrop-blur-sm rounded-full border border-white/10 mb-6">
+            <span className="text-sm font-medium text-white/80 tracking-wide">Números</span>
+          </div>
+          
+          <h2 className="text-4xl md:text-5xl font-semibold text-white mb-6" style={{ fontFamily: 'Noto Serif Variable, serif', lineHeight: '1.3' }}>
+            <TextMotion trigger={true} stagger={0.05}>
+              Nossos Resultados
+            </TextMotion>
+          </h2>
+          <p className="text-xl text-white/60 max-w-3xl mx-auto">
+            Nos últimos anos, ajudei profissionais e equipes a destravarem suas carreiras e projetos com clareza, visão de mercado e ação coordenada.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {stats.map((stat, index) => (
+            <div
+              key={index}
+              className="text-center p-8 rounded-2xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20 transition-all duration-500 hover:-translate-y-1"
+            >
+              <div className="text-5xl md:text-6xl font-light text-white mb-3">
+                <NumberCounter 
+                  end={stat.number} 
+                  prefix={stat.prefix}
+                  suffix={stat.suffix}
+                  duration={2.5}
+                />
+              </div>
+              <div className="text-lg text-white/90 mb-2">
+                {stat.label}
+              </div>
+              <div className="text-sm text-white/50">
+                {stat.description}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 };

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Layout } from '@/components/commons/Layout';
+import { SmoothScroll } from '@/components/commons/SmoothScroll';
 import { ThemeProvider } from '@/components/commons/ThemeProvider';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { GoogleAnalytics } from '@/components/commons/GoogleAnalytics';
@@ -28,8 +29,9 @@ function App({ Component, pageProps }: AppProps) {
   if (!PUBLISHABLE_KEY) {
     return (
       <LanguageProvider>
-        <ThemeProvider>
+        <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
           <Layout>
+            <SmoothScroll />
             <Component {...pageProps} />
           </Layout>
         </ThemeProvider>
@@ -39,7 +41,7 @@ function App({ Component, pageProps }: AppProps) {
 
   return (
     <LanguageProvider>
-      <ThemeProvider>
+      <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
         <GoogleAnalytics />
         {/* @ts-expect-error */}
         <ClerkProvider 
@@ -65,6 +67,7 @@ function App({ Component, pageProps }: AppProps) {
           }}
         >
           <Layout>
+            <SmoothScroll />
             <Component {...pageProps} />
           </Layout>
         </ClerkProvider>

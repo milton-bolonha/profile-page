@@ -39,7 +39,7 @@ const badgeItems: BadgeItem[] = [
     icon: FaQuestionCircle,
     label: "FAQ",
     href: "/#faq", // Link âncora para a seção FAQ na home
-    color: "bg-blue-500 hover:bg-blue-600",
+    color: "bg-white hover:bg-white/90",
     description: "Dúvidas frequentes",
   },
 ];
@@ -76,8 +76,8 @@ const FloatingBadge = () => {
         {isOpen ? (
           <FaTimes className="text-gray-600 dark:text-gray-300 text-2xl" />
         ) : (
-          <div className="w-8 h-8 bg-gradient-to-r from-primary to-blue-500 rounded-full flex items-center justify-center">
-            <span className="text-white text-lg font-bold">!</span>
+          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+            <span className="text-black text-lg font-bold">!</span>
           </div>
         )}
       </button>

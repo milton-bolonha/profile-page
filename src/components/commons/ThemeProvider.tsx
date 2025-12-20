@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { ThemeProvider as NextThemesProvider } from 'next-themes';
-import { ReactNode } from 'react';
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { ReactNode } from "react";
 
 interface ThemeProviderProps {
   children: ReactNode;
@@ -11,8 +11,9 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   return (
     <NextThemesProvider
       attribute="class"
-      defaultTheme="system"
-      enableSystem
+      defaultTheme="dark"
+      forcedTheme="dark"
+      enableSystem={false}
       disableTransitionOnChange={false}
     >
       {children}

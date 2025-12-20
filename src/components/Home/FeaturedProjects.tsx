@@ -1,53 +1,106 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
 import { trackEvent } from '@/lib/analytics';
+import MagneticButton from '@/components/ui/MagneticButton';
+import { TextMotion } from '@/components/ui/TextMotion';
+import { useEffect, useRef } from 'react';
 import featuredProjectsData from '../../../content/home/featuredProjects.json';
 
 export const FeaturedProjects = () => {
   const { t } = useLanguage();
+  const tiltRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    // Importar vanilla-tilt dinamicamente
+    import('vanilla-tilt').then((VanillaTilt) => {
+      tiltRefs.current.forEach((ref) => {
+        if (ref) {
+          VanillaTilt.default.init(ref, {
+            max: 5, // Tilt muito sutil
+            speed: 400,
+            glare: true,
+            'max-glare': 0.1, // Glare bem discreto
+            scale: 1.02, // Scale mínimo
+          });
+        }
+      });
+    });
+
+    return () => {
+      tiltRefs.current.forEach((ref) => {
+        if (ref && (ref as any).vanillaTilt) {
+          (ref as any).vanillaTilt.destroy();
+        }
+      });
+    };
+  }, []);
 
   return (
-    <section className="py-20 bg-gray-50 dark:bg-gray-800">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            {featuredProjectsData.titleEmoji} {t('home.projects.title')}
+    <section id="projects" className="relative bg-black overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-white/3 rounded-full blur-[150px]" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="text-center mb-20">
+          <div className="inline-block px-4 py-2 bg-white/5 backdrop-blur-sm rounded-full border border-white/10 mb-6">
+            <span className="text-sm font-medium text-white/80 tracking-wide">Portfólio</span>
+          </div>
+          
+          <h2 className="text-4xl md:text-5xl font-semibold text-white mb-6" style={{ fontFamily: 'Noto Serif Variable, serif', lineHeight: '1.3' }}>
+            {featuredProjectsData.titleEmoji}{' '}
+            <TextMotion trigger={true} stagger={0.05}>
+              {t('home.projects.title')}
+            </TextMotion>
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
+          <p className="text-xl text-white/60">
             {t('home.projects.subtitle')}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          {featuredProjectsData.projects.map((project) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          {featuredProjectsData.projects.map((project, index) => (
             <Link
               key={project.id}
               href={project.link}
               onClick={() => trackEvent('click', 'Project Card', `Project ${project.id} - Home`)}
-              className="group bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
+              className="group relative block"
             >
-              <div className="aspect-video bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center relative">
-                <span className="text-white text-6xl font-bold opacity-20">
-                  {project.id}
+              {/* Card with Tilt Effect */}
+              <div
+                ref={(el) => (tiltRefs.current[index] = el)}
+                className="aspect-[4/3] rounded-2xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20 transition-all duration-500 flex items-center justify-center relative overflow-hidden"
+                style={{ transformStyle: 'preserve-3d' }}
+              >
+                {/* Gradient overlay on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                {/* Number */}
+                <span className="text-8xl font-light text-white/10 group-hover:text-white/20 transition-colors duration-500 relative z-10">
+                  {project.id.toString().padStart(2, '0')}
                 </span>
+                
+                {/* Featured Badge */}
                 {project.featured && (
-                  <span className="absolute top-4 right-4 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full">
-                    ⭐ {t('projects.featuredBadge')}
+                  <span className="absolute top-4 right-4 bg-white/10 backdrop-blur-sm text-white text-xs font-medium px-3 py-1 rounded-full border border-white/20 z-20">
+                    ⭐ Featured
                   </span>
                 )}
               </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+
+              {/* Content */}
+              <div className="mt-6 space-y-3">
+                <h3 className="text-2xl text-white group-hover:text-white/80 transition-colors">
                   {t(project.titleKey)} {project.id}
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                <p className="text-white/60 leading-relaxed">
                   {t(project.descriptionKey)}
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  {project.techs.map((tech, idx) => (
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {project.techs.slice(0, 3).map((tech, idx) => (
                     <span
                       key={idx}
-                      className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm rounded-full"
+                      className="text-xs text-white/50"
                     >
                       {tech}
                     </span>
@@ -59,16 +112,20 @@ export const FeaturedProjects = () => {
         </div>
 
         <div className="text-center">
-          <Link
-            href="/projetos"
-            onClick={() => trackEvent('click', 'CTA', 'View All Projects - Home')}
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
-          >
-            {t('home.projects.viewAll')} →
-          </Link>
+          <MagneticButton>
+            <Link
+              href="/projetos"
+              onClick={() => trackEvent('click', 'CTA', 'View All Projects - Home')}
+              className="inline-flex items-center gap-2 bg-white text-black hover:bg-white/90 font-medium py-4 px-8 rounded-full transition-all duration-300"
+            >
+              {t('home.projects.viewAll')}
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
+          </MagneticButton>
         </div>
       </div>
     </section>
   );
 };
-

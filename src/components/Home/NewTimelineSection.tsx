@@ -1,197 +1,313 @@
-import { useState } from "react";
-import { PageSection } from "./PageSection";
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Rocket, 
   ScrollText, 
   Globe, 
-  HeartHandshake, 
-  Atom, 
   Plane, 
-  UserPlus, 
-  CheckCircle2, 
-  TrendingUp, 
-  Trophy, 
   Bot 
 } from "lucide-react";
 
-type Category = "Todos" | "Origem" | "Carreira" | "Empreendedorismo" | "Futuro";
+interface TimelineItem {
+  year: string;
+  title: string;
+  description: string;
+  icon: any;
+  category: string;
+  detailedContent?: {
+    achievements: string[];
+    technologies?: string[];
+    impact?: string;
+  };
+}
 
-const timelineData = [
+const timelineData: TimelineItem[] = [
   {
     year: "1998",
     title: "O Início da Jornada",
-    description:
-      "Nosso CEO Milton Bolonha com 11 anos, por meio de engenharia reversa, faz um site em HTML, CSS e JS dedicado ao anti-herói de anime Vegetta.",
+    description: "Com 11 anos, engenharia reversa de um site em HTML, CSS e JS dedicado ao anime Vegeta.",
     icon: Rocket,
-    category: "Origem"
+    category: "Origem",
+    detailedContent: {
+      achievements: ["Primeiro contato com programação", "Engenharia reversa autodidata"],
+      technologies: ["HTML", "CSS", "JavaScript"],
+      impact: "Descoberta da paixão pela tecnologia",
+    },
   },
   {
     year: "1999",
     title: "Tratado de Bologna",
-    description:
-      "O então Presidente FHC firma o Tratado de Bologna, logo antes de uma nova revolução industrial.",
+    description: "Assinatura do Tratado de Bologna pelo Presidente FHC, marcando o início de uma nova revolução industrial.",
     icon: ScrollText,
-    category: "Origem"
+    category: "Origem",
+    detailedContent: {
+      achievements: ["Contexto histórico brasileiro"],
+      impact: "Mudanças educacionais que influenciaram a formação",
+    },
   },
   {
     year: "2005",
     title: "Era da Internet",
-    description:
-      "A era da internet revoluciona tudo. Na época nosso CEO já trabalhava há 2 anos com tecnologia.",
+    description: "A revolução da internet transforma tudo. Aos 18 anos, já trabalhava com tecnologia há 2 anos.",
     icon: Globe,
-    category: "Carreira"
-  },
-  {
-    year: "2007-2009",
-    title: "Serviços Filantrópicos",
-    description:
-      "Milton Bolonha prestou serviços filantrópicos de tempo integral, atuando com ensino e humanitários no nordeste brasileiro.",
-    icon: HeartHandshake,
-    category: "Carreira"
-  },
-  {
-    year: "2010-2018",
-    title: "Revoluções Tecnológicas",
-    description:
-      "Diversas revoluções, a maior delas foi que as tecnologias web se tornaram primordiais. A máxima prevalece 'A Web Venceu!'",
-    icon: Atom,
-    category: "Carreira"
+    category: "Carreira",
+    detailedContent: {
+      achievements: ["Experiência prática em tecnologia", "Acompanhamento da revolução digital"],
+      technologies: ["Tecnologias web emergentes"],
+      impact: "Base sólida para carreira profissional",
+    },
   },
   {
     year: "2018",
     title: "Mercado Internacional",
-    description:
-      "Nosso CEO inicia a sua jornada de sucesso no mercado internacional. E começa a escrever o seu primeiro livro técnico.",
+    description: "Início da jornada no mercado internacional. Lançamento do primeiro livro técnico.",
     icon: Plane,
-    category: "Carreira"
-  },
-  {
-    year: "2019",
-    title: "O Aluno Zero",
-    description:
-      "O aluno zero pede para nosso CEO ensinar programação. Lançado primeiro MVP e começamos a participar de eventos de startup.",
-    icon: UserPlus,
-    category: "Empreendedorismo"
-  },
-  {
-    year: "2019/2020",
-    title: "Validação e MVP",
-    description:
-      "• Duas pesquisas de mercado\n• Validação na Techstarts Startup Weekend\n• 1º MVP\n• Início das atividades remuneradas",
-    icon: CheckCircle2,
-    category: "Empreendedorismo"
-  },
-  {
-    year: "2021-2024",
-    title: "Expansão e Sucesso",
-    description:
-      "• Marca de 70k USD em ganhos\n• Consultoria para a HapVida\n• Participação na 100 Open Startups (Nível 3)",
-    icon: TrendingUp,
-    category: "Empreendedorismo"
-  },
-  {
-    year: "2021-2024",
-    title: "Reconhecimento",
-    description:
-      "• Destaque na AC Boost 2022\n• Parceria com Descola (Cubo Itaú)\n• Participação e treinamento Anjos do Brasil",
-    icon: Trophy,
-    category: "Empreendedorismo"
+    category: "Carreira",
+    detailedContent: {
+      achievements: ["Expansão internacional", "Publicação de livro técnico"],
+      impact: "Reconhecimento internacional"
+    }
   },
   {
     year: "2025",
     title: "Futuro Presente",
-    description:
-      "• Criada as mentorias 'Trilha Ignição'\n• Nasce a nossa Inteligência Artificial, @goshDev\n• Início da fase de expansão dos mentores",
+    description: "Mentorias 'Trilha Ignição', IA @goshDev e expansão da rede de mentores.",
     icon: Bot,
-    category: "Futuro"
-  },
+    category: "Futuro",
+    detailedContent: {
+      achievements: ["Programa de mentorias", "Desenvolvimento de IA"],
+      technologies: ["Inteligência Artificial", "Machine Learning"],
+      impact: "Futuro da educação tecnológica"
+    }
+  }
 ];
 
-export default function NewTimelineSection() {
-  const [selectedCategory, setSelectedCategory] = useState<Category>("Todos");
-  const categories: Category[] = ["Todos", "Origem", "Carreira", "Empreendedorismo", "Futuro"];
+import { TextMotion } from '@/components/ui/TextMotion';
 
-  // Filtrar itens
-  const filteredItems = selectedCategory === "Todos" 
-    ? timelineData 
-    : timelineData.filter(item => item.category === selectedCategory);
+export default function NewTimelineSection() {
+  const [selectedYear, setSelectedYear] = useState<string>("1998");
+  const [isScrollLocked, setIsScrollLocked] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  const yearNavRef = useRef<HTMLDivElement>(null); // New ref for year navigation
+  const selectedItem = timelineData.find((item) => item.year === selectedYear) || timelineData[0];
+  
+  const years = timelineData.map(t => t.year);
+  const uniqueYears = Array.from(new Set(years));
+  const currentIndex = uniqueYears.indexOf(selectedYear);
+
+  useEffect(() => {
+    if (!yearNavRef.current) return; // Watch year nav instead of section
+
+    let wheelTimeout: NodeJS.Timeout;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (!isScrollLocked) return;
+
+      const currentIdx = uniqueYears.indexOf(selectedYear);
+      const isAtFirstYear = currentIdx === 0;
+      const isAtLastYear = currentIdx === uniqueYears.length - 1;
+      const scrollingUp = e.deltaY < 0;
+      const scrollingDown = e.deltaY > 0;
+
+      // Allow natural scroll at boundaries
+      if ((isAtFirstYear && scrollingUp) || (isAtLastYear && scrollingDown)) {
+        setIsScrollLocked(false);
+        return; // Let the scroll pass through
+      }
+
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Debounce wheel events
+      clearTimeout(wheelTimeout);
+      wheelTimeout = setTimeout(() => {
+        if (scrollingDown && currentIdx < uniqueYears.length - 1) {
+          setSelectedYear(uniqueYears[currentIdx + 1]);
+        } else if (scrollingUp && currentIdx > 0) {
+          setSelectedYear(uniqueYears[currentIdx - 1]);
+        }
+      }, 50);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.7) {
+            setIsScrollLocked(true);
+          } else if (!entry.isIntersecting) {
+            setIsScrollLocked(false);
+          }
+        });
+      },
+      { threshold: [0.5, 0.6, 0.7, 0.8] }
+    );
+
+    const yearNav = yearNavRef.current; // Observe year nav element
+    observer.observe(yearNav);
+    
+    // Add to window to bypass ScrollContainer
+    window.addEventListener('wheel', handleWheel, { passive: false, capture: true });
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('wheel', handleWheel, { capture: true });
+      clearTimeout(wheelTimeout);
+    };
+  }, [selectedYear, uniqueYears, isScrollLocked]);
+
+  const skipToPrevSection = () => {
+    setIsScrollLocked(false);
+    const techSection = document.getElementById('tech');
+    if (techSection) {
+      window.scrollTo({ top: techSection.offsetTop, behavior: 'smooth' });
+    }
+  };
+
+  const skipToNextSection = () => {
+    setIsScrollLocked(false);
+    const statsSection = document.getElementById('stats');
+    if (statsSection) {
+      window.scrollTo({ top: statsSection.offsetTop, behavior: 'smooth' });
+    }
+  };
 
   return (
-    <PageSection
-      id="historia"
-      title="Nossa História"
-      titleSize="text-4xl md:text-6xl"
-      subtitle="Uma jornada de mais de duas décadas transformando vidas através da tecnologia e mentoria"
-      bgImage=""
-      vPadding="py-20"
-    >
-      {/* Filtro Inteligente */}
-      <div className="flex flex-wrap justify-center gap-3 mb-16">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 transform hover:scale-105 border ${
-              selectedCategory === cat
-                ? "bg-primary text-primary-foreground border-primary shadow-lg"
-                : "bg-background text-muted-foreground border-border hover:bg-muted hover:text-foreground"
-            }`}
+    <section ref={sectionRef} className="min-h-screen flex flex-col justify-center py-20 bg-background relative overflow-hidden" id="timeline">
+      {/* Skip buttons when locked */}
+      <AnimatePresence>
+        {isScrollLocked && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="fixed bottom-24 right-6 z-50 flex flex-col gap-2"
           >
-            {cat}
-          </button>
-        ))}
+            <button
+              onClick={skipToPrevSection}
+              className="bg-black/70 backdrop-blur-md border border-white/20 rounded-full p-2 hover:bg-white/10 transition-all"
+              title="Seção anterior"
+            >
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+              </svg>
+            </button>
+            <button
+              onClick={skipToNextSection}
+              className="bg-black/70 backdrop-blur-md border border-white/20 rounded-full p-2 hover:bg-white/10 transition-all"
+              title="Próxima seção"
+            >
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[100px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-secondary/20 rounded-full blur-[80px]" />
       </div>
 
-      <div className="relative max-w-5xl mx-auto">
-        {/* Linha vertical central (apenas desktop) */}
-        <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-0.5 h-full bg-gradient-to-b from-primary/20 via-primary/50 to-primary/20"></div>
+      <div className="container mx-auto px-4 z-10">
+        <div className="mb-8 text-center">
+          <h2 className="text-4xl md:text-6xl font-semibold mb-4 text-white" style={{ fontFamily: 'Noto Serif Variable, serif', lineHeight: '1.3' }}>
+            <TextMotion trigger={true} stagger={0.05}>
+              Nossa História
+            </TextMotion>
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Uma jornada de inovação e aprendizado contínuo.
+          </p>
+        </div>
 
-        <div className="space-y-8 md:space-y-12">
-          {filteredItems.map((item, index) => {
-            const Icon = item.icon;
-            const isLeft = index % 2 === 0;
+        <div ref={yearNavRef} className="mb-2 relative px-4 md:px-6 timeline-year-nav">
+          <div className="absolute top-1/2 left-0 w-full h-px bg-white/20 -translate-y-1/2" />
+          
+          <div className="relative flex justify-between items-center w-full overflow-x-auto pb-8 scrollbar-hide md:overflow-visible">
+            {uniqueYears.map((year, i) => {
+              const isActive = year === selectedYear;
+              return (
+                <button 
+                  key={year}
+                  onClick={() => setSelectedYear(year)}
+                  className={`relative flex flex-col items-center gap-4 transition-all duration-300 min-w-[80px] group`}
+                >
+                  <div className={`w-3 h-3 rounded-full transition-all duration-300 border border-white/40 ${isActive ? 'bg-white scale-150' : 'bg-transparent hover:bg-white/20'}`} />
+                  
+                  <span className={`text-sm font-mono tracking-wider transition-all duration-300 ${isActive ? 'text-white opacity-100 font-bold' : 'text-muted-foreground opacity-50 group-hover:opacity-80'}`}>
+                    {year}
+                  </span>
 
-            return (
-              <div
-                key={index}
-                className={`flex flex-col md:flex-row items-center ${
-                  isLeft ? "md:flex-row" : "md:flex-row-reverse"
-                } group`}
-              >
-                {/* Conteúdo do card */}
-                <div className={`w-full md:w-5/12 ${isLeft ? "md:pr-12" : "md:pl-12"} mb-6 md:mb-0`}>
-                  <div className="bg-card dark:bg-card/40 backdrop-blur-sm rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 border border-border/50 hover:border-primary/30 group-hover:translate-y-[-2px]">
-                    <div className="flex items-center mb-3">
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mr-4 text-primary shrink-0">
-                        <Icon size={20} />
-                      </div>
-                      <div>
-                        <div className="text-xl font-bold text-primary">
-                          {item.year}
-                        </div>
-                        <div className="text-base font-semibold text-foreground leading-tight">
-                          {item.title}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line pl-[3.5rem]">
-                      {item.description}
-                    </div>
-                  </div>
-                </div>
+                  {isActive && (
+                    <motion.div 
+                      layoutId="activeIndicator"
+                      className="absolute top-3 w-px h-8 bg-gradient-to-b from-white to-transparent"
+                    />
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        </div>
 
-                {/* Ponto central */}
-                <div className="w-8 h-8 md:w-2/12 flex justify-center items-center z-10 my-2 md:my-0">
-                  <div className="w-4 h-4 bg-background rounded-full border-2 border-primary shadow-sm group-hover:scale-125 transition-transform duration-300"></div>
-                </div>
-
-                {/* Espaço vazio para alternar (apenas desktop) */}
-                <div className="hidden md:block md:w-5/12"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={selectedItem.year}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-6"
+            >
+              <div className="flex items-center gap-4">
+                <span className="px-3 py-1 bg-white/10 rounded-full text-xs font-mono uppercase tracking-widest text-white/80 border border-white/10">
+                  {selectedItem.category}
+                </span>
+                <div className="h-px flex-1 bg-white/10" />
               </div>
-            );
-          })}
+
+              <h3 className="text-3xl md:text-5xl font-display font-medium text-white leading-tight">
+                {selectedItem.title}
+              </h3>
+              
+              <p className="text-xl text-muted-foreground leading-relaxed">
+                {selectedItem.description}
+              </p>
+
+              {selectedItem.detailedContent && (
+                <div className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {selectedItem.detailedContent.achievements.map((achievement, idx) => (
+                    <div key={idx} className="flex items-center gap-3 text-sm text-white/60">
+                      <div className="w-1.5 h-1.5 rounded-full bg-white/40" />
+                      {achievement}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          <div className="relative flex items-center justify-center">
+            <div className="absolute inset-0 bg-white/5 rounded-full blur-3xl animate-pulse" />
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedItem.year + "-icon"}
+                initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
+                transition={{ duration: 0.4 }}
+                className="relative z-10 w-64 h-64 md:w-80 md:h-80 bg-gradient-to-br from-white/10 to-transparent border border-white/10 rounded-3xl backdrop-blur-md flex items-center justify-center shadow-2xl"
+              >
+                <selectedItem.icon size={80} strokeWidth={1} className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
       </div>
-    </PageSection>
+    </section>
   );
 }
