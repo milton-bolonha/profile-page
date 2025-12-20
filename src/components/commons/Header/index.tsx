@@ -1,15 +1,14 @@
 "use client";
 import Image from 'next/image';
 import Link from 'next/link';
-import { Roboto } from 'next/font/google';
 import { Menu } from './Menu';
 import { useCallback, useState } from 'react';
 import { MenuIcon } from '@/components/icons/MenuIcon';
 import { UserButton } from "@clerk/nextjs";
-import dynamic from 'next/dynamic'; // Importar dynamic
+import dynamic from 'next/dynamic';
 import { CustomSignInButton } from "@/components/commons/clerk/SignInButton";
 import { CustomSignOutButton } from "@/components/commons/clerk/SignOutButton";
-import { useRouter } from 'next/router'; // Importar useRouter
+import { useRouter } from 'next/router';
 import { ThemeToggle } from '@/components/commons/ThemeToggle';
 import { LanguageSwitcher } from '@/components/commons/LanguageSwitcher';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -21,14 +20,9 @@ const SignedIn = dynamic(() => import("@clerk/nextjs").then((mod) => mod.SignedI
 // @ts-expect-error
 const SignedOut = dynamic(() => import("@clerk/nextjs").then((mod) => mod.SignedOut), { ssr: false });
 
-const roboto = Roboto({
-  subsets: ['latin'],
-  weight: '500',
-});
-
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const router = useRouter(); // Obter o objeto router
+  const router = useRouter();
   const { t } = useLanguage();
   const mainMenu = getMainMenu();
   const logos = getLogos();
@@ -43,7 +37,7 @@ export const Header = () => {
 
   return (
     <header
-      className={`${roboto.className} bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 text-sm flex py-3 px-5 justify-between items-center sticky top-0 z-20 shadow-sm`}
+      className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 text-sm flex py-3 px-5 justify-between items-center sticky top-0 z-20 shadow-sm"
     >
       {/* Download Resume Button */}
       <div className="flex items-center">
@@ -86,16 +80,51 @@ export const Header = () => {
         >
           {t('navigation.about')}
         </Link>
-        <Link
-          href="/projetos"
-          className={`px-4 py-2 rounded-md transition-colors duration-200 ${
-            router.pathname === '/projetos'
-              ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-          }`}
-        >
-          {t('navigation.projects')}
-        </Link>
+        <div className="relative group">
+          <Link
+            href="/projetos"
+            className={`px-4 py-2 rounded-md transition-colors duration-200 flex items-center gap-1 ${
+              router.pathname === '/projetos'
+                ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+            }`}
+          >
+            {t('navigation.projects')}
+            <svg className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </Link>
+          
+          {/* Dropdown Menu */}
+          <div className="absolute left-0 mt-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-left z-50">
+            <div className="py-2">
+              <Link 
+                href="/projetos?category=Web App" 
+                className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400"
+              >
+                Web Apps
+              </Link>
+              <Link 
+                href="/projetos?category=E-commerce" 
+                className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400"
+              >
+                E-commerce
+              </Link>
+              <Link 
+                href="/projetos?category=Landing Page" 
+                className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400"
+              >
+                Landing Pages
+              </Link>
+              <Link 
+                href="/projetos?category=Backend" 
+                className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400"
+              >
+                Backend
+              </Link>
+            </div>
+          </div>
+        </div>
         <Link
           href="/blog"
           className={`px-4 py-2 rounded-md transition-colors duration-200 ${

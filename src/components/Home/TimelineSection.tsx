@@ -1,6 +1,6 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
-import timelineData from '../../../content/data/timeline.json';
+import timelineData from '../../../content/home/timeline.json';
 
 export const TimelineSection = () => {
   const { t } = useLanguage();

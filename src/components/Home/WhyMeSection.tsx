@@ -1,5 +1,5 @@
 import { useLanguage } from '@/contexts/LanguageContext';
-import whyMeData from '../../../content/data/whyMe.json';
+import whyMeData from '../../../content/home/whyMe.json';
 
 export const WhyMeSection = () => {
   const { t } = useLanguage();

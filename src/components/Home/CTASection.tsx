@@ -1,7 +1,7 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
 import { trackEvent } from '@/lib/analytics';
-import ctaData from '../../../content/data/cta.json';
+import ctaData from '../../../content/home/cta.json';
 
 export const CTASection = () => {
   const { t } = useLanguage();

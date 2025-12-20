@@ -1,0 +1,414 @@
+{
+  "navigation": {
+    "home": "Início",
+    "about": "Sobre",
+    "projects": "Projetos",
+    "blog": "Blog",
+    "contact": "Contato"
+  },
+  "home": {
+    "title": "Prazer, eu sou",
+    "titleBold": "Guilherme",
+    "subtitle": "Desenvolvedor Full Stack que transforma ideias em soluções digitais funcionais",
+    "whatsapp": "WhatsApp",
+    "hero": {
+      "experience": "anos de experiência"
+    },
+    "stats": {
+      "title": "Números que falam por si",
+      "projects": "Projetos Entregues",
+      "experience": "Anos de Experiência",
+      "technologies": "Tecnologias Dominadas",
+      "response": "Resposta"
+    },
+    "about": {
+      "title": "Quem sou eu?",
+      "description": "Estudante de ADS, conhecido por ser esforçado e comprometido. Transformo problemas em código limpo e funcional.",
+      "cta": "Conheça Minha História"
+    },
+    "services": {
+      "title": "Como posso ajudar seu projeto?",
+      "subtitle": "Desenvolvimento web completo com foco em resultados e qualidade de código",
+      "fullstack": {
+        "title": "Desenvolvimento Full Stack",
+        "description": "Construo aplicações web robustas e escaláveis do zero, integrando front-end moderno com APIs eficientes. Arquitetura pensada para crescer junto com seu negócio."
+      },
+      "frontend": {
+        "title": "Interfaces Modernas",
+        "description": "Crio experiências de usuário intuitivas e responsivas que funcionam perfeitamente em qualquer dispositivo. Performance otimizada para carregamento instantâneo."
+      },
+      "deploy": {
+        "title": "Deploy & Infraestrutura",
+        "description": "Configuro e otimizo toda a infraestrutura para produção. Seu projeto no ar, rápido e seguro. Monitoramento ativo e atualizações contínuas."
+      },
+      "viewAll": "Ver Todos os Serviços"
+    },
+    "whyMe": {
+      "title": "Por que me escolher?",
+      "subtitle": "Meus diferenciais",
+      "commitment": {
+        "title": "Comprometimento total",
+        "description": "Cumpro o que prometo, sempre buscando a melhor solução"
+      },
+      "learning": {
+        "title": "Aprendizado constante",
+        "description": "Sempre atualizado com as mais novas tecnologias"
+      },
+      "results": {
+        "title": "Foco em resultados",
+        "description": "Analiso profundamente antes de codificar"
+      }
+    },
+    "projects": {
+      "title": "Projetos em Destaque",
+      "subtitle": "Alguns dos meus melhores trabalhos",
+      "project1": "Sistema completo com Next.js e TypeScript",
+      "project2": "Aplicação web com React e Node.js",
+      "project3": "API REST com PostgreSQL",
+      "project4": "Plataforma personalizada com Node.js e Express",
+      "project5": "Aplicativo fitness com painel interativo para academias",
+      "viewAll": "Ver Todos os Projetos"
+    },
+    "techStack": {
+      "title": "Tecnologias que domino",
+      "subtitle": "Sempre aprendendo e evoluindo com as melhores ferramentas do mercado"
+    },
+    "timeline": {
+      "title": "Minha Jornada",
+      "subtitle": "De onde vim e para onde vou",
+      "item1": {
+        "date": "Fev 2024",
+        "title": "Início em ADS"
+      },
+      "item2": {
+        "date": "Jan 2025",
+        "title": "A.Yoshii Engenharia"
+      },
+      "item3": {
+        "date": "Jul 2025",
+        "title": "Mentoria Especializada"
+      },
+      "viewAll": "Ver Linha do Tempo Completa"
+    },
+    "cta": {
+      "title": "Pronto para tirar seu projeto do papel?",
+      "description": "Vamos conversar sobre como posso contribuir com soluções eficientes e modernas para transformar sua ideia em realidade!",
+      "button": "Entrar em Contato Agora"
+    },
+    "posts": {
+      "title": "Meus Projetos"
+    },
+    "project": {
+      "private": "Privado",
+      "public": "Público",
+      "loginRequired": "Faça login para visualizar este post.",
+      "loginRequiredLabel": "(Privado - login necessário)"
+    },
+    "technologies": {
+      "nextjs": "Next.js",
+      "react": "React",
+      "javascript": "JavaScript",
+      "nodejs": "Node.js",
+      "express": "Express",
+      "apis": "APIs REST",
+      "html5": "HTML5",
+      "css3": "CSS3",
+      "typescript": "TypeScript",
+      "tailwind": "Tailwind CSS",
+      "github": "GitHub",
+      "netlify": "Netlify"
+    }
+  },
+  "about": {
+    "title": "Sobre Mim",
+    "introduction": "Olá! Sou Guilherme Cirelli Lopes, estudante de Análise e Desenvolvimento de Sistemas, conhecido por ser esforçado e honrado em cumprir o que prometo. Meu objetivo é ajudar empreendedores e profissionais como você a transformar ideias em projetos digitais de sucesso, com soluções escaláveis, modernas e funcionais.",
+    "education": {
+      "title": "Educação",
+      "degree": "Graduando em Análise e Desenvolvimento de Sistemas",
+      "degreeShort": "Análise e Desenvolvimento de Sistemas"
+    },
+    "specialization": {
+      "title": "Especialização",
+      "area": "Desenvolvimento Web Full-Stack"
+    },
+    "services": {
+      "title": "O que posso fazer pelo seu projeto?",
+      "items": [
+        "Desenvolvimento de sites responsivos e modernos, que destacam seus produtos ou serviços.",
+        "Criação de aplicações web personalizadas, com Front-End e Back-End integrados.",
+        "Otimização e deploy em plataformas como Netlify e Vercel, garantindo performance e estabilidade.",
+        "Estruturação de sistemas eficientes usando Node.js, SQL, ReactJS e NextJS.",
+        "Documentação organizada e comunicação clara, facilitando o trabalho em equipe e futuras manutenções."
+      ]
+    },
+    "whyChoose": {
+      "title": "Por que escolher trabalhar comigo?",
+      "items": [
+        "Comprometimento total: cumpro o que prometo, estudando e aplicando soluções eficazes.",
+        "Aprendizado rápido e constante: estou sempre atualizado nas tecnologias mais recentes, oferecendo soluções modernas e eficientes.",
+        "Foco em resultados: antes de codificar, analiso e entendo profundamente o problema, garantindo que a solução atenda exatamente às suas necessidades."
+      ]
+    },
+    "skills": {
+      "title": "Minhas habilidades técnicas:",
+      "frontend": "Front-End:",
+      "backend": "Back-End:",
+      "deploy": "Deploy & Otimização:",
+      "frontendTechs": "ReactJS | NextJS | HTML5 | CSS3 | Tailwind CSS | Bootstrap | JavaScript | TypeScript",
+      "backendTechs": "Node.js | SQL | APIs REST | Git | GitHub",
+      "deployTechs": "Netlify | Vercel"
+    }
+  },
+  "projects": {
+    "title": "Meus Projetos",
+    "subtitle": "Alguns dos projetos que desenvolvi para mostrar minhas habilidades e paixão pela programação",
+    "featured": "Destaque",
+    "viewCode": "Ver Código",
+    "viewDemo": "Ver Demo",
+    "viewDetails": "Ver mais detalhes",
+    "accessProject": "Acessar Projeto",
+    "features": "Funcionalidades",
+    "technologies": "Tecnologias Utilizadas",
+    "projectNumber": "Projeto",
+    "featuredBadge": "DESTAQUE",
+    "videoPlaceholder": "Vídeo",
+    "fullscreen": {
+      "open": "Tela Cheia",
+      "close": "Fechar Tela Cheia"
+    },
+    "detail": {
+      "flowly": {
+        "features": [
+          "Organização inteligente de tarefas",
+          "Priorização automática com IA",
+          "Dashboard de produtividade",
+          "Relatórios e métricas em tempo real"
+        ],
+        "technologies": [
+          "Next.js",
+          "TypeScript",
+          "Tailwind CSS",
+          "Framer Motion"
+        ]
+      },
+      "dashboardFinance": {
+        "features": [
+          "Login seguro com Clerk",
+          "Dashboard financeiro completo",
+          "Controle de receitas e despesas",
+          "Gráficos intuitivos e análise visual",
+          "Relatórios detalhados por categoria",
+          "Interface moderna e fácil de usar"
+        ],
+        "technologies": [
+          "Next.js",
+          "TypeScript",
+          "Tailwind CSS",
+          "Clerk (Autenticação)"
+        ]
+      },
+      "astrotech": {
+        "features": [
+          "Site institucional completo para empresa de energia solar",
+          "Calculadora fotovoltaica interativa",
+          "Sessões de serviços, portfólio e depoimentos",
+          "Navegação suave e layout totalmente responsivo"
+        ],
+        "technologies": [
+          "Next.js",
+          "React",
+          "TypeScript",
+          "Tailwind CSS",
+          "Shadcn UI"
+        ]
+      },
+      "percirelli": {
+        "features": [
+          "Catálogo dinâmico de produtos",
+          "Página de venda com destaque por categorias",
+          "Layout responsivo e moderno",
+          "Navegação rápida e otimizada"
+        ],
+        "technologies": [
+          "Next.js",
+          "TypeScript",
+          "Tailwind CSS",
+          "Netlify (Deploy)"
+        ]
+      },
+      "gymcirelli": {
+        "features": [
+          "Gerenciamento completo de treinos e planos personalizados",
+          "Dashboard para acompanhar métricas de desempenho dos alunos",
+          "Agenda de aulas integrada com notificações",
+          "Interface responsiva otimizada para dispositivos móveis"
+        ],
+        "technologies": [
+          "Next.js",
+          "TypeScript",
+          "Tailwind CSS",
+          "Framer Motion",
+          "Netlify"
+        ]
+      }
+    },
+    "like": {
+      "loginRequired": "Faça login para curtir!",
+      "loginMessage": "Entre na sua conta para salvar seus projetos favoritos",
+      "likeAction": "Curtir",
+      "unlikeAction": "Descurtir"
+    },
+    "interested": {
+      "title": "Interessado em trabalhar juntos?",
+      "subtitle": "Vamos criar algo incrível juntos!",
+      "description": "Estou sempre aberto a novas oportunidades e projetos desafiadores. Se você tem uma ideia ou precisa de um desenvolvedor para sua equipe, não hesite em entrar em contato!",
+      "getInTouch": "Entrar em Contato"
+    }
+  },
+  "contact": {
+    "title": "Entre em Contato",
+    "subtitle": "Vamos conversar sobre seu próximo projeto ou oportunidade de trabalho",
+    "letsTalk": "Vamos Conversar!",
+    "description": "Estou sempre interessado em novos projetos e oportunidades. Se você tem uma ideia ou precisa de um desenvolvedor para sua equipe, não hesite em entrar em contato!",
+    "email": "E-mail",
+    "phone": "Telefone",
+    "location": "Localização",
+    "locationText": "Londrina, PR - Brasil",
+    "connect": {
+      "title": "Conecte-se Comigo",
+      "description": "Estou sempre interessado em novos projetos e oportunidades. Se você tem uma ideia ou precisa de um desenvolvedor para sua equipe, não hesite em entrar em contato!"
+    },
+    "social": {
+      "title": "Redes Sociais"
+    },
+    "sendMessage": "Enviar Mensagem",
+    "name": "Nome",
+    "namePlaceholder": "Seu nome completo",
+    "emailPlaceholder": "seu@email.com",
+    "message": "Mensagem",
+    "messagePlaceholder": "Conte-me sobre seu projeto ou oportunidade...",
+    "sendButton": "Enviar Mensagem",
+    "availability": {
+      "title": "Disponibilidade",
+      "subtitle": "Quando posso começar seu projeto",
+      "available": "Disponível",
+      "availableDesc": "Estou disponível para novos projetos e oportunidades",
+      "quickResponse": "Resposta Rápida",
+      "quickResponseDesc": "Respondo em até 24 horas em dias úteis",
+      "flexible": "Flexível",
+      "flexibleDesc": "Trabalho remotamente e me adapto ao seu cronograma"
+    },
+    "errors": {
+      "nameRequired": "Nome é obrigatório",
+      "nameWithNumbers": "Nome não pode conter números",
+      "nameInvalidChars": "Nome contém caracteres inválidos",
+      "emailRequired": "Email é obrigatório",
+      "emailInvalid": "Email inválido",
+      "messageRequired": "Mensagem é obrigatória",
+      "messageTooLong": "Mensagem muito longa (máximo 500 caracteres)"
+    },
+    "success": {
+      "title": "Mensagem Enviada!",
+      "message": "Obrigado pelo seu contato! Responderei em breve.",
+      "sendAnother": "Enviar Outra Mensagem"
+    }
+  },
+  "footer": {
+    "quickLinks": "Links Rápidos",
+    "contact": "Contato",
+    "copyright": "© 2025 Guilherme Cirelli Lopes. Todos os direitos reservados. Construído com Next.js e muito ☕."
+  },
+  "auth": {
+    "signIn": "Entrar",
+    "signOut": "Sair",
+    "loggedIn": "Conectado"
+  },
+  "download": {
+    "resume": "Baixar Currículo"
+  },
+  "cta": {
+    "letsTalk": "Vamos Conversar",
+    "getInTouch": "Entrar em Contato",
+    "viewProjects": "Ver Projetos",
+    "hireMe": "Contratar Agora",
+    "contactNow": "Fale Comigo",
+    "startProject": "Iniciar Projeto"
+  },
+  "floatingButton": {
+    "contactMe": "Fale Comigo",
+    "openMenu": "Abrir menu de contato",
+    "closeMenu": "Fechar menu de contato"
+  },
+  "socialProof": {
+    "title": "Por que me escolher?",
+    "stats": {
+      "projects": "Projetos Concluídos",
+      "experience": "Anos de Experiência",
+      "technologies": "Tecnologias Dominadas",
+      "response": "Horas de Resposta"
+    },
+    "testimonials": {
+      "title": "O que dizem sobre meu trabalho",
+      "placeholder": "Depoimentos de clientes em breve..."
+    }
+  },
+  "notFound": {
+    "pageTitle": "404 | Guilherme Cirelli",
+    "heading": "404",
+    "message1": "Oops, não conseguimos encontrar esta página!",
+    "message2": "Clique no botão abaixo para retornar à página inicial.",
+    "cta": "Ir para a Página Inicial"
+  },
+  "blog": {
+    "title": "Linha do Tempo",
+    "subtitle": "Minha jornada na programação e desenvolvimento",
+    "exclusive": {
+      "title": "Conteúdo Exclusivo",
+      "message": "Esta seção está disponível apenas para usuários autenticados. Faça login para acessar a linha do tempo completa.",
+      "loginButton": "Fazer Login",
+      "loading": "Carregando..."
+    },
+    "cta": {
+      "title": "Quer saber mais sobre minha trajetória?",
+      "description": "Se você se identifica com minha jornada e busca um desenvolvedor comprometido, vamos conversar sobre como posso contribuir com seu projeto!",
+      "button": "Entrar em Contato"
+    },
+    "timeline": [
+      {
+        "date": "Fev 2024",
+        "title": "Início na Análise e Desenvolvimento de Sistemas",
+        "description": "Comecei minha jornada acadêmica no curso superior de ADS, aprendendo os fundamentos essenciais: lógica de programação, algoritmos e estrutura de dados. Descobri como os computadores realmente funcionam, desde os sistemas binários até as redes."
+      },
+      {
+        "date": "Mar 2024 – Maio 2024",
+        "title": "Primeiros Passos no Desenvolvimento Web",
+        "description": "Mergulhei no mundo do desenvolvimento web, aprendendo HTML5, CSS3 e JavaScript. Criei meus primeiros sites e descobri a importância do Git para trabalhar em equipe. Foquei em fazer páginas que funcionam bem em qualquer dispositivo."
+      },
+      {
+        "date": "Jun 2024 – Dez 2024",
+        "title": "Explorando o Desenvolvimento Web",
+        "description": "Aprofundei meus conhecimentos criando projetos mais complexos. Aprendi a trabalhar com APIs, melhorar a experiência do usuário e dar os primeiros passos com Node.js no back-end. Cada projeto trouxe novos desafios e aprendizados."
+      },
+      {
+        "date": "Jan 2025",
+        "title": "Início na A.Yoshii Engenharia",
+        "description": "Conquistei minha primeira oportunidade profissional como Assistente de TI. Aqui, coloco em prática meus conhecimentos, ajudando a manter sistemas funcionando e resolvendo problemas reais de infraestrutura de TI."
+      },
+      {
+        "date": "Fev 2025 – Jun 2025",
+        "title": "Desenvolvendo Soluções Completas",
+        "description": "Dediquei-me a criar aplicações web do zero, unindo front-end e back-end. Trabalhei com Next.js e Node.js, sempre pensando na qualidade do código e na experiência do usuário. Cada projeto me ensinou algo novo sobre desenvolvimento profissional."
+      },
+      {
+        "date": "Jul 2025 – Atual",
+        "title": "Aprendizado com Mentoria",
+        "description": "Iniciei um programa de mentoria personalizado para aprimorar minhas habilidades em desenvolvimento web. Estou aprendendo as melhores práticas do mercado e construindo projetos reais com Next.js, React e Node.js."
+      },
+      {
+        "date": "Set 2025 – Em andamento",
+        "title": "Construindo Meu Futuro",
+        "description": "Trabalho no meu portfolio e em projetos pessoais, colocando em prática tudo que aprendi. Busco contribuir com a comunidade open source e continuo aprendendo novas tecnologias e métodos de desenvolvimento."
+      }
+    ]
+  }
+}

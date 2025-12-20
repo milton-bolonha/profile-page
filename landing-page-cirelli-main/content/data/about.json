@@ -1,0 +1,12 @@
+{
+  "about": {
+    "photo": {
+      "url": "/img/perfil2.jpeg",
+      "alt": "Guilherme Cirelli",
+      "width": 300,
+      "height": 300
+    },
+    "link": "/sobre"
+  }
+}
+

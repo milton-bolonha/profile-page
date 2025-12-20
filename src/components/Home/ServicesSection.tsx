@@ -1,6 +1,6 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
-import servicesData from '../../../content/data/services.json';
+import servicesData from '../../../content/home/services.json';
 
 export const ServicesSection = () => {
   const { t } = useLanguage();

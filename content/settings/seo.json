@@ -1,0 +1,21 @@
+{
+  "defaultAuthor": "Milton Bolonha",
+  "siteUrl": "https://miltonbolonha.com",
+  "defaultImage": "/img/og-image.jpg",
+  "brandCardImage": "/img/brand-card.jpg",
+  "themeColor": "#FF0081",
+  "twitterHandle": "@miltonbolonha",
+  "locale": "pt_BR",
+  "fbAppID": "",
+  "adsAccount": "",
+  "organization": {
+    "name": "21 Miles",
+    "url": "https://21miles.com",
+    "logo": "/logo.png"
+  },
+  "social": {
+    "github": "https://github.com/milton-bolonha",
+    "linkedin": "https://www.linkedin.com/in/milton-bolonha",
+    "upwork": "https://www.upwork.com/freelancers/miltonbolonha"
+  }
+}

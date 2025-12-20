@@ -1,13 +1,14 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
-import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getAllPostSlugs, getPostData, PostData } from '@/lib/posts';
+import { getSeoSettings } from '@/lib/seoSettings';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ClientOnly } from '@/components/commons/ClientOnly'; // Importar ClientOnly
-import { CustomSignInButton } from "@/components/commons/clerk/SignInButton"; // Importar CustomSignInButton
-import dynamic from 'next/dynamic'; // Importar dynamic
+import { ClientOnly } from '@/components/commons/ClientOnly';
+import { CustomSignInButton } from "@/components/commons/clerk/SignInButton";
+import Seo from '@/components/commons/Seo';
+import dynamic from 'next/dynamic';
 
 // Importar SignedIn e SignedOut dinamicamente para garantir que sejam renderizados apenas no cliente
 // @ts-expect-error
@@ -17,12 +18,31 @@ const SignedOut = dynamic(() => import("@clerk/nextjs").then((mod) => mod.Signed
 
 interface PostProps {
   postData: PostData;
+  seoSettings: any;
 }
 
-const Post = ({ postData }: PostProps) => {
+const Post = ({ postData, seoSettings }: PostProps) => {
   if (!postData) {
     return <div className="container mx-auto px-4 py-8">Carregando...</div>;
   }
+
+  // Prepare SEO data
+  const seoData = {
+    title: postData.title,
+    description: (postData as any).description || postData.content.substring(0, 160),
+    keywords: (postData as any).keywords || [],
+    author: postData.author,
+    siteUrl: seoSettings.siteUrl,
+    slug: `/posts/${postData.slug}`,
+    articleUrl: `${seoSettings.siteUrl}/posts/${postData.slug}`,
+    featuredImage: (postData as any).featuredImage || seoSettings.defaultImage,
+    brandCardImage: seoSettings.brandCardImage,
+    topology: 'post' as const,
+    datePublished: postData.date,
+    themeColor: seoSettings.themeColor,
+    twitterHandle: seoSettings.twitterHandle,
+    locale: seoSettings.locale,
+  };
 
   const ImageRenderer = ({ node, ...props }: any) => {
     return (
@@ -46,9 +66,7 @@ const Post = ({ postData }: PostProps) => {
 
   return (
     <>
-      <Head>
-        <title>{postData.title}</title>
-      </Head>
+      <Seo data={seoData} />
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold mb-8 text-center">{postData.title}</h1>
 
@@ -147,9 +165,12 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps<PostProps> = async ({ params }) => {
   const postData = await getPostData(params?.slug as string);
+  const seoSettings = getSeoSettings();
+  
   return {
     props: {
       postData,
+      seoSettings,
     },
   };
 };

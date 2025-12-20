@@ -1,0 +1,23 @@
+{
+  "reasons": [
+    {
+      "id": "commitment",
+      "icon": "",
+      "titleKey": "home.whyMe.commitment.title",
+      "descriptionKey": "home.whyMe.commitment.description"
+    },
+    {
+      "id": "learning",
+      "icon": "",
+      "titleKey": "home.whyMe.learning.title",
+      "descriptionKey": "home.whyMe.learning.description"
+    },
+    {
+      "id": "results",
+      "icon": "",
+      "titleKey": "home.whyMe.results.title",
+      "descriptionKey": "home.whyMe.results.description"
+    }
+  ]
+}
+

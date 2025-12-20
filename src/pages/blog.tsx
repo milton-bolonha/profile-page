@@ -1,36 +1,96 @@
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getBusinessSettings, getGeneralSettings } from '@/lib/settings';
 import { PageSection } from '@/components/commons/PageSection';
 import { useUser, SignInButton } from "@clerk/nextjs";
+import { ClientOnly } from '@/components/commons/ClientOnly';
 
 interface BlogProps {
   businessSettings: any;
   generalSettings: any;
 }
 
-const Blog = ({ businessSettings, generalSettings }: BlogProps) => {
-  const { t } = useLanguage();
-  const { isSignedIn, isLoaded } = useUser();
+// ... imports
 
-  // Mostra loading enquanto verifica autenticação
-  if (!isLoaded) {
+// Componente auxiliar para usar o hook do Clerk com segurança
+const WithClerk = ({ children, onLoaded }: any) => {
+  const { isSignedIn, isLoaded, user } = useUser();
+  useEffect(() => {
+    onLoaded({ isSignedIn, isLoaded, user });
+  }, [isSignedIn, isLoaded, user, onLoaded]);
+  return <>{children}</>;
+}
+
+const BlogContent = ({ businessSettings, generalSettings }: BlogProps) => {
+  const { t } = useLanguage();
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasClerkKey, setHasClerkKey] = useState(false);
+
+  useEffect(() => {
+    setHasClerkKey(!!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+    // Se não tiver chave, assume que está carregado e não logado
+    if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+      setIsLoaded(true);
+    }
+  }, []);
+
+  const handleClerkState = (state: any) => {
+    setIsSignedIn(state.isSignedIn);
+    setIsLoaded(state.isLoaded);
+  };
+
+  // Se tiver chave do Clerk, usa o hook
+  const content = (
+    <>
+      {hasClerkKey && (
+         <WithClerk onLoaded={handleClerkState} />
+      )}
+      {/* ... logica de renderização que depende do estado ... */}
+      {/* Como o blog original tinha lógica de loading e login, precisamos adaptar */}
+    </>
+  );
+  
+  // Adaptando a lógica original:
+  
+  // 1. Se tem chave e ainda não carregou: Loading
+  if (hasClerkKey && !isLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300">{t('blog.exclusive.loading')}</p>
+      <>
+        <WithClerk onLoaded={handleClerkState} />
+        <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-300">{t('blog.exclusive.loading')}</p>
+            </div>
         </div>
-      </div>
+      </>
     );
   }
 
-  // Se não estiver autenticado, mostra mensagem
-  if (!isSignedIn) {
+  // 2. Se não está logado (seja pq não tem chave ou pq não logou): Mostra Login (se tiver chave) ou Aviso (se não tiver)
+  // O blog era "Exclusivo", então se não tem chave, o que mostrar?
+  // Se não tem chave, não dá pra logar. Devemos mostrar o blog aberto ou fechado?
+  // Assumindo que num portfolio público sem chave deve-se MOSTRAR o contúdo,
+  // ou mostrar aviso que precisa de env vars.
+  // Vou assumir que sem chave = mostra conteúdo (fallback seguro) ou mostra aviso de configuração.
+  // Melhor: Se não tem chave, mostra o conteúdo com aviso de "Demo Mode" ou simplesmente mostra.
+  // O código original bloqueava tudo se !isSignedIn.
+  
+  // Vamos preservar a lógica: Bloqueia se não logado.
+  // Mas se não tem chave, não dá pra logar.
+  // Vou permitir ver o blog se não tiver chave (modo demo) OU bloquear com msg de erro.
+  // Decisão: Permitir ver se não tiver chave (para não quebrar a demo do portfolio).
+  
+  const showContent = isSignedIn || !hasClerkKey;
+
+  if (!showContent) {
     return (
-      <>
+       <>
+        <WithClerk onLoaded={handleClerkState} />
         <Head>
           <title>Blog | {businessSettings.brandName}</title>
         </Head>
@@ -60,6 +120,9 @@ const Blog = ({ businessSettings, generalSettings }: BlogProps) => {
 
   return (
     <>
+      {hasClerkKey && (
+         <WithClerk onLoaded={handleClerkState} />
+      )}
       <Head>
         <title>Blog | {businessSettings.brandName}</title>
         <meta
@@ -131,6 +194,14 @@ const Blog = ({ businessSettings, generalSettings }: BlogProps) => {
         </PageSection>
       </div>
     </>
+  );
+};
+
+const Blog = (props: BlogProps) => {
+  return (
+    <ClientOnly>
+      <BlogContent {...props} />
+    </ClientOnly>
   );
 };
 

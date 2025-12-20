@@ -79,6 +79,10 @@
   border-color: hsl(var(--border));
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: "Inter Variable", sans-serif;
   background-color: hsl(var(--background));

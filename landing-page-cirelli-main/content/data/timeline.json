@@ -1,0 +1,21 @@
+{
+  "titleEmoji": "",
+  "timeline": [
+    {
+      "id": "item1",
+      "dateKey": "home.timeline.item1.date",
+      "titleKey": "home.timeline.item1.title"
+    },
+    {
+      "id": "item2",
+      "dateKey": "home.timeline.item2.date",
+      "titleKey": "home.timeline.item2.title"
+    },
+    {
+      "id": "item3",
+      "dateKey": "home.timeline.item3.date",
+      "titleKey": "home.timeline.item3.title"
+    }
+  ]
+}
+

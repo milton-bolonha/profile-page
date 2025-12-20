@@ -1,9 +1,12 @@
-import { Roboto } from 'next/font/google';
+// Fontsource fonts are imported in globals.css
+// This file is kept for potential future font configurations
+// Currently using:
+// - @fontsource-variable/inter
+// - @fontsource-variable/geologica  
+// - @fontsource/space-mono
 
-export const roboto = Roboto({
-  subsets: ['latin'],
-  weight: ['400', '500', '700'],
-  display: 'swap',
-  preload: true,
-  fallback: ['system-ui', 'arial'],
-});
+export const fontConfig = {
+  primary: 'Inter Variable, sans-serif',
+  secondary: 'Geologica Variable, sans-serif',
+  mono: 'Space Mono, monospace',
+};

@@ -1,10 +1,11 @@
-import { GetStaticProps } from 'next';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getBusinessSettings, getGeneralSettings } from '@/lib/settings';
 import { useUser } from '@clerk/nextjs';
+import { ClientOnly } from '@/components/commons/ClientOnly';
 
 interface ProjetosProps {
   businessSettings: any;
@@ -19,11 +20,40 @@ interface Projeto {
   funcionalidades: string[];
   tecnologias: string[];
   featured: boolean;
+  category: string;
 }
 
-const Projetos = ({ businessSettings, generalSettings }: ProjetosProps) => {
+const WithClerk = ({ children, onLoaded }: any) => {
+  const { isSignedIn, isLoaded, user } = useUser();
+  useEffect(() => {
+    onLoaded({ isSignedIn, isLoaded, user });
+  }, [isSignedIn, isLoaded, user, onLoaded]);
+  return <>{children}</>;
+}
+
+const ProjetosContent = ({ businessSettings, generalSettings }: ProjetosProps) => {
   const { t } = useLanguage();
-  const { isSignedIn, user, isLoaded } = useUser();
+  const router = useRouter(); // Importante: usar router para ler query params
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasClerkKey, setHasClerkKey] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("Todos");
+  
+  useEffect(() => {
+     setHasClerkKey(!!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+  }, []);
+
+  // Ler categoria da URL na montagem ou quando mudar
+  useEffect(() => {
+    if (router.query.category) {
+      setSelectedCategory(router.query.category as string);
+    }
+  }, [router.query.category]);
+
+  const handleClerkState = (state: any) => {
+    setIsSignedIn(state.isSignedIn);
+    setIsLoaded(state.isLoaded);
+  };
   
   const projetos: Projeto[] = [
     {
@@ -38,7 +68,8 @@ const Projetos = ({ businessSettings, generalSettings }: ProjetosProps) => {
         "Funcionalidade 4"
       ],
       tecnologias: ["Next.js", "TypeScript", "Tailwind CSS", "React"],
-      featured: true
+      featured: true,
+      category: "Web App"
     },
     {
       id: 2,
@@ -52,7 +83,8 @@ const Projetos = ({ businessSettings, generalSettings }: ProjetosProps) => {
         "Funcionalidade 4"
       ],
       tecnologias: ["React", "Node.js", "Express", "MongoDB"],
-      featured: true
+      featured: true,
+      category: "E-commerce"
     },
     {
       id: 3,
@@ -66,7 +98,8 @@ const Projetos = ({ businessSettings, generalSettings }: ProjetosProps) => {
         "Funcionalidade 4"
       ],
       tecnologias: ["Next.js", "PostgreSQL", "Prisma", "API REST"],
-      featured: true
+      featured: true,
+      category: "Web App"
     },
     {
       id: 4,
@@ -80,7 +113,8 @@ const Projetos = ({ businessSettings, generalSettings }: ProjetosProps) => {
         "Funcionalidade 4"
       ],
       tecnologias: ["Node.js", "Express", "JWT", "Swagger"],
-      featured: false
+      featured: false,
+      category: "Backend"
     },
     {
       id: 5,
@@ -94,7 +128,8 @@ const Projetos = ({ businessSettings, generalSettings }: ProjetosProps) => {
         "Funcionalidade 4"
       ],
       tecnologias: ["React", "CSS3", "JavaScript", "HTML5"],
-      featured: false
+      featured: false,
+      category: "Landing Page"
     },
     {
       id: 6,
@@ -108,7 +143,8 @@ const Projetos = ({ businessSettings, generalSettings }: ProjetosProps) => {
         "Funcionalidade 4"
       ],
       tecnologias: ["Next.js", "API REST", "Tailwind", "TypeScript"],
-      featured: false
+      featured: false,
+      category: "Web App"
     },
     {
       id: 7,
@@ -122,7 +158,8 @@ const Projetos = ({ businessSettings, generalSettings }: ProjetosProps) => {
         "Funcionalidade 4"
       ],
       tecnologias: ["React", "Firebase", "Material UI", "JavaScript"],
-      featured: false
+      featured: false,
+      category: "E-commerce"
     },
     {
       id: 8,
@@ -136,7 +173,8 @@ const Projetos = ({ businessSettings, generalSettings }: ProjetosProps) => {
         "Funcionalidade 4"
       ],
       tecnologias: ["Node.js", "SQL", "Express", "Bootstrap"],
-      featured: false
+      featured: false,
+      category: "Backend"
     },
     {
       id: 9,
@@ -150,7 +188,8 @@ const Projetos = ({ businessSettings, generalSettings }: ProjetosProps) => {
         "Funcionalidade 4"
       ],
       tecnologias: ["React", "GraphQL", "Apollo", "Styled Components"],
-      featured: false
+      featured: false,
+      category: "Web App"
     },
     {
       id: 10,
@@ -164,10 +203,32 @@ const Projetos = ({ businessSettings, generalSettings }: ProjetosProps) => {
         "Funcionalidade 4"
       ],
       tecnologias: ["Next.js", "Vercel", "Netlify", "Git"],
-      featured: false
+      featured: false,
+      category: "DevOps"
     }
   ];
 
+  // Identificar todas as categorias únicas
+  const categories = ["Todos", ...Array.from(new Set(projetos.map(p => p.category)))];
+
+  // Filtrar projetos
+  const filteredProjetos = selectedCategory === "Todos" 
+    ? projetos 
+    : projetos.filter(p => p.category === selectedCategory);
+
+  // Garantir que sempre há um projeto selecionado quando a lista muda
+  // Se o projeto selecionado anteriormente não está na nova lista filtrada, selecione o primeiro da lista filtrada
+  useEffect(() => {
+    if (filteredProjetos.length > 0) {
+      const exists = filteredProjetos.find(p => p.id === projetoSelecionado.id);
+      if (!exists) {
+        setProjetoSelecionado(filteredProjetos[0]);
+      }
+    }
+  }, [selectedCategory, filteredProjetos, projetoSelecionado]);
+
+
+  // const [projetoSelecionado, setProjetoSelecionado] = useState<Projeto>(projetos[0]); // Removido pois agora depende do filtro
   const [projetoSelecionado, setProjetoSelecionado] = useState<Projeto>(projetos[0]);
   const [likes, setLikes] = useState<Record<number, boolean>>({});
   const painelCentralRef = useRef<HTMLDivElement>(null);
@@ -282,6 +343,9 @@ const Projetos = ({ businessSettings, generalSettings }: ProjetosProps) => {
 
   return (
     <>
+      {hasClerkKey && (
+         <withClerk onLoaded={handleClerkState} />
+      )}
       <Head>
         <title>{t('projects.title')} | {businessSettings.brandName}</title>
         <meta
@@ -532,6 +596,14 @@ const Projetos = ({ businessSettings, generalSettings }: ProjetosProps) => {
         </div>
       </div>
     </>
+  );
+};
+
+const Projetos = (props: ProjetosProps) => {
+  return (
+    <ClientOnly>
+      <ProjetosContent {...props} />
+    </ClientOnly>
   );
 };
 

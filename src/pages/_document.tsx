@@ -16,14 +16,6 @@ export default function Document() {
 
         {/* Metatags Twitter padrão */}
         <meta name="twitter:card" content="summary_large_image" />
-
-        {/* Preconnect para recursos externos */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
       </Head>
       <body className="bg-white dark:bg-gray-900">
         {/* Formulário estático oculto para Netlify Forms detectar durante o build */}

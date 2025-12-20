@@ -1,0 +1,19 @@
+{
+  "linkTree": [
+    {
+      "href": "https://www.linkedin.com/in/guicirelli/",
+      "label": "LinkedIn",
+      "icon": "FaLinkedin"
+    },
+    {
+      "href": "https://github.com/guicirelli",
+      "label": "GitHub",
+      "icon": "FaGithub"
+    },
+    {
+      "href": "mailto:guilherme@cirelli.dev",
+      "label": "Email",
+      "icon": "FaEnvelope"
+    }
+  ]
+}

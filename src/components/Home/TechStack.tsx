@@ -1,5 +1,5 @@
 import { useLanguage } from '@/contexts/LanguageContext';
-import technologiesData from '../../../content/data/technologies.json';
+import technologiesData from '../../../content/home/technologies.json';
 
 export const TechStack = () => {
   const { t } = useLanguage();

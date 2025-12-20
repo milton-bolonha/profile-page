@@ -12,6 +12,7 @@ import { getSortedPostsData, PostData } from '@/lib/posts';
 import { useUser } from "@clerk/nextjs";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getBusinessSettings, getGeneralSettings } from '@/lib/settings';
+import { ClientOnly } from '@/components/commons/ClientOnly';
 
 import homeData from '../../public/home.json';
 
@@ -30,7 +31,7 @@ interface HomeProps {
   generalSettings: any;
 }
 
-const Home = ({ home, allPostsData, businessSettings, generalSettings }: HomeProps) => {
+const HomeContent = ({ home, allPostsData, businessSettings, generalSettings }: HomeProps) => {
   const { aboutMe } = home || { aboutMe: {} as TAboutMe };
   const { t } = useLanguage();
   const { isSignedIn } = useUser(); // Usar o hook useUser
@@ -122,6 +123,14 @@ const Home = ({ home, allPostsData, businessSettings, generalSettings }: HomePro
         <CTASection />
       </div>
     </>
+  );
+};
+
+const Home = (props: HomeProps) => {
+  return (
+    <ClientOnly>
+      <HomeContent {...props} />
+    </ClientOnly>
   );
 };
 

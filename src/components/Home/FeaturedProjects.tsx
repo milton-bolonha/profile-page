@@ -1,7 +1,7 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
 import { trackEvent } from '@/lib/analytics';
-import featuredProjectsData from '../../../content/data/featuredProjects.json';
+import featuredProjectsData from '../../../content/home/featuredProjects.json';
 
 export const FeaturedProjects = () => {
   const { t } = useLanguage();

@@ -1,0 +1,66 @@
+{
+  "titleEmoji": "",
+  "projects": [
+    {
+      "id": 1,
+      "slug": "gymcirelli",
+      "title": "GymCirelli",
+      "titleKey": "projects.projectNumber",
+      "descriptionKey": "home.projects.project5",
+      "techs": ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion"],
+      "featured": true,
+      "link": "https://gymcirelli.netlify.app",
+      "video": "https://youtu.be/e2uZdqkvkjo",
+      "thumbnail": "/img/Capa Gymcirelli.jpg"
+    },
+    {
+      "id": 2,
+      "slug": "dashboard-finance",
+      "title": "Dashboard Finance",
+      "titleKey": "projects.projectNumber",
+      "descriptionKey": "home.projects.project1",
+      "techs": ["Next.js", "TypeScript", "Tailwind CSS", "Clerk (Autenticação)"],
+      "featured": true,
+      "link": "/projetos?project=dashboard-finance",
+      "video": "https://youtu.be/-j4lTFwXuV4",
+      "thumbnail": "/img/foto finance.jpg"
+    },
+    {
+      "id": 3,
+      "slug": "percirelli-store",
+      "title": "Percirelli Store",
+      "titleKey": "projects.projectNumber",
+      "descriptionKey": "home.projects.project4",
+      "techs": ["Next.js", "TypeScript", "Tailwind CSS", "Netlify (Deploy)"],
+      "featured": false,
+      "link": "/projetos?project=percirelli-store",
+      "video": "https://youtu.be/VLmlayFToJU",
+      "thumbnail": "/img/foto percirelli.jpg"
+    },
+    {
+      "id": 4,
+      "slug": "flowly",
+      "title": "Flowly",
+      "titleKey": "projects.projectNumber",
+      "descriptionKey": "home.projects.project3",
+      "techs": ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion"],
+      "featured": false,
+      "link": "/projetos?project=flowly",
+      "video": "https://youtu.be/FQJ8rQ-12QI",
+      "thumbnail": "/img/foto flowly.jpg"
+    },
+    {
+      "id": 5,
+      "slug": "astrotech-solar",
+      "title": "AstroTech Solar",
+      "titleKey": "projects.projectNumber",
+      "descriptionKey": "home.projects.project2",
+      "techs": ["Next.js", "React", "TypeScript", "Tailwind CSS", "Shadcn UI"],
+      "featured": false,
+      "link": "/projetos?project=astrotech-solar",
+      "video": "https://youtu.be/S5iUl3sFbag",
+      "thumbnail": "/img/foto astrotech.jpg"
+    }
+  ]
+}
+

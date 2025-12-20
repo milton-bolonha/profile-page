@@ -2,7 +2,7 @@ import { OptimizedImage } from "@/components/commons/OptimizedImage";
 import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { trackEvent } from "@/lib/analytics";
-import heroData from "../../../content/data/hero.json";
+import heroData from "../../../content/home/hero.json";
 
 export const Inicio = () => {
   const { t } = useLanguage();

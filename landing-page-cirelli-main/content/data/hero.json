@@ -1,0 +1,19 @@
+{
+  "hero": {
+    "badge": {
+      "icon": "",
+      "textKey": "about.education.degreeShort"
+    },
+    "experienceBadge": {
+      "number": "2+",
+      "textKey": "home.hero.experience"
+    },
+    "photo": {
+      "url": "/img/foto perfil.jpeg",
+      "alt": "Guilherme Cirelli Lopes",
+      "width": 400,
+      "height": 400
+    }
+  }
+}
+

@@ -1,5 +1,5 @@
 import { useLanguage } from '@/contexts/LanguageContext';
-import statsData from '../../../content/data/stats.json';
+import statsData from '../../../content/home/stats.json';
 
 export const StatsSection = () => {
   const { t } = useLanguage();

@@ -2,7 +2,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
 import Image from 'next/image';
 import { trackEvent } from '@/lib/analytics';
-import aboutData from '../../../content/data/about.json';
+import aboutData from '../../../content/home/about.json';
 
 export const AboutSection = () => {
   const { t } = useLanguage();
