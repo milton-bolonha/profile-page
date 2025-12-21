@@ -35,7 +35,7 @@ export const Header = () => {
 
   return (
     <header
-      className="bg-black border-b border-white/10 text-sm flex py-3 px-5 justify-between items-center sticky top-0 z-20 shadow-sm"
+      className="bg-black text-sm flex py-3 px-5 justify-between items-center sticky top-0 z-20"
     >
       {/* Download Resume Button */}
       <div className="flex items-center">
@@ -62,8 +62,8 @@ export const Header = () => {
           href="/"
           className={`px-4 py-2 rounded-md transition-colors duration-200 ${
             router.pathname === '/'
-              ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+              ? 'bg-blue-600 text-white'
+              : 'text-white/80 hover:bg-white/10 hover:text-white'
           }`}
         >
           {t('navigation.home')}

@@ -102,7 +102,7 @@ export const FAQSection = () => {
             <span className="text-sm font-medium text-white/80 tracking-wide">FAQ</span>
           </div>
           
-          <h2 className="text-4xl md:text-5xl font-semibold text-white mb-6" style={{ fontFamily: 'Noto Serif Variable, serif', lineHeight: '1.3' }}>
+          <h2 className="text-3xl md:text-4xl font-semibold text-white mb-6" style={{ fontFamily: 'Noto Serif Variable, serif', lineHeight: '1.3' }}>
             <TextMotion trigger={true} stagger={0.05}>
               Perguntas Frequentes
             </TextMotion>
