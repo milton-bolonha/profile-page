@@ -55,7 +55,7 @@ export const Footer = ({ className = "" }: FooterProps) => {
   };
 
   return (
-    <footer className={`bg-black border-t border-white/10 ${className}`}>
+    <footer className={`bg-black ${className}`}>
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
           
@@ -71,9 +71,6 @@ export const Footer = ({ className = "" }: FooterProps) => {
 
           {/* Links */}
           <div>
-            <h3 className="text-sm font-medium text-white/80 mb-4 tracking-wide">
-              NAVEGAÇÃO
-            </h3>
             <ul className="space-y-3">
               <li>
                 <Link href="/" className="text-white/60 hover:text-white transition-colors">

@@ -46,7 +46,7 @@ export const PageSection = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center mb-16">
           <h2
-            className={`${titleSize} font-bold text-foreground mb-6 ClashDisplay`}
+            className={`${titleSize} font-bold text-foreground mb-6 Geologica`}
           >
             <TextMotion trigger={true} stagger={0.05}>
               {title}

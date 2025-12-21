@@ -72,8 +72,8 @@ export const Header = () => {
           href="/sobre"
           className={`px-4 py-2 rounded-md transition-colors duration-200 ${
             router.pathname === '/sobre'
-              ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+              ? 'bg-blue-600 text-white'
+              : 'text-white/80 hover:bg-white/10 hover:text-white'
           }`}
         >
           {t('navigation.about')}
@@ -83,8 +83,8 @@ export const Header = () => {
             href="/projetos"
             className={`px-4 py-2 rounded-md transition-colors duration-200 flex items-center gap-1 ${
               router.pathname === '/projetos'
-                ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                ? 'bg-blue-600 text-white'
+                : 'text-white/80 hover:bg-white/10 hover:text-white'
             }`}
           >
             {t('navigation.projects')}
@@ -94,29 +94,29 @@ export const Header = () => {
           </Link>
           
           {/* Dropdown Menu */}
-          <div className="absolute left-0 mt-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-left z-50">
+          <div className="absolute left-0 mt-0 w-48 bg-gray-900 rounded-lg shadow-xl border border-white/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-left z-50">
             <div className="py-2">
               <Link 
                 href="/projetos?category=Web App" 
-                className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400"
+                className="block px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white"
               >
                 Web Apps
               </Link>
               <Link 
                 href="/projetos?category=E-commerce" 
-                className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400"
+                className="block px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white"
               >
                 E-commerce
               </Link>
               <Link 
                 href="/projetos?category=Landing Page" 
-                className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400"
+                className="block px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white"
               >
                 Landing Pages
               </Link>
               <Link 
                 href="/projetos?category=Backend" 
-                className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400"
+                className="block px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white"
               >
                 Backend
               </Link>
@@ -127,8 +127,8 @@ export const Header = () => {
           href="/blog"
           className={`px-4 py-2 rounded-md transition-colors duration-200 ${
             router.pathname === '/blog'
-              ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+              ? 'bg-blue-600 text-white'
+              : 'text-white/80 hover:bg-white/10 hover:text-white'
           }`}
         >
           {t('navigation.blog')}
@@ -137,8 +137,8 @@ export const Header = () => {
           href="/contato"
           className={`px-4 py-2 rounded-md transition-colors duration-200 ${
             router.pathname === '/contato'
-              ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+              ? 'bg-blue-600 text-white'
+              : 'text-white/80 hover:bg-white/10 hover:text-white'
           }`}
         >
           {t('navigation.contact')}
@@ -148,7 +148,6 @@ export const Header = () => {
       {/* Right side actions */}
       <div className="hidden md:flex items-center gap-4">
         <LanguageSwitcher />
-        <ThemeToggle />
         {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && (
           <>
             <SignedIn>

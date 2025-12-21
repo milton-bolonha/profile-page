@@ -230,7 +230,7 @@ export default function HorizontalTimelineSection() {
     <PageSection
       id="historia"
       title="Nossa História"
-      titleSize="text-4xl md:text-6xl ClashDisplay"
+      titleSize="text-4xl md:text-6xl Geologica"
       subtitle="Uma jornada de mais de duas décadas transformando vidas através da tecnologia e mentoria"
       bgImage=""
       vPadding="py-20"

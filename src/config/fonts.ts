@@ -2,7 +2,7 @@
 // This file is kept for potential future font configurations
 // Currently using:
 // - @fontsource-variable/inter
-// - @fontsource-variable/geologica
+// - @fontsource-variable/Geologica
 // - @fontsource/space-mono
 // - Google Fonts: Cal Sans, Clash Display
 
