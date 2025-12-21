@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // Dynamic import para evitar problemas de SSR
 let Lenis: any = null;

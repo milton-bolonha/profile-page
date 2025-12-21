@@ -1,12 +1,12 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 
 interface AnimoconProps {
-  type?: 'like' | 'heart';
+  type?: "like" | "heart";
   size?: number;
 }
 
-export const Animocon = ({ type = 'like', size = 24 }: AnimoconProps) => {
+export const Animocon = ({ type = "like", size = 24 }: AnimoconProps) => {
   const [isActive, setIsActive] = useState(false);
   const [showParticles, setShowParticles] = useState(false);
 
@@ -27,13 +27,17 @@ export const Animocon = ({ type = 'like', size = 24 }: AnimoconProps) => {
       {/* Main emoji with bounce */}
       <motion.span
         className="text-2xl relative z-10"
-        animate={isActive ? {
-          scale: [1, 1.5, 1.2, 1],
-          rotate: [0, -15, 15, -10, 10, 0],
-        } : { scale: 1 }}
-        transition={{ duration: 0.6, type: 'spring', stiffness: 300 }}
+        animate={
+          isActive
+            ? {
+                scale: [1, 1.5, 1.2, 1],
+                rotate: [0, -15, 15, -10, 10, 0],
+              }
+            : { scale: 1 }
+        }
+        transition={{ duration: 0.6, type: "tween" as const }}
       >
-        {type === 'like' ? '👍' : '❤️'}
+        {type === "like" ? "👍" : "❤️"}
       </motion.span>
 
       {/* Circular fill expanding */}
@@ -46,14 +50,14 @@ export const Animocon = ({ type = 'like', size = 24 }: AnimoconProps) => {
               initial={{ scale: 0, opacity: 0.8 }}
               animate={{ scale: 3, opacity: 0 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.6, ease: 'easeOut' }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
             />
             <motion.div
               className="absolute inset-0 rounded-full bg-yellow-300"
               initial={{ scale: 0, opacity: 0.5 }}
               animate={{ scale: 3.5, opacity: 0 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
+              transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
             />
 
             {/* Sparkles */}
@@ -61,7 +65,7 @@ export const Animocon = ({ type = 'like', size = 24 }: AnimoconProps) => {
               <motion.div
                 key={i}
                 className="absolute w-1 h-1 bg-yellow-400 rounded-full"
-                style={{ left: '50%', top: '50%' }}
+                style={{ left: "50%", top: "50%" }}
                 initial={{ scale: 0, x: 0, y: 0, opacity: 1 }}
                 animate={{
                   scale: [0, 1, 0],
@@ -70,7 +74,7 @@ export const Animocon = ({ type = 'like', size = 24 }: AnimoconProps) => {
                   opacity: [1, 1, 0],
                 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
               />
             ))}
 
@@ -79,7 +83,7 @@ export const Animocon = ({ type = 'like', size = 24 }: AnimoconProps) => {
               <motion.div
                 key={`plus-${i}`}
                 className="absolute text-yellow-400 text-xs font-bold"
-                style={{ left: '50%', top: '50%' }}
+                style={{ left: "50%", top: "50%" }}
                 initial={{ scale: 0, x: 0, y: 0, opacity: 1 }}
                 animate={{
                   scale: [0, 1.5, 0],
@@ -89,7 +93,7 @@ export const Animocon = ({ type = 'like', size = 24 }: AnimoconProps) => {
                   rotate: 360,
                 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.7, ease: 'easeOut' }}
+                transition={{ duration: 0.7, ease: "easeOut" }}
               >
                 +
               </motion.div>
@@ -103,12 +107,14 @@ export const Animocon = ({ type = 'like', size = 24 }: AnimoconProps) => {
 
 // Global click feedback
 export const GlobalClickFeedback = () => {
-  const [clicks, setClicks] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [clicks, setClicks] = useState<{ id: number; x: number; y: number }[]>(
+    []
+  );
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (!target.closest('a, button, input, textarea, select')) {
+      if (!target.closest("a, button, input, textarea, select")) {
         const id = Date.now();
         setClicks((prev) => [...prev, { id, x: e.clientX, y: e.clientY }]);
         setTimeout(() => {
@@ -117,15 +123,19 @@ export const GlobalClickFeedback = () => {
       }
     };
 
-    document.addEventListener('click', handleClick);
-    return () => document.removeEventListener('click', handleClick);
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
   }, []);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-[9999]">
       <AnimatePresence>
         {clicks.map((click) => (
-          <div key={click.id} className="absolute" style={{ left: click.x - 20, top: click.y - 20 }}>
+          <div
+            key={click.id}
+            className="absolute"
+            style={{ left: click.x - 20, top: click.y - 20 }}
+          >
             <motion.div
               className="absolute text-5xl"
               initial={{ scale: 0, rotate: -30 }}
@@ -141,7 +151,7 @@ export const GlobalClickFeedback = () => {
               className="absolute w-10 h-10 rounded-full bg-yellow-400"
               initial={{ scale: 0, opacity: 0.8 }}
               animate={{ scale: 3, opacity: 0 }}
-              transition={{ duration: 0.6, ease: 'easeOut' }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
             />
 
             {/* Sparkles */}
@@ -157,7 +167,7 @@ export const GlobalClickFeedback = () => {
                   y: Math.sin((i * Math.PI * 2) / 8) * 45,
                   opacity: [1, 1, 0],
                 }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
               />
             ))}
           </div>

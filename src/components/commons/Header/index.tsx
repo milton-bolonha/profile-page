@@ -15,9 +15,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { getMainMenu, getLogos } from '@/lib/settings';
 
 // Importar SignedIn e SignedOut dinamicamente para garantir que sejam renderizados apenas no cliente
-// @ts-expect-error
 const SignedIn = dynamic(() => import("@clerk/nextjs").then((mod) => mod.SignedIn), { ssr: false });
-// @ts-expect-error
 const SignedOut = dynamic(() => import("@clerk/nextjs").then((mod) => mod.SignedOut), { ssr: false });
 
 export const Header = () => {

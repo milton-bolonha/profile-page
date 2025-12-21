@@ -3,8 +3,7 @@ import {
   FaWhatsapp,
   FaInstagram,
   FaQuestionCircle,
-  FaTimes,
-  FaExclamation
+  FaExclamation,
 } from "react-icons/fa";
 
 import { IconType } from "react-icons";
@@ -61,9 +60,7 @@ const FloatingBadge = () => {
     >
       {/* Pulse animation when closed */}
       {!isOpen && (
-        <div
-          className="absolute inset-0 w-16 h-16 bg-primary rounded-full animate-ping opacity-20 pointer-events-none"
-        />
+        <div className="absolute inset-0 w-16 h-16 bg-primary rounded-full animate-ping opacity-20 pointer-events-none" />
       )}
 
       {/* Main badge button */}
@@ -74,7 +71,19 @@ const FloatingBadge = () => {
         type="button"
       >
         {isOpen ? (
-          <FaTimes className="text-gray-600 dark:text-gray-300 text-2xl" />
+          <svg
+            className="w-6 h-6 text-gray-600 dark:text-gray-300"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
         ) : (
           <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
             <span className="text-black text-lg font-bold">!</span>
@@ -84,9 +93,7 @@ const FloatingBadge = () => {
 
       {/* Badge items */}
       {isOpen && (
-        <div
-          className="absolute bottom-20 right-0 space-y-4 z-[9998] min-w-[200px]"
-        >
+        <div className="absolute bottom-20 right-0 space-y-4 z-[9998] min-w-[200px]">
           {badgeItems.map((item, index) => {
             const Icon = item.icon;
             return (
@@ -104,18 +111,22 @@ const FloatingBadge = () => {
               >
                 {/* Visual Label (Tooltip-like) */}
                 <div className="mr-4 bg-white dark:bg-gray-800 px-4 py-2 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 transition-opacity duration-200 opacity-0 group-hover:opacity-100 absolute right-16 pointer-events-none whitespace-nowrap">
-                   <div className="text-sm font-bold text-gray-800 dark:text-white">{item.label}</div>
-                   <div className="text-xs text-gray-500 dark:text-gray-400">{item.description}</div>
+                  <div className="text-sm font-bold text-gray-800 dark:text-white">
+                    {item.label}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    {item.description}
+                  </div>
                 </div>
 
                 {/* Main Item Container */}
                 <div className="flex items-center bg-white dark:bg-gray-800 rounded-full shadow-lg border-2 border-gray-100 dark:border-gray-700 p-2 relative overflow-hidden">
-                    {/* Icon Circle */}
-                    <div
+                  {/* Icon Circle */}
+                  <div
                     className={`w-14 h-14 ${item.color} rounded-full flex items-center justify-center text-white shadow-inner`}
-                    >
+                  >
                     <Icon className="text-2xl" />
-                    </div>
+                  </div>
                 </div>
               </a>
             );

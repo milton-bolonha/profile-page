@@ -222,7 +222,9 @@ export default function HorizontalTimelineSection() {
     timelineData.find((item) => item.year === selectedYear) || timelineData[0];
 
   // Anos únicos para a timeline horizontal
-  const timelineYears = [...new Set(timelineData.map((item) => item.year))];
+  const timelineYears = Array.from(
+    new Set(timelineData.map((item) => item.year))
+  );
 
   return (
     <PageSection

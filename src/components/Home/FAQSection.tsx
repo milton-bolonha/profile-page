@@ -24,7 +24,14 @@ const faqData = [
   },
 ];
 
-const FAQItem = ({ faq, index, isOpen, onToggle }: any) => {
+interface FAQItemProps {
+  faq: { question: string; answer: string };
+  index: number;
+  isOpen: boolean;
+  onToggle: () => void;
+}
+
+const FAQItem = ({ faq, index, isOpen, onToggle }: FAQItemProps) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {

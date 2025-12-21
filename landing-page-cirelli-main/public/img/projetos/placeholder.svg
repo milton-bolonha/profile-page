@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="1200" height="600" version="1.1" viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
- <rect width="1200" height="600" fill="#e5e7eb"/>
- <text x="600" y="300" dominant-baseline="middle" fill="#6b7280" font-family="Arial" font-size="48" text-anchor="middle">Imagem do Projeto</text>
- <text x="600" y="350" dominant-baseline="middle" fill="#9ca3af" font-family="Arial" font-size="24" text-anchor="middle">Adicione sua imagem aqui</text>
-</svg>

@@ -1,5 +1,5 @@
-import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 
 interface SplitTextProps {
   text: string;
@@ -8,11 +8,16 @@ interface SplitTextProps {
   className?: string;
 }
 
-export const SplitText = ({ text, delay = 0, stagger = 0.03, className = '' }: SplitTextProps) => {
+export const SplitText = ({
+  text,
+  delay = 0,
+  stagger = 0.03,
+  className = "",
+}: SplitTextProps) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" }); // Anima quando chega na seção
-  
-  const letters = text.split('');
+
+  const letters = text.split("");
 
   const container = {
     hidden: { opacity: 0 },
@@ -27,9 +32,8 @@ export const SplitText = ({ text, delay = 0, stagger = 0.03, className = '' }: S
       opacity: 1,
       y: 0,
       transition: {
-        type: 'spring',
-        damping: 12,
-        stiffness: 200,
+        type: "tween" as const,
+        duration: 0.5,
       },
     },
     hidden: {
@@ -47,8 +51,12 @@ export const SplitText = ({ text, delay = 0, stagger = 0.03, className = '' }: S
       animate={isInView ? "visible" : "hidden"}
     >
       {letters.map((letter, index) => (
-        <motion.span key={index} variants={child} style={{ display: 'inline-block' }}>
-          {letter === ' ' ? '\u00A0' : letter}
+        <motion.span
+          key={index}
+          variants={child}
+          style={{ display: "inline-block" }}
+        >
+          {letter === " " ? "\u00A0" : letter}
         </motion.span>
       ))}
     </motion.span>

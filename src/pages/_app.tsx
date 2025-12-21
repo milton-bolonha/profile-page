@@ -1,15 +1,15 @@
-import React from 'react';
-import { Layout } from '@/components/commons/Layout';
-import { SmoothScroll } from '@/components/commons/SmoothScroll';
-import { ThemeProvider } from '@/components/commons/ThemeProvider';
-import { LanguageProvider } from '@/contexts/LanguageContext';
-import { GoogleAnalytics } from '@/components/commons/GoogleAnalytics';
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-import * as gtag from '@/lib/gtag';
-import '@/styles/globals.css';
-import type { AppProps } from 'next/app';
-import { ClerkProvider } from '@clerk/nextjs';
+import React from "react";
+import { Layout } from "@/components/commons/Layout";
+import { SmoothScroll } from "@/components/commons/SmoothScroll";
+import { ThemeProvider } from "@/components/commons/ThemeProvider";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import { GoogleAnalytics } from "@/components/commons/GoogleAnalytics";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+import * as gtag from "@/lib/gtag";
+import "@/styles/globals.css";
+import type { AppProps } from "next/app";
+import { ClerkProvider } from "@clerk/nextjs";
 
 function App({ Component, pageProps }: AppProps) {
   const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -19,9 +19,9 @@ function App({ Component, pageProps }: AppProps) {
     const handleRouteChange = (url: string) => {
       gtag.pageview(url);
     };
-    router.events.on('routeChangeComplete', handleRouteChange);
+    router.events.on("routeChangeComplete", handleRouteChange);
     return () => {
-      router.events.off('routeChangeComplete', handleRouteChange);
+      router.events.off("routeChangeComplete", handleRouteChange);
     };
   }, [router.events]);
 
@@ -43,27 +43,26 @@ function App({ Component, pageProps }: AppProps) {
     <LanguageProvider>
       <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
         <GoogleAnalytics />
-        {/* @ts-expect-error */}
-        <ClerkProvider 
-          publishableKey={PUBLISHABLE_KEY} 
+        <ClerkProvider
+          publishableKey={PUBLISHABLE_KEY}
           initialState={pageProps.initialState}
           appearance={{
             baseTheme: undefined,
             variables: {
-              colorPrimary: '#3b82f6',
-              colorBackground: '#ffffff',
-              colorInputBackground: '#ffffff',
-              colorInputText: '#000000',
+              colorPrimary: "#3b82f6",
+              colorBackground: "#ffffff",
+              colorInputBackground: "#ffffff",
+              colorInputText: "#000000",
             },
             elements: {
               modalContent: {
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-                borderRadius: '0.75rem',
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+                borderRadius: "0.75rem",
               },
               modalBackdrop: {
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              }
-            }
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+              },
+            },
           }}
         >
           <Layout>

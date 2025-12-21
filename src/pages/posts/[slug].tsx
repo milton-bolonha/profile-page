@@ -11,9 +11,7 @@ import Seo from '@/components/commons/Seo';
 import dynamic from 'next/dynamic';
 
 // Importar SignedIn e SignedOut dinamicamente para garantir que sejam renderizados apenas no cliente
-// @ts-expect-error
 const SignedIn = dynamic(() => import("@clerk/nextjs").then((mod) => mod.SignedIn), { ssr: false });
-// @ts-expect-error
 const SignedOut = dynamic(() => import("@clerk/nextjs").then((mod) => mod.SignedOut), { ssr: false });
 
 interface PostProps {
@@ -77,13 +75,7 @@ const Post = ({ postData, seoSettings }: PostProps) => {
                 remarkPlugins={[remarkGfm]}
                 components={{
                   img: ImageRenderer,
-                  p: ({ node, ...props }) => {
-                    // Se o parágrafo contém apenas uma imagem, renderizar como div
-                    if (node.children.length === 1 && node.children[0].type === 'image') {
-                      return <ImageRenderer {...(node.children[0].props || {})} />;
-                    }
-                    return <ParagraphRenderer {...props} />;
-                  },
+                  p: ParagraphRenderer,
                 }}
               >
                 {postData.content.split('\n').filter(line => line.startsWith('!')).join('\n')}
@@ -120,13 +112,7 @@ const Post = ({ postData, seoSettings }: PostProps) => {
                       remarkPlugins={[remarkGfm]}
                       components={{
                         img: ImageRenderer,
-                        p: ({ node, ...props }) => {
-                          // Se o parágrafo contém apenas uma imagem, renderizar como div
-                          if (node.children.length === 1 && node.children[0].type === 'image') {
-                            return <ImageRenderer {...(node.children[0].props || {})} />; 
-                          }
-                          return <ParagraphRenderer {...props} />;
-                        },
+                        p: ParagraphRenderer,
                       }}
                     >
                       {postData.content.split('\n').filter(line => line.startsWith('!')).join('\n')}

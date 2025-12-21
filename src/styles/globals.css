@@ -14,9 +14,10 @@
 
 /* Efeitos visuais inspirados em Codrops */
 @import './effects.css';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
+/* TailwindCSS v4 */
+@import "tailwindcss";
+
 
 
 /* Configuração de tema - Dark Mode Forçado */

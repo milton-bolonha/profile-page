@@ -10,9 +10,7 @@ import { CustomSignOutButton } from "@/components/commons/clerk/SignOutButton";
 import { UserButton } from "@clerk/nextjs";
 
 // Importar SignedIn e SignedOut dinamicamente
-// @ts-expect-error
 const SignedIn = dynamic(() => import("@clerk/nextjs").then((mod) => mod.SignedIn), { ssr: false });
-// @ts-expect-error
 const SignedOut = dynamic(() => import("@clerk/nextjs").then((mod) => mod.SignedOut), { ssr: false });
 
 interface MenuProps {
