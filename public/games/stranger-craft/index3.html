@@ -215,10 +215,11 @@
       const materialTrans = new THREE.MeshBasicMaterial({
         map: textureAtlas,
         transparent: true,
-        opacity: 1.0,
+        opacity: 0.75, // Água mais transparente
         alphaTest: 0.1,
         side: THREE.DoubleSide,
         vertexColors: true,
+        color: 0x2196F3, // Azul oceano
       });
 
       // Wrapper para getFaceUVs
