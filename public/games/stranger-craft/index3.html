@@ -137,7 +137,7 @@
       const { PLAYER_HALF_HEIGHT, PLAYER_RADIUS } = player;
 
       // Seed e RNG
-      const SEED = Math.random() * 10000;
+      const SEED = Math.floor(Math.random() * 2147483647);
       const rng = randomSeed(SEED);
       const noise = createNoiseFunction(rng);
 
@@ -283,8 +283,7 @@
           BLOCKS,
           BIOMES,
           gameState,
-          SEED,
-          noise
+          SEED
         );
 
       // Inicialização

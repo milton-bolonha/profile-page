@@ -1,0 +1,60 @@
+{
+  "blueprints": [
+    {
+      "name": "Casa Simples",
+      "icon": "🏠",
+      "width": 5,
+      "height": 5,
+      "depth": 5,
+      "type": "house"
+    },
+    {
+      "name": "Torre de Vigia",
+      "icon": "🏰",
+      "width": 3,
+      "height": 12,
+      "depth": 3,
+      "type": "tower"
+    },
+    {
+      "name": "Muralha",
+      "icon": "🧱",
+      "width": 5,
+      "height": 4,
+      "depth": 1,
+      "type": "wall"
+    },
+    {
+      "name": "Fonte",
+      "icon": "⛲",
+      "width": 5,
+      "height": 3,
+      "depth": 5,
+      "type": "fountain"
+    },
+    {
+      "name": "Ponte",
+      "icon": "🌉",
+      "width": 10,
+      "height": 2,
+      "depth": 3,
+      "type": "bridge"
+    },
+    {
+      "name": "Piscina",
+      "icon": "🏊",
+      "width": 8,
+      "height": 4,
+      "depth": 8,
+      "type": "pool"
+    },
+    {
+      "name": "Bunker",
+      "icon": "🛡️",
+      "width": 7,
+      "height": 5,
+      "depth": 7,
+      "type": "bunker"
+    }
+  ]
+}

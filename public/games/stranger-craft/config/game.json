@@ -1,0 +1,37 @@
+{
+  "world": {
+    "CHUNK_SIZE": 16,
+    "CHUNK_HEIGHT": 64,
+    "RENDER_DISTANCE": 4,
+    "PHYSICS_DISTANCE": 2,
+    "SPAWN_DISTANCE": 30,
+    "DESPAWN_DISTANCE": 70,
+    "WATER_LEVEL": 7
+  },
+  "player": {
+    "PLAYER_HALF_HEIGHT": 0.5,
+    "PLAYER_RADIUS": 0.35,
+    "maxHealth": 100,
+    "maxOxygen": 100,
+    "maxStamina": 100
+  },
+  "physics": {
+    "gravity": {
+      "x": 0.0,
+      "y": -80.0,
+      "z": 0.0
+    }
+  },
+  "rendering": {
+    "UV_EPSILON": 0.003,
+    "UV_SCALE": 0.25,
+    "particleCount": 2000
+  },
+  "city": {
+    "gridSize": 32,
+    "spawnChance": 0.3,
+    "radius": 120,
+    "edgeBlend": 30,
+    "cityHeight": 15
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "ui": {
+    "loading": "Gerando Mundo...",
+    "dimensionLabel": "MUNDO INVERTIDO",
+    "cityRadar": "Procurando sinal de civilização...",
+    "blockInfo": "Modo: Blocos",
+    "modeLabel": "Pressione G para Projetos",
+    "timeDisplay": "12:00"
+  },
+  "instructions": {
+    "title": "Sobrevivência:",
+    "controls": [
+      "WASD - Mover (Shift p/ Correr)",
+      "ESPAÇO - Pular",
+      "Clique Esq - Ação (Quebrar/Construir)",
+      "Clique Dir - Colocar Bloco",
+      "<b>G</b> - Alternar Modo Construção",
+      "<b>F</b> - Interagir (NPC)",
+      "<b>P</b> - Salvar Jogo",
+      "<b>L</b> - Carregar Jogo",
+      "1-9 - Escolher"
+    ]
+  },
+  "stats": {
+    "oxygen": {
+      "title": "Oxigênio",
+      "id": "oxygen"
+    },
+    "health": {
+      "title": "Vida",
+      "id": "health"
+    },
+    "stamina": {
+      "title": "Estamina",
+      "id": "stamina"
+    }
+  },
+  "messages": {
+    "saveSuccess": "💾 Jogo Salvo com Sucesso!",
+    "saveError": "❌ Erro ao Salvar (localStorage cheio?)",
+    "loadSuccess": "✅ Jogo Carregado!",
+    "loadError": "❌ Nenhum Save Encontrado",
+    "lootCollected": "💚 +20 HP",
+    "builderDialog": "Estou construindo uma vila para você!",
+    "dimensionNormal": "MUNDO SUPERIOR",
+    "dimensionUpside": "MUNDO INVERTIDO",
+    "citySignalFound": "SINAL DE CIVILIZAÇÃO:",
+    "citySignalNone": "NENHUM SINAL POR PERTO...",
+    "modeBlocks": "Modo: Blocos",
+    "modeBlueprints": "Modo: Projetos (Arquiteto)",
+    "modeLabelBlocks": "Pressione G para Projetos",
+    "modeLabelBlueprints": "Clique esquerdo para construir"
+  }
+}

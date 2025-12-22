@@ -1,0 +1,22 @@
+{
+  "NORMAL": {
+    "baseHeight": 5,
+    "roughness": 25,
+    "blockTop": 1,
+    "blockSoil": 2,
+    "blockStone": 3,
+    "water": 8,
+    "treeChance": 0.02,
+    "caveThreshold": 0.35
+  },
+  "UPSIDE_DOWN": {
+    "baseHeight": 10,
+    "roughness": 30,
+    "blockTop": 12,
+    "blockSoil": 11,
+    "blockStone": 11,
+    "water": 14,
+    "treeChance": 0.015,
+    "caveThreshold": 0.45
+  }
+}

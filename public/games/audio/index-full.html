@@ -1,0 +1,1894 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SODAW - System of DAW (Full Version)</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+      :root {
+        --bg-dark: #121212;
+        --panel-bg: #1e1e1e;
+        --panel-border: #333;
+        --highlight: #00ffcc;
+        --text-main: #e0e0e0;
+        --track-selected: #2a2a2a;
+        --knob-color: #555;
+        --knob-active: #00ffcc;
+      }
+
+      * {
+        box-sizing: border-box;
+        user-select: none;
+      }
+
+      body {
+        margin: 0;
+        background-color: var(--bg-dark);
+        color: var(--text-main);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        font-size: 12px;
+      }
+
+      /* LAYOUT */
+      header {
+        height: 45px;
+        background: var(--panel-bg);
+        border-bottom: 1px solid var(--panel-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 15px;
+      }
+
+      .main-workspace {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      .left-panel {
+        width: 340px;
+        background: #141414;
+        border-right: 1px solid var(--panel-border);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .center-panel {
+        flex: 1;
+        background: #0a0a0a;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+
+      .right-panel {
+        width: 260px;
+        background: var(--panel-bg);
+        border-left: 1px solid var(--panel-border);
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+      }
+
+      /* UI COMPONENTS */
+      h1 {
+        font-size: 14px;
+        margin: 0;
+        color: var(--highlight);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        letter-spacing: 1px;
+        font-weight: 800;
+      }
+
+      button {
+        background: #333;
+        border: 1px solid #444;
+        color: #ddd;
+        padding: 4px 8px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        transition: all 0.2s ease;
+      }
+
+      button:hover {
+        background: #444;
+        border-color: #555;
+      }
+
+      button:active {
+        background: #222;
+      }
+
+      .transport-btn {
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border);
+        color: var(--text-main);
+        padding: 8px 12px;
+        margin: 0 2px;
+        font-size: 12px;
+        min-width: 60px;
+        justify-content: center;
+      }
+
+      .transport-btn.active {
+        background: var(--highlight);
+        color: #000;
+        border-color: var(--highlight);
+      }
+
+      .transport-btn.playing {
+        animation: pulse 0.5s infinite alternate;
+        border-color: var(--highlight);
+      }
+
+      @keyframes pulse {
+        from { box-shadow: 0 0 5px var(--highlight); }
+        to { box-shadow: 0 0 20px var(--highlight); }
+      }
+
+      input, select {
+        background: #2a2a2a;
+        border: 1px solid #444;
+        color: #ddd;
+        padding: 4px 6px;
+        border-radius: 3px;
+        font-family: inherit;
+        font-size: 11px;
+      }
+
+      input:focus, select:focus {
+        outline: none;
+        border-color: var(--highlight);
+      }
+
+      /* CANVAS & GRID */
+      #sequencer-canvas {
+        width: 640px;
+        height: 640px;
+        background: radial-gradient(circle at center, #0a0a0a 0%, #050505 100%);
+        border: 1px solid var(--panel-border);
+        cursor: crosshair;
+        image-rendering: pixelated;
+      }
+
+      /* TRACK CARDS */
+      .track-card {
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border);
+        border-radius: 6px;
+        margin: 4px;
+        padding: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+      }
+
+      .track-card:hover {
+        border-color: #555;
+      }
+
+      .track-card.selected {
+        border-color: var(--highlight);
+        box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+      }
+
+      .track-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid #555;
+        cursor: pointer;
+      }
+
+      .track-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .track-name {
+        font-weight: 600;
+        font-size: 13px;
+        margin-bottom: 2px;
+        color: var(--text-main);
+      }
+
+      .track-type {
+        font-size: 10px;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .track-controls {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .control-btn {
+        width: 24px;
+        height: 24px;
+        border-radius: 3px;
+        border: 1px solid #444;
+        background: #2a2a2a;
+        color: #888;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 10px;
+        transition: all 0.2s ease;
+      }
+
+      .control-btn:hover {
+        background: #333;
+        border-color: #555;
+      }
+
+      .control-btn.active {
+        background: var(--highlight);
+        color: #000;
+        border-color: var(--highlight);
+      }
+
+      .control-btn.mute.active {
+        background: #ff6b6b;
+        color: #fff;
+      }
+
+      .control-btn.solo.active {
+        background: #4ecdc4;
+        color: #fff;
+      }
+
+      .control-btn.arp.active {
+        background: #ffe66d;
+        color: #000;
+      }
+
+      /* KNOBS */
+      .knob-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .knob {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: conic-gradient(from 0deg, var(--knob-color) 0deg, var(--knob-color) 270deg, transparent 270deg, transparent 360deg);
+        position: relative;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .knob.active {
+        background: conic-gradient(from 0deg, var(--knob-active) 0deg, var(--knob-active) 270deg, transparent 270deg, transparent 360deg);
+      }
+
+      .knob-indicator {
+        position: absolute;
+        top: 4px;
+        left: 50%;
+        width: 2px;
+        height: 16px;
+        background: #fff;
+        transform-origin: bottom center;
+        transform: translateX(-50%) rotate(0deg);
+        transition: transform 0.1s ease;
+      }
+
+      .knob-label {
+        font-size: 9px;
+        color: #888;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      /* TIMELINE */
+      .timeline {
+        display: flex;
+        gap: 2px;
+        padding: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .timeline-btn {
+        width: 32px;
+        height: 32px;
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border);
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s ease;
+      }
+
+      .timeline-btn.active {
+        background: var(--highlight);
+        color: #000;
+        border-color: var(--highlight);
+      }
+
+      .timeline-btn.playing {
+        animation: pulse 0.5s infinite alternate;
+      }
+
+      /* MODALS */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        backdrop-filter: blur(5px);
+      }
+
+      .modal {
+        background: var(--panel-bg);
+        border: 1px solid var(--panel-border);
+        border-radius: 8px;
+        padding: 24px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      .modal h2 {
+        margin: 0 0 16px 0;
+        color: var(--highlight);
+        font-size: 18px;
+      }
+
+      .modal .form-group {
+        margin-bottom: 16px;
+      }
+
+      .modal label {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-main);
+      }
+
+      .modal input, .modal select, .modal textarea {
+        width: 100%;
+        padding: 8px;
+        background: #2a2a2a;
+        border: 1px solid #444;
+        border-radius: 4px;
+        color: #ddd;
+        font-family: inherit;
+        font-size: 12px;
+      }
+
+      .modal textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+
+      .modal .btn-group {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 24px;
+      }
+
+      .modal .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 12px;
+        transition: all 0.2s ease;
+      }
+
+      .modal .btn.primary {
+        background: var(--highlight);
+        color: #000;
+      }
+
+      .modal .btn.primary:hover {
+        background: #00ccaa;
+      }
+
+      .modal .btn.secondary {
+        background: #444;
+        color: #ddd;
+      }
+
+      .modal .btn.secondary:hover {
+        background: #555;
+      }
+
+      /* UTILITIES */
+      .hidden { display: none !important; }
+      .flex { display: flex; }
+      .items-center { align-items: center; }
+      .justify-between { justify-content: space-between; }
+      .gap-2 { gap: 8px; }
+      .p-4 { padding: 16px; }
+      .text-center { text-align: center; }
+      .text-sm { font-size: 12px; }
+      .font-bold { font-weight: 700; }
+      .mb-4 { margin-bottom: 16px; }
+
+      /* RESPONSIVE */
+      @media (max-width: 1024px) {
+        .left-panel { width: 300px; }
+        .right-panel { width: 220px; }
+        #sequencer-canvas { width: 100%; height: auto; max-width: 640px; }
+      }
+
+      @media (max-width: 768px) {
+        .main-workspace { flex-direction: column; }
+        .left-panel, .right-panel { width: 100%; height: auto; max-height: 200px; }
+        .center-panel { order: -1; }
+        header { flex-wrap: wrap; height: auto; padding: 8px; }
+        .transport-controls { order: -1; width: 100%; justify-content: center; margin-bottom: 8px; }
+      }
+    </style>
+
+  </head>
+
+  <body>
+    <!-- HEADER -->
+    <header>
+      <h1>
+        <i data-lucide="music"></i>
+        SODAW
+      </h1>
+
+      <div class="transport-controls">
+        <div class="flex items-center gap-2">
+          <input
+            type="range"
+            id="bpm-slider"
+            min="40"
+            max="240"
+            value="120"
+            style="width: 80px;"
+          />
+          <span id="bpm-display" class="text-sm">120</span>
+          <span class="text-sm">BPM</span>
+        </div>
+
+        <div id="time-display" class="text-sm font-mono bg-black px-2 py-1 rounded">1:1:1</div>
+
+        <button id="stop-btn" class="transport-btn">
+          <i data-lucide="square"></i>
+        </button>
+
+        <button id="play-btn" class="transport-btn">
+          <i data-lucide="play"></i>
+        </button>
+
+        <button id="export-btn" class="transport-btn">
+          <i data-lucide="download"></i>
+        </button>
+
+        <select id="demo-select" class="transport-btn" style="min-width: 120px;">
+          <option value="">Demos</option>
+          <option value="classic">Classic Hit</option>
+          <option value="speed">Speed Run</option>
+          <option value="minimal">Minimal</option>
+          <option value="ambient">Ambient</option>
+        </select>
+
+        <button id="ai-btn" class="transport-btn">
+          <i data-lucide="bot"></i>
+        </button>
+
+        <button id="png-btn" class="transport-btn">
+          <i data-lucide="image"></i>
+        </button>
+
+        <button id="save-btn" class="transport-btn">
+          <i data-lucide="save"></i>
+        </button>
+
+        <button id="load-btn" class="transport-btn">
+          <i data-lucide="upload"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN WORKSPACE -->
+    <div class="main-workspace">
+      <!-- LEFT PANEL - MIXER & TRACKS -->
+      <div class="left-panel">
+        <!-- MASTER TRACK -->
+        <div id="master-track" class="track-card selected" data-type="master">
+          <div class="track-color" style="background: #666;"></div>
+          <div class="track-info">
+            <div class="track-name">MASTER OUTPUT</div>
+            <div class="track-type">Master</div>
+          </div>
+          <div class="track-controls">
+            <div class="knob-container">
+              <div class="knob" id="master-vol-knob" data-value="0">
+                <div class="knob-indicator"></div>
+              </div>
+              <div class="knob-label">VOL</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRACKS LIST -->
+        <div id="tracks-list">
+          <div class="track-card" style="justify-content: center; opacity: 0.5;">
+            <span class="text-sm">Nenhuma pista...</span>
+          </div>
+        </div>
+
+        <!-- ADD TRACK BUTTON -->
+        <div style="padding: 8px; border-top: 1px solid var(--panel-border);">
+          <button id="add-track-btn" class="transport-btn" style="width: 100%; justify-content: center;">
+            <i data-lucide="plus"></i>
+            ADD TRACK
+          </button>
+        </div>
+      </div>
+
+      <!-- CENTER PANEL - SEQUENCER -->
+      <div class="center-panel">
+        <div style="display: flex; justify-content: center; padding: 20px;">
+          <canvas id="sequencer-canvas"></canvas>
+        </div>
+
+        <!-- TIMELINE -->
+        <div class="timeline" id="timeline">
+          <button class="timeline-btn active" data-bar="0">1</button>
+          <button class="timeline-btn" data-bar="1">2</button>
+          <button class="timeline-btn" data-bar="2">3</button>
+          <button class="timeline-btn" data-bar="3">4</button>
+          <button class="timeline-btn" data-bar="4" id="add-bar-btn">+</button>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL - INSPECTOR -->
+      <div class="right-panel" id="right-panel">
+        <div class="p-4">
+          <p class="text-sm text-center text-gray-400">
+            Selecione uma pista ou o master para ver controles
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODALS -->
+    <div id="ai-modal" class="modal-overlay hidden">
+      <div class="modal">
+        <h2>Gerador IA</h2>
+        <div class="form-group">
+          <label for="ai-prompt">Descreva sua música:</label>
+          <textarea
+            id="ai-prompt"
+            placeholder="Ex: Uma batida animada com baixo pulsante e melodia feliz..."
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label>Prompt para IA (copie e use):</label>
+          <textarea
+            id="ai-system-prompt"
+            readonly
+            rows="8"
+          >Você é um assistente musical especializado em criar sequências para DAW pixel. Crie um JSON válido para o SODAW com as seguintes especificações:
+
+INSTRUMENTOS DISPONÍVEIS:
+
+- "classic": Sintetizador clássico (sons suaves, sustain longo)
+- "speed": Sintetizador rápido (sons curtos, estilo 8-bit)
+- "bass"/"bass_guitar": Baixo pulsante (filtro envelope)
+- "pad": Pad atmosférico (ataque lento, sustain alto)
+- "acoustic_guitar": Guitarra acústica (sons curtos e naturais)
+- "bell": Sino harmonioso (múltiplas frequências)
+- "organ": Órgão (sustain alto, vibrato)
+- "cello": Violoncelo (ataque lento, sustain longo)
+- "drums": Bateria (4 faixas: kick, snare, hi-hat, tom)
+- "sampler": Amostrador (URL customizável)
+- "silent": Marcador visual (sem som)
+
+MAPEAMENTO DE NOTAS:
+
+- Linha 0-4: Oitava mais alta (C8-G8)
+- Linha 5-9: Oitava alta (C7-G7)
+- Linha 10-14: Oitava média-alta (C6-G6)
+- Linha 15-19: Oitava média (C5-G5)
+- Linha 20-24: Oitava média-baixa (C4-G4)
+- Linha 25-29: Oitava baixa (C3-G3)
+- Linha 30-31: Oitava mais baixa (C2-D2)
+
+ESCALA: Pentatônica (C, D, E, G, A) × 7 oitavas
+COLUNAS: Steps de 16th note (cada coluna = 1 step)
+VALORES: 1 = nota ativa, 0 = pausa
+
+ESTRUTURA JSON:
+{
+"bpm": 120,
+"totalBars": 4,
+"tracks": [
+{
+"name": "Nome da Pista",
+"type": "tipo_do_instrumento",
+"color": "#hex_color",
+"volume": -6,
+"pan": 0,
+"grid": [
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // linha 0 (nota mais alta)
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // linha 1
+// ... 30 linhas no total
+[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] // linha 31 (nota mais baixa)
+]
+}
+]
+}
+
+DICAS PARA BOAS COMPOSIÇÕES:
+
+- Mantenha ritmos claros e previsíveis
+- Use espaços (pausas) para criar groove
+- Varie dinâmicas com diferentes alturas
+- Limite a 2-3 pistas para começar
+- BPM entre 90-140 funciona bem
+- Considere o espaço estereo com pan</textarea>
+  </div>
+  <div class="form-group">
+  <label for="ai-json">Cole o JSON gerado pela IA:</label>
+  <textarea
+              id="ai-json"
+              placeholder='Cole aqui o JSON gerado pela IA...'
+            ></textarea>
+  </div>
+  <div class="btn-group">
+  <button class="btn secondary" onclick="closeModal('ai-modal')">Fechar</button>
+  <button class="btn primary" onclick="generateRandomSong()">Gerar Local</button>
+  <button class="btn primary" onclick="loadFromAI()">Carregar</button>
+  </div>
+  </div>
+  </div>
+
+      <div id="export-modal" class="modal-overlay hidden">
+        <div class="modal">
+          <h2>Exportar Áudio</h2>
+          <div class="form-group">
+            <p id="export-status" class="text-sm">Pronto para exportar</p>
+          </div>
+          <div class="btn-group">
+            <button class="btn secondary" onclick="closeModal('export-modal')">Fechar</button>
+            <button class="btn primary" id="start-export-btn" onclick="startAudioExport()">Iniciar Render</button>
+            <button class="btn primary" id="stop-export-btn" onclick="stopAudioExport()" disabled>Finalizar</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="add-track-modal" class="modal-overlay hidden">
+        <div class="modal">
+          <h2>Adicionar Pista</h2>
+          <div class="form-group">
+            <label for="track-type">Tipo de Instrumento:</label>
+            <select id="track-type">
+              <optgroup label="Sintetizadores">
+                <option value="classic">Classic (Suave)</option>
+                <option value="speed">Speed (Rápido)</option>
+                <option value="pad">Pad (Atmosférico)</option>
+                <option value="bell">Bell (Harmonioso)</option>
+                <option value="organ">Organ (Sustain)</option>
+              </optgroup>
+              <optgroup label="Instrumentos">
+                <option value="acoustic_guitar">Guitarra Acústica</option>
+                <option value="cello">Violoncelo</option>
+                <option value="bass">Baixo</option>
+                <option value="bass_guitar">Baixo Guitarra</option>
+              </optgroup>
+              <optgroup label="Bateria">
+                <option value="drums">Bateria</option>
+              </optgroup>
+              <optgroup label="Outros">
+                <option value="sampler">Sampler (URL)</option>
+                <option value="silent">Silent (Visual)</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="form-group" id="sampler-url-group" style="display: none;">
+            <label for="sampler-url">URL do Sample:</label>
+            <input type="url" id="sampler-url" placeholder="https://exemplo.com/audio.mp3" />
+          </div>
+          <div class="form-group">
+            <label for="track-name">Nome da Pista:</label>
+            <input type="text" id="track-name" placeholder="Minha Pista" />
+          </div>
+          <div class="form-group">
+            <label for="track-color">Cor:</label>
+            <input type="color" id="track-color" value="#00ffcc" />
+          </div>
+          <div class="btn-group">
+            <button class="btn secondary" onclick="closeModal('add-track-modal')">Cancelar</button>
+            <button class="btn primary" onclick="createTrack()">Criar</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="arp-modal" class="modal-overlay hidden">
+        <div class="modal">
+          <h2>Arpeggiator</h2>
+          <div class="form-group">
+            <label for="arp-rate">Velocidade:</label>
+            <select id="arp-rate">
+              <option value="8n">8th notes</option>
+              <option value="16n">16th notes</option>
+              <option value="32n">32nd notes</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="arp-type">Padrão:</label>
+            <select id="arp-type">
+              <option value="up">Cima</option>
+              <option value="down">Baixo</option>
+              <option value="upDown">Cima/Baixo</option>
+            </select>
+          </div>
+          <div class="btn-group">
+            <button class="btn secondary" onclick="closeModal('arp-modal')">Fechar</button>
+            <button class="btn primary" onclick="applyArpSettings()">Aplicar</button>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        // === DAW CORE SYSTEM ===
+
+        // Constants
+        const GRID_ROWS = 32;
+        const STEPS_PER_BAR = 16;
+        const CANVAS_SIZE = 640;
+        const CELL_SIZE = CANVAS_SIZE / GRID_ROWS;
+
+        // Global DAW Object
+        const DAW = {
+          tracks: [],
+          selection: { type: 'none', index: -1 },
+          isPlaying: false,
+          bpm: 120,
+          step: 0,
+          currentBarPage: 0,
+          totalBars: 4,
+          recorder: null,
+          audioChunks: [],
+          history: []
+        };
+
+        // Canvas and Context
+        let canvas, ctx;
+        let isDrawing = false;
+        let currentTrack = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', init);
+
+        function init() {
+          canvas = document.getElementById('sequencer-canvas');
+          ctx = canvas.getContext('2d');
+
+          setupEventListeners();
+          setupKnobs();
+          renderTracks();
+          updateTimelineUI(0);
+          lucide.createIcons();
+
+          // Initialize Tone.js
+          Tone.start();
+        }
+
+        // === TRACK MANAGEMENT ===
+
+        class Track {
+          constructor(name, type, color = '#00ffcc') {
+            this.id = Date.now();
+            this.name = name;
+            this.type = type;
+            this.color = color;
+            this.grid = Array(GRID_ROWS).fill().map(() => Array(STEPS_PER_BAR * DAW.totalBars).fill(0));
+            this.volume = -6;
+            this.pan = 0;
+            this.muted = false;
+            this.soloed = false;
+            this.arp = { enabled: false, rate: '16n', type: 'up' };
+
+            this.channel = new Tone.Channel(this.volume, this.pan);
+            this.panner = new Tone.Panner(this.pan);
+            this.instrument = this.createInstrument(type);
+          }
+
+          createInstrument(type) {
+            switch(type) {
+              case 'classic':
+                return new Tone.PolySynth(Tone.Synth, {
+                  oscillator: { type: 'sine' },
+                  envelope: { attack: 0.1, decay: 0.2, sustain: 0.8, release: 1.5 }
+                });
+
+              case 'speed':
+                return new Tone.PolySynth(Tone.Synth, {
+                  oscillator: { type: 'triangle' },
+                  envelope: { attack: 0.01, decay: 0.1, sustain: 0.3, release: 0.2 }
+                });
+
+              case 'bass':
+              case 'bass_guitar':
+                return new Tone.MonoSynth({
+                  oscillator: { type: 'sawtooth' },
+                  filter: { Q: 2, frequency: 300 },
+                  envelope: { attack: 0.01, decay: 0.3, sustain: 0.4, release: 0.2 },
+                  filterEnvelope: { attack: 0.01, decay: 0.4, sustain: 0.2, release: 0.5 }
+                });
+
+              case 'pad':
+                return new Tone.PolySynth(Tone.Synth, {
+                  oscillator: { type: 'sawtooth' },
+                  envelope: { attack: 1.0, decay: 0.3, sustain: 0.8, release: 2.0 }
+                });
+
+              case 'acoustic_guitar':
+                return new Tone.PolySynth(Tone.Synth, {
+                  oscillator: { type: 'triangle' },
+                  envelope: { attack: 0.01, decay: 0.3, sustain: 0.1, release: 0.4 }
+                });
+
+              case 'bell':
+                return new Tone.PolySynth(Tone.MetalSynth, {
+                  harmonicity: 12,
+                  resonance: 800,
+                  modulationIndex: 20,
+                  envelope: { attack: 0.01, decay: 0.5, sustain: 0, release: 1.0 }
+                });
+
+              case 'organ':
+                return new Tone.PolySynth(Tone.Synth, {
+                  oscillator: { type: 'pulse', width: 0.3 },
+                  envelope: { attack: 0.1, decay: 0.3, sustain: 0.8, release: 1.0 }
+                });
+
+              case 'cello':
+                return new Tone.PolySynth(Tone.Synth, {
+                  oscillator: { type: 'sawtooth' },
+                  envelope: { attack: 0.5, decay: 0.3, sustain: 0.7, release: 2.0 }
+                });
+
+              case 'drums':
+                return new Tone.MembraneSynth({
+                  pitchDecay: 0.05,
+                  octaves: 10,
+                  oscillator: { type: 'sine' },
+                  envelope: { attack: 0.001, decay: 0.4, sustain: 0.01, release: 1.4 }
+                });
+
+              case 'sampler':
+                return new Tone.Sampler({
+                  urls: { C4: "https://tonejs.github.io/audio/salamander/C4.mp3" },
+                  baseUrl: "https://tonejs.github.io/audio/salamander/"
+                });
+
+              default:
+                return null; // silent track
+            }
+          }
+
+          connect() {
+            if (this.instrument) {
+              this.instrument.connect(this.panner);
+              this.panner.connect(this.channel);
+              this.channel.connect(Tone.Destination);
+            }
+          }
+
+          disconnect() {
+            if (this.instrument) {
+              this.instrument.dispose();
+            }
+            this.panner.dispose();
+            this.channel.dispose();
+          }
+        }
+
+        // === UI MANAGEMENT ===
+
+        function setupEventListeners() {
+          // Canvas events
+          canvas.addEventListener('mousedown', startDrawing);
+          canvas.addEventListener('mousemove', draw);
+          canvas.addEventListener('mouseup', stopDrawing);
+          canvas.addEventListener('mouseleave', stopDrawing);
+
+          // Transport controls
+          document.getElementById('play-btn').addEventListener('click', togglePlayback);
+          document.getElementById('stop-btn').addEventListener('click', stopPlayback);
+          document.getElementById('export-btn').addEventListener('click', () => openModal('export-modal'));
+
+          // File operations
+          document.getElementById('save-btn').addEventListener('click', saveProject);
+          document.getElementById('load-btn').addEventListener('click', () => document.getElementById('file-input').click());
+
+          // Demo selection
+          document.getElementById('demo-select').addEventListener('change', loadDemo);
+
+          // AI and other features
+          document.getElementById('ai-btn').addEventListener('click', () => openModal('ai-modal'));
+          document.getElementById('png-btn').addEventListener('click', exportAsPNG);
+          document.getElementById('add-track-btn').addEventListener('click', () => openModal('add-track-modal'));
+
+          // BPM control
+          document.getElementById('bpm-slider').addEventListener('input', (e) => {
+            DAW.bpm = parseInt(e.target.value);
+            document.getElementById('bpm-display').textContent = DAW.bpm;
+            if (Tone.Transport) {
+              Tone.Transport.bpm.value = DAW.bpm;
+            }
+          });
+
+          // Timeline
+          document.getElementById('timeline').addEventListener('click', handleTimelineClick);
+
+          // Keyboard shortcuts
+          document.addEventListener('keydown', handleKeyboard);
+
+          // File input (hidden)
+          const fileInput = document.createElement('input');
+          fileInput.type = 'file';
+          fileInput.id = 'file-input';
+          fileInput.accept = '.json';
+          fileInput.style.display = 'none';
+          fileInput.addEventListener('change', loadProject);
+          document.body.appendChild(fileInput);
+        }
+
+        // === CANVAS DRAWING ===
+
+        function drawCanvas(highlightStep = -1) {
+          ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+
+          // Draw grid
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+          ctx.lineWidth = 1;
+
+          for (let i = 0; i <= GRID_ROWS; i++) {
+            ctx.beginPath();
+            ctx.moveTo(i * CELL_SIZE, 0);
+            ctx.lineTo(i * CELL_SIZE, CANVAS_SIZE);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(0, i * CELL_SIZE);
+            ctx.lineTo(CANVAS_SIZE, i * CELL_SIZE);
+            ctx.stroke();
+          }
+
+          // Draw active cells
+          if (currentTrack) {
+            for (let row = 0; row < GRID_ROWS; row++) {
+              for (let col = 0; col < STEPS_PER_BAR; col++) {
+                const globalCol = DAW.currentBarPage * STEPS_PER_BAR + col;
+                if (currentTrack.grid[row][globalCol]) {
+                  ctx.fillStyle = currentTrack.color;
+                  ctx.fillRect(col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                }
+              }
+            }
+          }
+
+          // Draw highlight step
+          if (highlightStep >= 0) {
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(highlightStep * CELL_SIZE, 0, CELL_SIZE, CANVAS_SIZE);
+          }
+
+          // Draw coordinates
+          const coords = getMouseCoordinates();
+          if (coords) {
+            document.getElementById('coordinates').textContent = `${coords.x}:${coords.y}`;
+          }
+        }
+
+        // === TRACK OPERATIONS ===
+
+        function renderTracks() {
+          const tracksList = document.getElementById('tracks-list');
+          tracksList.innerHTML = '';
+
+          if (DAW.tracks.length === 0) {
+            tracksList.innerHTML = `
+              <div class="track-card" style="justify-content: center; opacity: 0.5;">
+                <span class="text-sm">Nenhuma pista...</span>
+              </div>
+            `;
+            return;
+          }
+
+          DAW.tracks.forEach((track, index) => {
+            const trackCard = document.createElement('div');
+            trackCard.className = `track-card ${DAW.selection.type === 'track' && DAW.selection.index === index ? 'selected' : ''}`;
+            trackCard.setAttribute('data-track-index', index);
+
+            trackCard.innerHTML = `
+              <div class="track-grip" style="cursor: grab; padding: 4px;">
+                <i data-lucide="grip-vertical" style="width: 12px; height: 12px;"></i>
+              </div>
+              <input type="color" class="track-color" value="${track.color}" data-track-index="${index}">
+              <div class="track-info">
+                <div class="track-name" contenteditable="true" data-track-index="${index}">${track.name}</div>
+                <div class="track-type">${track.type.replace('_', ' ')}</div>
+              </div>
+              <div class="track-controls">
+                <button class="control-btn mute ${track.muted ? 'active' : ''}" data-track-index="${index}" data-action="mute">
+                  <i data-lucide="volume-x"></i>
+                </button>
+                <button class="control-btn solo ${track.soloed ? 'active' : ''}" data-track-index="${index}" data-action="solo">
+                  <i data-lucide="headphones"></i>
+                </button>
+                <button class="control-btn arp ${track.arp.enabled ? 'active' : ''}" data-track-index="${index}" data-action="arp">
+                  <i data-lucide="repeat"></i>
+                </button>
+                <div class="knob-container">
+                  <div class="knob" id="vol-knob-${index}" data-track-index="${index}" data-type="volume">
+                    <div class="knob-indicator"></div>
+                  </div>
+                  <div class="knob-label">VOL</div>
+                </div>
+                <div class="knob-container">
+                  <div class="knob" id="pan-knob-${index}" data-track-index="${index}" data-type="pan">
+                    <div class="knob-indicator"></div>
+                  </div>
+                  <div class="knob-label">PAN</div>
+                </div>
+                <button class="control-btn" data-track-index="${index}" data-action="delete" style="color: #ff6b6b;">
+                  <i data-lucide="trash-2"></i>
+                </button>
+                <button class="control-btn" data-track-index="${index}" data-action="clear">
+                  <i data-lucide="eraser"></i>
+                </button>
+              </div>
+            `;
+
+            tracksList.appendChild(trackCard);
+          });
+
+          // Setup event listeners for track cards
+          document.querySelectorAll('.track-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+              const index = parseInt(card.getAttribute('data-track-index'));
+              selectTrack(index);
+            });
+          });
+
+          // Setup control buttons
+          document.querySelectorAll('.control-btn').forEach(btn => {
+            btn.addEventListener('click', handleTrackControl);
+          });
+
+          // Setup color pickers
+          document.querySelectorAll('.track-color').forEach(picker => {
+            picker.addEventListener('change', handleColorChange);
+          });
+
+          // Setup editable names
+          document.querySelectorAll('.track-name').forEach(name => {
+            name.addEventListener('blur', handleNameChange);
+            name.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                name.blur();
+              }
+            });
+          });
+
+          lucide.createIcons();
+          setupKnobs();
+        }
+
+        // === AUDIO PLAYBACK ===
+
+        function togglePlayback() {
+          if (DAW.isPlaying) {
+            stopPlayback();
+          } else {
+            startPlayback();
+          }
+        }
+
+        function startPlayback() {
+          if (DAW.tracks.length === 0) return;
+
+          DAW.isPlaying = true;
+          document.getElementById('play-btn').classList.add('active');
+
+          Tone.Transport.bpm.value = DAW.bpm;
+          Tone.Transport.start();
+
+          // Schedule the first step
+          playStep();
+        }
+
+        function stopPlayback() {
+          DAW.isPlaying = false;
+          DAW.step = 0;
+          document.getElementById('play-btn').classList.remove('active', 'playing');
+          document.getElementById('time-display').textContent = '1:1:1';
+
+          Tone.Transport.stop();
+          updateTimelineUI(0);
+          drawCanvas();
+        }
+
+        function playStep() {
+          if (!DAW.isPlaying) return;
+
+          const currentTotalSteps = DAW.totalBars * STEPS_PER_BAR;
+          const currentStep = DAW.step % currentTotalSteps;
+
+          Tone.Draw.schedule(() => {
+            const playingBar = Math.floor(currentStep / STEPS_PER_BAR);
+            updateTimelineUI(playingBar);
+
+            if (playingBar === DAW.currentBarPage) {
+              drawCanvas(currentStep % STEPS_PER_BAR);
+            } else {
+              drawCanvas(-1);
+            }
+
+            const bars = Math.floor(currentStep / 16) + 1;
+            const beats = Math.floor((currentStep % 16) / 4) + 1;
+            const sixs = (currentStep % 4) + 1;
+            document.getElementById('time-display').textContent = `${bars}:${beats}:${sixs}`;
+          }, Tone.now());
+
+          // Play notes for this step
+          DAW.tracks.forEach(track => {
+            if (track.muted || track.type === 'silent') return;
+
+            // Safety checks
+            if (!track.grid || !track.grid[0] || track.grid[0][currentStep] === undefined) return;
+
+            const activeRows = [];
+            for (let row = 0; row < GRID_ROWS; row++) {
+              if (track.grid[row][currentStep] === 1) activeRows.push(row);
+            }
+
+            if (activeRows.length > 0) {
+              const prevStep = (currentStep - 1 + currentTotalSteps) % currentTotalSteps;
+
+              if (track.type === 'drums' || track.arp.enabled) {
+                activeRows.forEach(row => playNote(track, row, Tone.now()));
+              } else {
+                activeRows.forEach(row => {
+                  // Check for note sustain
+                  if (track.grid[row][prevStep] !== 1) {
+                    let duration = 1;
+                    // Look ahead for note length
+                    for (let k = 1; k < 32; k++) {
+                      let nextStep = (currentStep + k) % currentTotalSteps;
+                      if (track.grid[row][nextStep] === 1) duration++;
+                      else break;
+                    }
+                    playNote(track, row, Tone.now(), duration * Tone.Time('16n').toSeconds());
+                  }
+                });
+              }
+            }
+          });
+
+          DAW.step++;
+
+          // Schedule next step
+          setTimeout(() => {
+            if (DAW.isPlaying) playStep();
+          }, (60 / DAW.bpm) * 250); // 16th note timing
+        }
+
+        function playNote(track, row, time, duration) {
+          const scale = ['C', 'D', 'E', 'G', 'A'];
+          const invRow = GRID_ROWS - 1 - row;
+          const octave = 2 + Math.floor(invRow / 5);
+          const note = scale[invRow % 5] + octave;
+
+          if (!track.instrument) return;
+
+          if (track.type === 'drums') {
+            // Map rows to drum sounds
+            if (row > 24) track.instrument.triggerAttackRelease('C1', '16n', time); // Kick
+            else if (row > 16) track.instrument.triggerAttackRelease('D2', '16n', time); // Snare
+            else if (row > 8) track.instrument.triggerAttackRelease('G4', '32n', time); // Hi-hat
+            else track.instrument.triggerAttackRelease('C4', '8n', time); // Open hat
+          } else if (track.arp.enabled) {
+            const t = Tone.Time(time);
+            const rate = track.arp.rate;
+            track.instrument.triggerAttackRelease(note, '32n', t);
+            track.instrument.triggerAttackRelease(
+              Tone.Frequency(note).transpose(4),
+              '32n',
+              t + Tone.Time(rate)
+            );
+            if (track.arp.type === 'upDown') {
+              track.instrument.triggerAttackRelease(
+                Tone.Frequency(note).transpose(7),
+                '32n',
+                t + Tone.Time(rate) * 2
+              );
+            }
+          } else {
+            const d = duration || '16n';
+            if (track.instrument.triggerAttackRelease) {
+              track.instrument.triggerAttackRelease(note, d, time);
+            }
+          }
+        }
+
+        // === DEMO DATA ===
+
+        const demoData = {
+          classic: {
+            bpm: 120,
+            totalBars: 4,
+            tracks: [
+              {
+                name: "Drums",
+                type: "drums",
+                color: "#ffff00",
+                volume: -3,
+                pan: 0,
+                grid: [
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 0
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 1
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 2
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 3
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 4
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 5
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 6
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 7
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 8
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 9
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 10
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 11
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 12
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 13
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 14
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 15
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 16
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 17
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 18
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 19
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 20
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 21
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 22
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 23
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 24
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 25
+                  [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0], // 26 - Kick
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 27
+                  [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0], // 28 - Snare
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 29
+                  [1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1], // 30 - Hi-hat
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 31
+                ]
+              },
+              {
+                name: "Bass",
+                type: "bass",
+                color: "#00aaff",
+                volume: -6,
+                pan: 0,
+                grid: [
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 0
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 1
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 2
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 3
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 4
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 5
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 6
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 7
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 8
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 9
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 10
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 11
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 12
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 13
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 14
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 15
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 16
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 17
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 18
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 19
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 20
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 21
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 22
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 23
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 24
+                  [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0], // 25 - Bass notes
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 26
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 27
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 28
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 29
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 30
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 31
+                ]
+              },
+              {
+                name: "Melody",
+                type: "classic",
+                color: "#ff6b6b",
+                volume: -9,
+                pan: 0,
+                grid: [
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 0
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 1
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 2
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 3
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 4
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 5
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 6
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 7
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 8
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 9
+                  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 10
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 11
+                  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 12
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 13
+                  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 14
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 15
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 16
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 17
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 18
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 19
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 20
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 21
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 22
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 23
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 24
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 25
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 26
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 27
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 28
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 29
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 30
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 31
+                ]
+              }
+            ]
+          },
+          speed: {
+            bpm: 140,
+            totalBars: 4,
+            tracks: [
+              {
+                name: "Speed Drums",
+                type: "drums",
+                color: "#ff0080",
+                volume: -3,
+                pan: 0,
+                grid: [
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 0
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 1
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 2
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 3
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 4
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 5
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 6
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 7
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 8
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 9
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 10
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 11
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 12
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 13
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 14
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 15
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 16
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 17
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 18
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 19
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 20
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 21
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 22
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 23
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 24
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 25
+                  [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0], // 26 - Fast kick
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 27
+                  [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1], // 28 - Fast snare
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 29
+                  [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0], // 30 - Fast hi-hat
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 31
+                ]
+              },
+              {
+                name: "Speed Lead",
+                type: "speed",
+                color: "#00ffff",
+                volume: -6,
+                pan: 0,
+                grid: [
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 0
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 1
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 2
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 3
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 4
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 5
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 6
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 7
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 8
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 9
+                  [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0], // 10
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 11
+                  [0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0], // 12
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 13
+                  [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0], // 14
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 15
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 16
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 17
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 18
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 19
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 20
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 21
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 22
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 23
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 24
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 25
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 26
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 27
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 28
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 29
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 30
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 31
+                ]
+              }
+            ]
+          },
+          minimal: {
+            bpm: 90,
+            totalBars: 4,
+            tracks: [
+              {
+                name: "Minimal Drums",
+                type: "drums",
+                color: "#ffffff",
+                volume: -9,
+                pan: 0,
+                grid: [
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 0
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 1
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 2
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 3
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 4
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 5
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 6
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 7
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 8
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 9
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 10
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 11
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 12
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 13
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 14
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 15
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 16
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 17
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 18
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 19
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 20
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 21
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 22
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 23
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 24
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 25
+                  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 26 - Sparse kick
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 27
+                  [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0], // 28 - Sparse snare
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 29
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 30 - No hi-hat for minimal
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 31
+                ]
+              },
+              {
+                name: "Ambient Pad",
+                type: "pad",
+                color: "#888888",
+                volume: -12,
+                pan: 0,
+                grid: [
+                  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 0 - Sustained pad note
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 1
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 2
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 3
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 4
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 5
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 6
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 7
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 8
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 9
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 10
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 11
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 12
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 13
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 14
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 15
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 16
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 17
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 18
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 19
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 20
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 21
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 22
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 23
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 24
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 25
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 26
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 27
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 28
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 29
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 30
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 31
+                ]
+              }
+            ]
+          },
+          ambient: {
+            bpm: 75,
+            totalBars: 4,
+            tracks: [
+              {
+                name: "Ambient Pad 1",
+                type: "pad",
+                color: "#4a90e2",
+                volume: -15,
+                pan: -0.3,
+                grid: [
+                  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 0
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 1
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 2
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 3
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 4
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 5
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 6
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 7
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 8
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 9
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 10
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 11
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 12
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 13
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 14
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 15
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 16
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 17
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 18
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 19
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 20
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 21
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 22
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 23
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 24
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 25
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 26
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 27
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 28
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 29
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 30
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 31
+                ]
+              },
+              {
+                name: "Ambient Pad 2",
+                type: "pad",
+                color: "#7b68ee",
+                volume: -18,
+                pan: 0.3,
+                grid: [
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 0
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 1
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 2
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 3
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 4
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 5
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 6
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 7
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 8
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 9
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 10
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 11
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 12
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 13
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 14
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 15
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 16
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 17
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 18
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 19
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 20
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 21
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 22
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 23
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 24
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 25
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 26
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 27
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 28
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 29
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 30
+                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // 31
+                ]
+              }
+            ]
+          }
+        };
+
+        // Load demo function
+        function loadDemo() {
+          const select = document.getElementById('demo-select');
+          const key = select.value;
+          if (demoData[key]) loadFromData(demoData[key]);
+        }
+
+        // Generate random song
+        function generateRandomSong() {
+          const instruments = ['classic', 'speed', 'pad', 'bass', 'drums'];
+          const bpm = 90 + Math.random() * 50; // 90-140 BPM
+
+          DAW.tracks = [];
+          DAW.bpm = Math.round(bpm);
+          DAW.totalBars = 4;
+
+          // Add random tracks
+          const numTracks = 2 + Math.floor(Math.random() * 3); // 2-4 tracks
+          for (let i = 0; i < numTracks; i++) {
+            const instrument = instruments[Math.floor(Math.random() * instruments.length)];
+            const track = new Track(`Track ${i + 1}`, instrument);
+
+            // Add some random notes
+            for (let row = 0; row < GRID_ROWS; row++) {
+              for (let col = 0; col < STEPS_PER_BAR * DAW.totalBars; col++) {
+                if (Math.random() < 0.1) { // 10% chance of note
+                  track.grid[row][col] = 1;
+                }
+              }
+            }
+
+            track.connect();
+            DAW.tracks.push(track);
+          }
+
+          document.getElementById('bpm-slider').value = DAW.bpm;
+          document.getElementById('bpm-display').textContent = DAW.bpm;
+          renderTracks();
+          updateTimelineUI(0);
+        }
+
+        // Load from JSON
+        function loadFromData(data) {
+          // Stop current playback
+          if (DAW.isPlaying) stopPlayback();
+
+          // Clear existing tracks
+          DAW.tracks.forEach(track => track.disconnect());
+          DAW.tracks = [];
+
+          // Load data
+          DAW.bpm = data.bpm || 120;
+          DAW.totalBars = data.totalBars || 4;
+
+          // Create tracks
+          if (data.tracks) {
+            data.tracks.forEach(trackData => {
+              const track = new Track(
+                trackData.name,
+                trackData.type,
+                trackData.color
+              );
+
+              // Load grid data
+              if (trackData.grid) {
+                track.grid = trackData.grid;
+              }
+
+              // Load settings
+              track.volume = trackData.volume || -6;
+              track.pan = trackData.pan || 0;
+              track.arp = trackData.arp || { enabled: false, rate: '16n', type: 'up' };
+
+              track.connect();
+              DAW.tracks.push(track);
+            });
+          }
+
+          // Update UI
+          document.getElementById('bpm-slider').value = DAW.bpm;
+          document.getElementById('bpm-display').textContent = DAW.bpm;
+          renderTracks();
+          updateTimelineUI(0);
+        }
+
+        // Save project
+        function saveProject() {
+          const projectData = {
+            bpm: DAW.bpm,
+            totalBars: DAW.totalBars,
+            tracks: DAW.tracks.map(track => ({
+              name: track.name,
+              type: track.type,
+              color: track.color,
+              volume: track.volume,
+              pan: track.pan,
+              arp: track.arp,
+              grid: track.grid
+            }))
+          };
+
+          const dataStr = JSON.stringify(projectData, null, 2);
+          const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+
+          const exportFileDefaultName = 'sodaw-project.json';
+          const linkElement = document.createElement('a');
+          linkElement.setAttribute('href', dataUri);
+          linkElement.setAttribute('download', exportFileDefaultName);
+          linkElement.click();
+        }
+
+        // Load project
+        function loadProject(event) {
+          const file = event.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            try {
+              const data = JSON.parse(e.target.result);
+              loadFromData(data);
+            } catch (error) {
+              alert('Erro ao carregar arquivo: ' + error.message);
+            }
+          };
+          reader.readAsText(file);
+        }
+
+        // Export as PNG
+        function exportAsPNG() {
+          const canvas = document.getElementById('sequencer-canvas');
+          const link = document.createElement('a');
+          link.download = 'sodaw-pattern.png';
+          link.href = canvas.toDataURL();
+          link.click();
+        }
+
+        // Modal functions
+        function openModal(id) {
+          document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+          document.getElementById(id).classList.add('hidden');
+        }
+
+        // Load from AI
+        function loadFromAI() {
+          const jsonText = document.getElementById('ai-json').value;
+          try {
+            const data = JSON.parse(jsonText);
+            loadFromData(data);
+            closeModal('ai-modal');
+          } catch (error) {
+            alert('Erro no JSON: ' + error.message);
+          }
+        }
+
+        // Create track
+        function createTrack() {
+          const type = document.getElementById('track-type').value;
+          const name = document.getElementById('track-name').value || `${type} track`;
+          const color = document.getElementById('track-color').value;
+
+          const track = new Track(name, type, color);
+
+          // Handle sampler URL
+          if (type === 'sampler') {
+            const url = document.getElementById('sampler-url').value;
+            if (url) {
+              track.instrument = new Tone.Sampler({ urls: { C4: url } });
+            }
+          }
+
+          track.connect();
+          DAW.tracks.push(track);
+
+          renderTracks();
+          closeModal('add-track-modal');
+
+          // Reset form
+          document.getElementById('track-name').value = '';
+          document.getElementById('sampler-url').value = '';
+          document.getElementById('track-color').value = '#00ffcc';
+        }
+
+        // Apply ARP settings
+        function applyArpSettings() {
+          if (DAW.selection.type === 'track') {
+            const track = DAW.tracks[DAW.selection.index];
+            track.arp.rate = document.getElementById('arp-rate').value;
+            track.arp.type = document.getElementById('arp-type').value;
+            track.arp.enabled = true;
+            renderTracks();
+          }
+          closeModal('arp-modal');
+        }
+
+        // Event handlers
+        function handleTrackControl(e) {
+          const button = e.target;
+          const trackIndex = parseInt(button.getAttribute('data-track-index'));
+          const action = button.getAttribute('data-action');
+          const track = DAW.tracks[trackIndex];
+
+          switch (action) {
+            case 'mute':
+              track.muted = !track.muted;
+              break;
+            case 'solo':
+              track.soloed = !track.soloed;
+              // TODO: Implement solo logic
+              break;
+            case 'arp':
+              if (track.type !== 'drums') {
+                openModal('arp-modal');
+                DAW.selection = { type: 'track', index: trackIndex };
+              }
+              break;
+            case 'delete':
+              track.disconnect();
+              DAW.tracks.splice(trackIndex, 1);
+              DAW.selection = { type: 'none', index: -1 };
+              renderTracks();
+              return;
+            case 'clear':
+              track.grid = Array(GRID_ROWS).fill().map(() => Array(STEPS_PER_BAR * DAW.totalBars).fill(0));
+              drawCanvas();
+              break;
+          }
+
+          renderTracks();
+        }
+
+        // ... existing code ...
+      </script>
+
+    </body>
+  </html>

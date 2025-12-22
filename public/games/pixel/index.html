@@ -1,1443 +1,1305 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pixel Sprite Editor</title>
-
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Sprite Creator</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gifshot/0.3.2/gifshot.min.js"></script>
 
     <style>
-      body {
-        background-color: #1a1b26;
-        color: #a9b1d6;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        overflow: hidden;
-        user-select: none;
-      }
+        body {
+            background-color: #1a1b26;
+            color: #a9b1d6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
 
-      #canvas-viewport {
-        background-color: #0f0f13;
-        overflow: auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-      }
+        /* Layout Grid para Réguas */
+        #editor-area {
+            display: grid;
+            grid-template-columns: 24px 1fr;
+            grid-template-rows: 24px 1fr;
+            background-color: #0f0f13;
+            overflow: hidden;
+            position: relative;
+        }
 
-      .pixel-canvas-container {
-        position: relative;
-        background-color: #ffffff;
-        /* O background-image será injetado via JS para sincronizar com o zoom */
-        box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
-        image-rendering: pixelated;
-      }
+        .ruler-corner { background-color: #16161e; border-right: 1px solid #414868; border-bottom: 1px solid #414868; z-index: 40; }
+        
+        #ruler-h-wrapper { overflow: hidden; background-color: #16161e; border-bottom: 1px solid #414868; position: relative; }
+        #ruler-v-wrapper { overflow: hidden; background-color: #16161e; border-right: 1px solid #414868; position: relative; }
 
-      canvas {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        image-rendering: pixelated;
-      }
+        canvas.ruler { position: absolute; top: 0; left: 0; }
 
-      #main-canvas {
-        cursor: crosshair;
-      }
+        #canvas-viewport {
+            background-color: #0f0f13;
+            overflow: auto; 
+            display: flex;
+            align-items: center; 
+            justify-content: center;
+            position: relative;
+            grid-column: 2;
+            grid-row: 2;
+        }
 
-      /* Grid Overlay (Linhas) */
-      #grid-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 20;
-        display: none;
-      }
-      #grid-overlay.visible {
-        display: block;
-      }
+        .pixel-canvas-container {
+            position: relative;
+            background-color: #ffffff;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            image-rendering: pixelated; 
+        }
 
-      /* UI Styles */
-      .tool-btn.active {
-        background-color: #7aa2f7;
-        color: #1a1b26;
-        border-color: #7aa2f7;
-        box-shadow: 0 0 8px rgba(122, 162, 247, 0.4);
-      }
-      .frame-thumb.active {
-        border: 2px solid #7aa2f7;
-        box-shadow: 0 0 5px #7aa2f7;
-      }
-      .layer-item.active {
-        background-color: #414868;
-        border-left: 3px solid #7aa2f7;
-      }
-      .tab-btn.active {
-        border-bottom: 2px solid #7aa2f7;
-        color: #fff;
-        background-color: #24283b;
-      }
-      .block-item.selected {
-        border: 1px solid #7aa2f7;
-        background-color: #24283b;
-      }
+        canvas { 
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            image-rendering: pixelated;
+        }
+        
+        #main-canvas { cursor: crosshair; }
 
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #16161e;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #414868;
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #565f89;
-      }
+        /* Grid Overlay (Linhas) */
+        #grid-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 20;
+            display: none;
+        }
+        #grid-overlay.visible { display: block; }
 
-      .modal {
-        transition: opacity 0.1s, transform 0.1s;
-        opacity: 0;
-        pointer-events: none;
-        transform: scale(0.95);
-      }
-      .modal.open {
-        opacity: 1;
-        pointer-events: all;
-        transform: scale(1);
-      }
+        /* UI Styles */
+        .tool-btn.active { background-color: #7aa2f7; color: #1a1b26; border-color: #7aa2f7; box-shadow: 0 0 8px rgba(122,162,247,0.4); }
+        .tool-btn-ai.active { background-color: #bb9af7; color: #1a1b26; border-color: #bb9af7; box-shadow: 0 0 8px rgba(187,154,247,0.4); }
+        
+        .frame-thumb.active { border: 2px solid #7aa2f7; box-shadow: 0 0 5px #7aa2f7; }
+        .layer-item.active { background-color: #414868; border-left: 3px solid #7aa2f7; }
+        .tab-btn.active { border-bottom: 2px solid #7aa2f7; color: #fff; background-color: #24283b; }
+        .block-item.selected { border: 1px solid #7aa2f7; background-color: #24283b; }
 
-      #minimap-viewport {
-        border: 2px solid #7aa2f7;
-        background-color: rgba(122, 162, 247, 0.2);
-        position: absolute;
-        pointer-events: none;
-      }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #16161e; }
+        ::-webkit-scrollbar-thumb { background: #414868; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #565f89; }
+
+        .modal { transition: opacity 0.2s, transform 0.2s; opacity: 0; pointer-events: none; transform: scale(0.95); }
+        .modal.open { opacity: 1; pointer-events: all; transform: scale(1); }
+        
+        #minimap-viewport {
+            border: 2px solid #7aa2f7;
+            background-color: rgba(122,162,247,0.2);
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #bb9af7;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
-  </head>
-  <body class="h-screen w-screen flex flex-col">
+</head>
+<body class="h-screen w-screen flex flex-col">
+
     <!-- HEADER -->
-    <header
-      class="h-14 bg-[#16161e] border-b border-[#414868] flex items-center justify-between px-4 shrink-0 shadow-md z-50"
-    >
-      <div class="flex items-center gap-4">
-        <div class="flex items-center gap-2 text-[#bb9af7]">
-          <i class="fas fa-cube text-xl"></i>
-          <span
-            class="font-bold text-white tracking-widest text-base hidden md:block"
-            >PIXEL<span class="text-[#7aa2f7]">FORGE</span></span
-          >
-        </div>
-        <div class="h-6 w-[1px] bg-[#414868]"></div>
-        <button
-          id="btn-undo"
-          class="text-gray-400 hover:text-white px-2 py-1 rounded hover:bg-[#24283b] transition"
-          title="Desfazer (Ctrl+Z)"
-        >
-          <i class="fas fa-undo"></i>
-        </button>
-      </div>
-
-      <div
-        class="flex items-center gap-2 bg-[#1a1b26] p-1.5 rounded-lg border border-[#414868]"
-      >
-        <button
-          class="tool-btn active w-9 h-9 rounded flex items-center justify-center transition"
-          data-tool="pencil"
-          title="Lápis (P)"
-        >
-          <i class="fas fa-pencil-alt"></i>
-        </button>
-        <button
-          class="tool-btn w-9 h-9 rounded flex items-center justify-center transition"
-          data-tool="eraser"
-          title="Borracha (E)"
-        >
-          <i class="fas fa-eraser"></i>
-        </button>
-        <button
-          class="tool-btn w-9 h-9 rounded flex items-center justify-center transition"
-          data-tool="bucket"
-          title="Balde (B)"
-        >
-          <i class="fas fa-fill-drip"></i>
-        </button>
-        <button
-          class="tool-btn w-9 h-9 rounded flex items-center justify-center transition"
-          data-tool="stamp"
-          title="Carimbo (S)"
-        >
-          <i class="fas fa-stamp"></i>
-        </button>
-        <button
-          class="tool-btn w-9 h-9 rounded flex items-center justify-center transition"
-          data-tool="picker"
-          title="Conta-gotas (Alt)"
-        >
-          <i class="fas fa-eye-dropper"></i>
-        </button>
-      </div>
-
-      <div class="flex items-center gap-3">
-        <div
-          class="flex items-center bg-[#24283b] rounded border border-[#414868] px-2 h-8"
-        >
-          <button id="zoom-out" class="text-gray-400 hover:text-white px-1">
-            <i class="fas fa-minus text-xs"></i>
-          </button>
-          <span
-            id="zoom-level"
-            class="text-xs font-mono w-12 text-center text-gray-200"
-            >100%</span
-          >
-          <button id="zoom-in" class="text-gray-400 hover:text-white px-1">
-            <i class="fas fa-plus text-xs"></i>
-          </button>
-        </div>
-
-        <div
-          class="flex flex-col items-center justify-center w-16 bg-[#24283b] rounded border border-[#414868] px-1 py-0.5"
-        >
-          <div
-            class="flex justify-between w-full text-[8px] text-gray-400 uppercase font-bold"
-          >
-            <span>Size</span>
-            <span id="brush-size-val">1px</span>
-          </div>
-          <input
-            type="range"
-            id="brush-size"
-            min="1"
-            max="64"
-            value="1"
-            class="w-full h-1 accent-[#7aa2f7] cursor-pointer"
-          />
-        </div>
-
-        <div class="relative group z-50">
-          <button
-            id="btn-color-modal"
-            class="w-8 h-8 rounded border-2 border-white/20 shadow-sm"
-            style="background-color: #000000"
-            title="Cor"
-          ></button>
-          <div
-            id="color-modal"
-            class="modal fixed top-16 right-4 bg-[#1a1b26] p-3 rounded border border-[#414868] shadow-2xl w-48 flex flex-col gap-2 z-[100]"
-          >
-            <div
-              class="text-xs font-bold text-gray-400 uppercase flex justify-between"
-            >
-              <span>Seletor</span>
-              <i
-                class="fas fa-times cursor-pointer hover:text-white"
-                onclick="document.getElementById('color-modal').classList.remove('open')"
-              ></i>
+    <header class="h-14 bg-[#16161e] border-b border-[#414868] flex items-center justify-between px-4 shrink-0 shadow-md z-50">
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 text-[#bb9af7]">
+                <i class="fas fa-cube text-xl"></i>
+                <span class="font-bold text-white tracking-widest text-base hidden md:block">PIXEL<span class="text-[#7aa2f7]">FORGE</span></span>
             </div>
-            <input
-              type="color"
-              id="native-picker"
-              class="w-full h-8 cursor-pointer rounded border-none p-0 bg-transparent"
-            />
-            <input
-              type="text"
-              id="hex-input"
-              class="w-full bg-[#13141c] border border-[#414868] text-white text-xs p-1 rounded font-mono text-center"
-              value="#000000"
-            />
-          </div>
+            <div class="h-6 w-[1px] bg-[#414868]"></div>
+            <button id="btn-undo" class="text-gray-400 hover:text-white px-2 py-1 rounded hover:bg-[#24283b] transition" title="Desfazer (Ctrl+Z)">
+                <i class="fas fa-undo"></i>
+            </button>
         </div>
 
-        <div class="h-6 w-[1px] bg-[#414868]"></div>
-
-        <button
-          id="btn-onion"
-          class="text-gray-500 hover:text-[#7aa2f7] px-1"
-          title="Onion Skin"
-        >
-          <i class="fas fa-layer-group text-lg"></i>
-        </button>
-        <button id="btn-grid" class="text-white px-1" title="Toggle Grid">
-          <i class="fas fa-border-all text-lg"></i>
-        </button>
-
-        <div class="relative z-40">
-          <button
-            id="btn-export-menu"
-            class="bg-[#bb9af7] hover:bg-white text-[#1a1b26] px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-1"
-          >
-            Exportar <i class="fas fa-chevron-down text-[9px]"></i>
-          </button>
-          <div
-            id="export-dropdown"
-            class="modal absolute right-0 top-10 bg-[#1a1b26] border border-[#414868] rounded shadow-xl w-40 flex flex-col py-1"
-          >
-            <button
-              id="exp-gif"
-              class="text-left px-3 py-2 text-xs text-gray-300 hover:bg-[#24283b] hover:text-white"
-            >
-              <i class="fas fa-film mr-2"></i>GIF Animado
-            </button>
-            <button
-              id="exp-png"
-              class="text-left px-3 py-2 text-xs text-gray-300 hover:bg-[#24283b] hover:text-white"
-            >
-              <i class="fas fa-image mr-2"></i>PNG (Frame)
-            </button>
-          </div>
+        <div class="flex items-center gap-2 bg-[#1a1b26] p-1.5 rounded-lg border border-[#414868]">
+            <button class="tool-btn active w-9 h-9 rounded flex items-center justify-center transition" data-tool="pencil" title="Lápis (P)"><i class="fas fa-pencil-alt"></i></button>
+            <button class="tool-btn w-9 h-9 rounded flex items-center justify-center transition" data-tool="eraser" title="Borracha (E)"><i class="fas fa-eraser"></i></button>
+            <button class="tool-btn w-9 h-9 rounded flex items-center justify-center transition" data-tool="bucket" title="Balde (B)"><i class="fas fa-fill-drip"></i></button>
+            <button class="tool-btn w-9 h-9 rounded flex items-center justify-center transition" data-tool="select" title="Seleção (M - Move/Cut/Copy)"><i class="fas fa-vector-square"></i></button>
+            <button class="tool-btn w-9 h-9 rounded flex items-center justify-center transition" data-tool="picker" title="Conta-gotas (Alt)"><i class="fas fa-eye-dropper"></i></button>
+            <div class="h-6 w-[1px] bg-[#414868] mx-1"></div>
+            <button class="tool-btn tool-btn-ai w-9 h-9 rounded flex items-center justify-center transition text-[#bb9af7] hover:bg-[#bb9af7] hover:text-[#1a1b26]" data-tool="ai" title="AI Studio (Gerar)"><i class="fas fa-robot"></i></button>
         </div>
-      </div>
+
+        <div class="flex items-center gap-3">
+            <div class="flex items-center bg-[#24283b] rounded border border-[#414868] px-2 h-8">
+                <button id="zoom-out" class="text-gray-400 hover:text-white px-1"><i class="fas fa-minus text-xs"></i></button>
+                <span id="zoom-level" class="text-xs font-mono w-12 text-center text-gray-200">100%</span>
+                <button id="zoom-in" class="text-gray-400 hover:text-white px-1"><i class="fas fa-plus text-xs"></i></button>
+            </div>
+            <div class="flex flex-col items-center justify-center w-16 bg-[#24283b] rounded border border-[#414868] px-1 py-0.5">
+                <div class="flex justify-between w-full text-[8px] text-gray-400 uppercase font-bold">
+                    <span>Size</span>
+                    <span id="brush-size-val">1px</span>
+                </div>
+                <input type="range" id="brush-size" min="1" max="64" value="1" class="w-full h-1 accent-[#7aa2f7] cursor-pointer">
+            </div>
+            <div class="relative group z-50">
+                <button id="btn-color-modal" class="w-8 h-8 rounded border-2 border-white/20 shadow-sm" style="background-color: #000000;" title="Cor"></button>
+                <div id="color-modal" class="modal fixed top-16 right-4 bg-[#1a1b26] p-3 rounded border border-[#414868] shadow-2xl w-48 flex flex-col gap-2 z-[100]">
+                    <div class="text-xs font-bold text-gray-400 uppercase flex justify-between">
+                        <span>Seletor</span>
+                        <i class="fas fa-times cursor-pointer hover:text-white" onclick="document.getElementById('color-modal').classList.remove('open')"></i>
+                    </div>
+                    <input type="color" id="native-picker" class="w-full h-8 cursor-pointer rounded border-none p-0 bg-transparent">
+                    <input type="text" id="hex-input" class="w-full bg-[#13141c] border border-[#414868] text-white text-xs p-1 rounded font-mono text-center" value="#000000">
+                </div>
+            </div>
+            <div class="h-6 w-[1px] bg-[#414868]"></div>
+            <button id="btn-onion" class="text-gray-500 hover:text-[#7aa2f7] px-1" title="Onion Skin"><i class="fas fa-layer-group text-lg"></i></button>
+            <button id="btn-grid" class="text-white px-1" title="Toggle Grid"><i class="fas fa-border-all text-lg"></i></button>
+            <div class="relative z-40">
+                <button id="btn-export-menu" class="bg-[#bb9af7] hover:bg-white text-[#1a1b26] px-3 py-1.5 rounded text-xs font-bold transition flex items-center gap-1">
+                    Exportar <i class="fas fa-chevron-down text-[9px]"></i>
+                </button>
+                <div id="export-dropdown" class="modal absolute right-0 top-10 bg-[#1a1b26] border border-[#414868] rounded shadow-xl w-40 flex flex-col py-1">
+                    <button id="exp-gif" class="text-left px-3 py-2 text-xs text-gray-300 hover:bg-[#24283b] hover:text-white w-full"><i class="fas fa-film mr-2 w-4"></i>GIF Animado</button>
+                    <button id="exp-png" class="text-left px-3 py-2 text-xs text-gray-300 hover:bg-[#24283b] hover:text-white w-full"><i class="fas fa-image mr-2 w-4"></i>PNG (Frame)</button>
+                    <div class="h-[1px] bg-[#414868] my-1"></div>
+                    <button id="exp-json" class="text-left px-3 py-2 text-xs text-[#bb9af7] hover:bg-[#24283b] hover:text-white w-full"><i class="fas fa-code mr-2 w-4"></i>JSON (Matriz)</button>
+                </div>
+            </div>
+        </div>
     </header>
 
     <!-- AREA PRINCIPAL -->
     <main class="flex-1 flex overflow-hidden">
-      <section class="flex-1 flex flex-col relative bg-[#13141c]">
-        <div id="canvas-viewport" class="flex-1 relative w-full h-full">
-          <!-- O tamanho deste container será W*Zoom x H*Zoom -->
-          <div id="pixel-container" class="pixel-canvas-container">
-            <canvas
-              id="onion-canvas"
-              class="pointer-events-none opacity-40"
-            ></canvas>
-            <canvas id="main-canvas" class="z-10"></canvas>
-            <!-- Grid Overlay (Linhas) -->
-            <div id="grid-overlay" class="visible"></div>
-            <canvas
-              id="preview-canvas"
-              class="z-30 pointer-events-none"
-            ></canvas>
-          </div>
-        </div>
-
-        <div
-          class="h-32 bg-[#1a1b26] border-t border-[#414868] flex shrink-0 z-30 shadow-lg"
-        >
-          <div class="flex-1 flex flex-col border-r border-[#414868]">
-            <div
-              class="h-8 bg-[#16161e] border-b border-[#414868] flex items-center justify-between px-2"
-            >
-              <div class="flex items-center gap-3">
-                <span class="text-[10px] font-bold text-gray-500 uppercase"
-                  >Frames</span
-                >
-                <button
-                  id="anim-play"
-                  class="text-[#9ece6a] hover:text-white text-xs font-bold flex items-center"
-                >
-                  <i class="fas fa-play mr-1"></i> Play
-                </button>
-              </div>
-              <div class="flex items-center gap-2">
-                <span
-                  id="fps-display"
-                  class="text-[9px] text-gray-400 font-mono"
-                  >8 FPS</span
-                >
-                <input
-                  type="range"
-                  id="fps-input"
-                  min="1"
-                  max="24"
-                  value="8"
-                  class="w-16 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-[#7aa2f7]"
-                />
-              </div>
-            </div>
-            <div
-              class="flex-1 overflow-x-auto flex items-center p-2 gap-2 bg-[#13141c] custom-scrollbar"
-              id="frames-container"
-            ></div>
-          </div>
-
-          <div class="w-48 bg-[#16161e] flex flex-col">
-            <div
-              class="flex justify-between items-center px-2 py-1 border-b border-[#414868] h-8"
-            >
-              <span class="text-[9px] font-bold text-[#bb9af7]">SYNTH</span>
-              <button
-                id="audio-start-btn"
-                class="text-[9px] bg-[#24283b] hover:bg-[#bb9af7] hover:text-black text-gray-300 px-2 rounded transition border border-[#414868]"
-              >
-                <i class="fas fa-power-off mr-1"></i> Audio
-              </button>
-            </div>
-            <div class="flex-1 p-1">
-              <div
-                class="w-full h-full grid grid-cols-16 grid-rows-5 gap-[1px]"
-                id="sequencer-grid"
-              ></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SIDEBAR -->
-      <aside
-        class="w-72 bg-[#1a1b26] border-l border-[#414868] flex flex-col shrink-0 z-30 shadow-xl"
-      >
-        <div class="h-[35%] flex flex-col border-b border-[#414868]">
-          <div
-            class="p-2 bg-[#16161e] text-[10px] font-bold flex justify-between items-center text-gray-400"
-          >
-            <span>CAMADAS</span>
-            <button id="add-layer-btn" class="text-[#7aa2f7] hover:text-white">
-              <i class="fas fa-plus-circle"></i>
-            </button>
-          </div>
-          <div
-            class="flex-1 overflow-y-auto p-1 flex flex-col gap-1 custom-scrollbar bg-[#13141c]"
-            id="layers-container"
-          ></div>
-        </div>
-
-        <div class="h-[65%] flex flex-col bg-[#13141c]">
-          <div
-            class="flex text-[9px] font-bold bg-[#16161e] border-b border-[#414868]"
-          >
-            <button
-              class="flex-1 py-2 text-gray-400 hover:text-white tab-btn active"
-              onclick="AppState.switchTab('colors')"
-            >
-              CORES
-            </button>
-            <button
-              class="flex-1 py-2 text-gray-400 hover:text-white tab-btn"
-              onclick="AppState.switchTab('blocks')"
-            >
-              BLOCOS
-            </button>
-            <button
-              class="flex-1 py-2 text-gray-400 hover:text-white tab-btn"
-              onclick="AppState.switchTab('atlas')"
-            >
-              ATLAS / MAPA
-            </button>
-          </div>
-
-          <div class="flex-1 overflow-y-auto p-3 custom-scrollbar">
-            <!-- Cores -->
-            <div id="tab-content-colors" class="flex flex-col gap-3">
-              <div class="grid grid-cols-6 gap-1" id="palette-container"></div>
-            </div>
-
-            <!-- Blocos -->
-            <div id="tab-content-blocks" class="hidden flex flex-col gap-3">
-              <button
-                id="btn-save-block"
-                class="w-full py-1.5 border border-dashed border-[#414868] text-gray-400 text-[10px] hover:text-[#7aa2f7] hover:border-[#7aa2f7] rounded transition"
-              >
-                <i class="fas fa-save mr-1"></i> Salvar Bloco
-              </button>
-              <div id="blocks-container" class="flex flex-col gap-1 mt-1"></div>
-              <button
-                id="btn-clear-block"
-                class="hidden text-xs text-red-400 hover:text-red-300 mt-2 text-center"
-                onclick="AppState.clearBlockSelection()"
-              >
-                <i class="fas fa-ban mr-1"></i> Deselecionar Bloco
-              </button>
-            </div>
-
-            <!-- Atlas / Mini-map -->
-            <div
-              id="tab-content-atlas"
-              class="hidden flex flex-col gap-3 h-full"
-            >
-              <div id="atlas-upload-container" class="flex flex-col gap-2">
-                <label
-                  class="w-full py-4 border-2 border-dashed border-[#414868] text-gray-400 text-xs hover:text-[#7aa2f7] hover:border-[#7aa2f7] rounded flex flex-col items-center justify-center cursor-pointer transition"
-                >
-                  <i class="fas fa-map text-xl mb-2"></i>
-                  <span>Carregar Atlas / Imagem</span>
-                  <input
-                    type="file"
-                    id="atlas-upload"
-                    accept="image/*"
-                    class="hidden"
-                  />
-                </label>
-                <p class="text-[9px] text-gray-500 text-center">
-                  Isso define o tamanho do projeto.
-                </p>
-              </div>
-
-              <div id="minimap-container" class="hidden flex-col h-full">
-                <div
-                  class="text-[10px] text-gray-400 font-bold mb-1 flex justify-between"
-                >
-                  <span>NAVEGADOR</span>
-                  <span id="atlas-dims">-- x --</span>
+        
+        <section class="flex-1 flex flex-col relative bg-[#13141c]">
+            <!-- Novo Grid de Edição com Réguas -->
+            <div id="editor-area" class="flex-1 w-full h-full">
+                <div class="ruler-corner"></div>
+                <div id="ruler-h-wrapper">
+                    <canvas id="ruler-h" class="ruler"></canvas>
                 </div>
-                <div
-                  class="relative w-full bg-[#000] border border-[#414868] cursor-crosshair overflow-hidden"
-                  style="aspect-ratio: 1/1"
-                  id="minimap-wrapper"
-                >
-                  <canvas
-                    id="minimap-canvas"
-                    class="w-full h-full object-contain"
-                  ></canvas>
-                  <div id="minimap-viewport"></div>
+                <div id="ruler-v-wrapper">
+                    <canvas id="ruler-v" class="ruler"></canvas>
                 </div>
-              </div>
+                
+                <div id="canvas-viewport">
+                    <div id="pixel-container" class="pixel-canvas-container">
+                        <canvas id="onion-canvas" class="pointer-events-none opacity-40"></canvas>
+                        <canvas id="main-canvas" class="z-10"></canvas>
+                        <div id="grid-overlay" class="visible"></div>
+                        <!-- Preview inclui agora a seleção -->
+                        <canvas id="preview-canvas" class="z-30 pointer-events-none"></canvas>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      </aside>
+
+            <div class="h-32 bg-[#1a1b26] border-t border-[#414868] flex shrink-0 z-30 shadow-lg">
+                <div class="flex-1 flex flex-col border-r border-[#414868]">
+                    <div class="h-8 bg-[#16161e] border-b border-[#414868] flex items-center justify-between px-2">
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] font-bold text-gray-500 uppercase">Frames</span>
+                            <button id="anim-play" class="text-[#9ece6a] hover:text-white text-xs font-bold flex items-center"><i class="fas fa-play mr-1"></i> Play</button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span id="fps-display" class="text-[9px] text-gray-400 font-mono">8 FPS</span>
+                            <input type="range" id="fps-input" min="1" max="24" value="8" class="w-16 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-[#7aa2f7]">
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-x-auto flex items-center p-2 gap-2 bg-[#13141c] custom-scrollbar" id="frames-container"></div>
+                </div>
+
+                <div class="w-48 bg-[#16161e] flex flex-col">
+                    <div class="flex justify-between items-center px-2 py-1 border-b border-[#414868] h-8">
+                        <span class="text-[9px] font-bold text-[#bb9af7]">SYNTH</span>
+                        <button id="audio-start-btn" class="text-[9px] bg-[#24283b] hover:bg-[#bb9af7] hover:text-black text-gray-300 px-2 rounded transition border border-[#414868]">
+                            <i class="fas fa-power-off mr-1"></i> Audio
+                        </button>
+                    </div>
+                    <div class="flex-1 p-1">
+                        <div class="w-full h-full grid grid-cols-16 grid-rows-5 gap-[1px]" id="sequencer-grid"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SIDEBAR -->
+        <aside class="w-72 bg-[#1a1b26] border-l border-[#414868] flex flex-col shrink-0 z-30 shadow-xl">
+            <div class="h-[35%] flex flex-col border-b border-[#414868]">
+                <div class="p-2 bg-[#16161e] text-[10px] font-bold flex justify-between items-center text-gray-400">
+                    <span>CAMADAS</span>
+                    <button id="add-layer-btn" class="text-[#7aa2f7] hover:text-white"><i class="fas fa-plus-circle"></i></button>
+                </div>
+                <div class="flex-1 overflow-y-auto p-1 flex flex-col gap-1 custom-scrollbar bg-[#13141c]" id="layers-container"></div>
+            </div>
+            <div class="h-[65%] flex flex-col bg-[#13141c]">
+                <div class="flex text-[9px] font-bold bg-[#16161e] border-b border-[#414868]">
+                    <button class="flex-1 py-2 text-gray-400 hover:text-white tab-btn active" onclick="AppState.switchTab('colors')">CORES</button>
+                    <button class="flex-1 py-2 text-gray-400 hover:text-white tab-btn" onclick="AppState.switchTab('blocks')">BLOCOS</button>
+                    <button class="flex-1 py-2 text-gray-400 hover:text-white tab-btn" onclick="AppState.switchTab('atlas')">ATLAS / MAPA</button>
+                </div>
+                <div class="flex-1 overflow-y-auto p-3 custom-scrollbar">
+                    <div id="tab-content-colors" class="flex flex-col gap-3">
+                        <div class="grid grid-cols-6 gap-1" id="palette-container"></div>
+                    </div>
+                    <div id="tab-content-blocks" class="hidden flex flex-col gap-3">
+                        <button id="btn-save-block" class="w-full py-1.5 border border-dashed border-[#414868] text-gray-400 text-[10px] hover:text-[#7aa2f7] hover:border-[#7aa2f7] rounded transition">
+                            <i class="fas fa-save mr-1"></i> Salvar Bloco
+                        </button>
+                        <div id="blocks-container" class="flex flex-col gap-1 mt-1"></div>
+                        <button id="btn-clear-block" class="hidden text-xs text-red-400 hover:text-red-300 mt-2 text-center" onclick="AppState.clearBlockSelection()">
+                            <i class="fas fa-ban mr-1"></i> Deselecionar Bloco
+                        </button>
+                    </div>
+                    <div id="tab-content-atlas" class="hidden flex flex-col gap-3 h-full">
+                        <div id="atlas-upload-container" class="flex flex-col gap-2">
+                            <label class="w-full py-4 border-2 border-dashed border-[#414868] text-gray-400 text-xs hover:text-[#7aa2f7] hover:border-[#7aa2f7] rounded flex flex-col items-center justify-center cursor-pointer transition">
+                                <i class="fas fa-map text-xl mb-2"></i>
+                                <span>Carregar Atlas / Imagem</span>
+                                <input type="file" id="atlas-upload" accept="image/*" class="hidden">
+                            </label>
+                            <p class="text-[9px] text-gray-500 text-center">Isso define o tamanho do projeto.</p>
+                        </div>
+                        <div id="minimap-container" class="hidden flex-col h-full">
+                            <div class="text-[10px] text-gray-400 font-bold mb-1 flex justify-between">
+                                <span>NAVEGADOR</span>
+                                <span id="atlas-dims">-- x --</span>
+                            </div>
+                            <div class="relative w-full bg-[#000] border border-[#414868] cursor-crosshair overflow-hidden" style="aspect-ratio: 1/1;" id="minimap-wrapper">
+                                <canvas id="minimap-canvas" class="w-full h-full object-contain"></canvas>
+                                <div id="minimap-viewport"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
     </main>
 
+    <!-- AI PROMPT MODAL -->
+    <div id="ai-modal" class="modal fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm hidden">
+        <div class="bg-[#1a1b26] w-96 rounded-lg border border-[#bb9af7] shadow-2xl overflow-hidden flex flex-col">
+            <div class="bg-[#24283b] p-3 border-b border-[#414868] flex justify-between items-center">
+                <div class="flex items-center gap-2 text-[#bb9af7]">
+                    <i class="fas fa-robot"></i>
+                    <span class="font-bold text-sm">AI STUDIO (GEMINI IMAGEN)</span>
+                </div>
+                <button id="close-ai-modal" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-4 flex flex-col gap-4">
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Prompt de Comando</label>
+                    <textarea id="ai-prompt-input" class="w-full bg-[#13141c] border border-[#414868] rounded p-2 text-xs text-gray-300 focus:border-[#bb9af7] focus:text-white outline-none resize-none h-20" placeholder="Ex: Um cavaleiro com espada brilhante..."></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Largura (px)</label>
+                        <input type="number" id="ai-width" class="w-full bg-[#13141c] border border-[#414868] rounded p-1 text-xs text-white text-center" value="32">
+                    </div>
+                    <div>
+                        <label class="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Altura (px)</label>
+                        <input type="number" id="ai-height" class="w-full bg-[#13141c] border border-[#414868] rounded p-1 text-xs text-white text-center" value="32">
+                    </div>
+                </div>
+                <div class="bg-[#13141c] p-2 rounded border border-[#414868] text-[9px] text-gray-500 leading-tight">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    A IA gerará a imagem e a redimensionará para encaixar perfeitamente nas dimensões selecionadas acima, sem bordas.
+                </div>
+                <div id="ai-loading" class="hidden flex flex-col items-center justify-center py-2">
+                    <div class="loader mb-2"></div>
+                    <span class="text-[10px] text-[#bb9af7] animate-pulse">Gemini está pintando...</span>
+                </div>
+                <button id="btn-generate-ai" class="w-full bg-[#bb9af7] hover:bg-white text-[#1a1b26] font-bold py-2 rounded text-xs transition flex items-center justify-center gap-2">
+                    <i class="fas fa-magic"></i> GERAR COM IA
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
-      // ==========================================
-      // DADOS
-      // ==========================================
-      const DEFAULT_BLOCKS = [
-        { name: "Grama", color: "#567d46", noise: true },
-        { name: "Terra", color: "#5d4037", noise: true },
-        { name: "Pedra", color: "#757575", noise: true },
-        { name: "Areia", color: "#e0c097", noise: true },
-        { name: "Madeira", color: "#4e342e", noise: true },
-        { name: "Água", color: "#4fc3f7", noise: false },
-      ];
-      const PALETTE = [
-        "#000000",
-        "#1D2B53",
-        "#7E2553",
-        "#008751",
-        "#AB5236",
-        "#5F574F",
-        "#C2C3C7",
-        "#FFF1E8",
-        "#FF004D",
-        "#FFA300",
-        "#FFEC27",
-        "#00E436",
-        "#29ADFF",
-        "#83769C",
-        "#FF77A8",
-        "#FFCCAA",
-        "#24283b",
-        "#ffffff",
-        "#5c6370",
-      ];
+        // ==========================================
+        // DADOS
+        // ==========================================
+        const DEFAULT_BLOCKS = [
+            { name: "Grama", color: "#567d46", noise: true },
+            { name: "Terra", color: "#5d4037", noise: true },
+            { name: "Pedra", color: "#757575", noise: true },
+            { name: "Areia", color: "#e0c097", noise: true },
+            { name: "Madeira", color: "#4e342e", noise: true },
+            { name: "Água", color: "#4fc3f7", noise: false }
+        ];
+        const PALETTE = ['#000000','#1D2B53','#7E2553','#008751','#AB5236','#5F574F','#C2C3C7','#FFF1E8','#FF004D','#FFA300','#FFEC27','#00E436','#29ADFF','#83769C','#FF77A8','#FFCCAA','#24283b','#ffffff','#5c6370'];
 
-      // ==========================================
-      // APP STATE
-      // ==========================================
-      const AppState = {
-        width: 32,
-        height: 32,
-        zoom: 15,
-        currentTool: "pencil",
-        primaryColor: "#000000",
-        brushSize: 1,
+        // ==========================================
+        // APP STATE
+        // ==========================================
+        const AppState = {
+            width: 32,
+            height: 32,
+            zoom: 15, 
+            currentTool: 'pencil',
+            primaryColor: '#000000',
+            brushSize: 1, 
+            
+            // Selection State
+            selection: null, // {x, y, w, h}
+            isSelecting: false,
+            floatingLayer: null, // Canvas com conteúdo copiado/colado
+            clipboard: null, // ImageData
 
-        activeBlock: null,
-        activeBlockPattern: null,
-        activeBlockImage: null,
+            activeBlock: null,
+            activeBlockPattern: null,
+            activeBlockImage: null,
 
-        isDrawing: false,
-        currentFrameIndex: 0,
-        currentLayerIndex: 0,
-        onionSkinEnabled: false,
-        gridEnabled: true,
-        isPlaying: false,
-        fps: 8,
-        frames: [],
-        history: [],
-        customBlocks: [],
+            isDrawing: false,
+            currentFrameIndex: 0,
+            currentLayerIndex: 0,
+            onionSkinEnabled: false,
+            gridEnabled: true,
+            isPlaying: false,
+            fps: 8,
+            frames: [],
+            history: [],
+            customBlocks: [],
+            
+            audioContextStarted: false,
+            currentStep: 0,
 
-        audioContextStarted: false,
-        currentStep: 0,
+            switchTab: function(t) {
+                ['colors', 'blocks', 'atlas'].forEach(tab => document.getElementById(`tab-content-${tab}`).classList.add('hidden'));
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById(`tab-content-${t}`).classList.remove('hidden');
+                event.target.classList.add('active');
+                if(t === 'atlas') render.minimap();
+            },
 
-        switchTab: function (t) {
-          ["colors", "blocks", "atlas"].forEach((tab) =>
-            document
-              .getElementById(`tab-content-${tab}`)
-              .classList.add("hidden")
-          );
-          document
-            .querySelectorAll(".tab-btn")
-            .forEach((b) => b.classList.remove("active"));
-          document
-            .getElementById(`tab-content-${t}`)
-            .classList.remove("hidden");
-          event.target.classList.add("active");
-          if (t === "atlas") render.minimap();
-        },
+            clearBlockSelection: function() {
+                this.activeBlock = null;
+                this.activeBlockPattern = null;
+                this.activeBlockImage = null;
+                document.querySelectorAll('.block-item').forEach(b => b.classList.remove('selected'));
+                document.getElementById('btn-clear-block').classList.add('hidden');
+            },
 
-        clearBlockSelection: function () {
-          this.activeBlock = null;
-          this.activeBlockPattern = null;
-          this.activeBlockImage = null;
-          document
-            .querySelectorAll(".block-item")
-            .forEach((b) => b.classList.remove("selected"));
-          document.getElementById("btn-clear-block").classList.add("hidden");
-        },
-
-        undo: function () {
-          if (this.history.length === 0) return;
-          const state = JSON.parse(this.history.pop());
-          project.restoreState(state);
-        },
-
-        saveState: function () {
-          if (this.history.length > 20) this.history.shift();
-          const state = {
-            w: this.width,
-            h: this.height,
-            frames: this.frames.map((f) => ({
-              layers: f.layers.map((l) => ({
-                name: l.name,
-                visible: l.visible,
-                data: l.canvas.toDataURL(),
-              })),
-            })),
-          };
-          this.history.push(JSON.stringify(state));
-        },
-
-        updateZoom: function (val) {
-          this.zoom = Math.max(1, Math.min(100, val));
-          document.getElementById("zoom-level").innerText =
-            Math.round((this.zoom * 100) / 10) + "%";
-
-          const w = this.width * this.zoom;
-          const h = this.height * this.zoom;
-
-          const container = document.getElementById("pixel-container");
-          container.style.width = w + "px";
-          container.style.height = h + "px";
-
-          // SYNC CHECKERBOARD BACKGROUND (Transparência)
-          // Usamos conic-gradient para criar um grid de 2x2 pixels que escala perfeitamente
-          // Tamanho: 2 * zoom (para fazer um bloco de 2x2 pixels)
-          // Cores: Branco e Cinza Claro
-          const z = this.zoom;
-          container.style.backgroundSize = `${2 * z}px ${2 * z}px`;
-          container.style.backgroundImage = `
-                    conic-gradient(#e5e7eb 90deg, #ffffff 90deg 180deg, #e5e7eb 180deg 270deg, #ffffff 270deg)
-                `;
-
-          // SYNC GRID OVERLAY (Linhas)
-          const gridOverlay = document.getElementById("grid-overlay");
-          if (AppState.gridEnabled) {
-            gridOverlay.style.backgroundSize = `${z}px ${z}px`;
-            // Cria linha de 1px física visualmente
-            gridOverlay.style.backgroundImage = `
-                        linear-gradient(to right, rgba(0,0,0,0.1) 1px, transparent 1px),
-                        linear-gradient(to bottom, rgba(0,0,0,0.1) 1px, transparent 1px)
-                     `;
-          }
-
-          render.minimapViewport();
-        },
-      };
-
-      // ==========================================
-      // PROJECT MANAGER
-      // ==========================================
-      class ProjectManager {
-        constructor() {
-          this.addFrame();
-          this.loadCustomBlocks();
-          this.resizeCanvas(32, 32);
-        }
-
-        resizeCanvas(w, h) {
-          AppState.width = w;
-          AppState.height = h;
-          ["main-canvas", "onion-canvas", "preview-canvas"].forEach((id) => {
-            const c = document.getElementById(id);
-            c.width = w;
-            c.height = h;
-          });
-          AppState.updateZoom(AppState.zoom);
-        }
-
-        createLayer(name = "Layer") {
-          const c = document.createElement("canvas");
-          c.width = AppState.width;
-          c.height = AppState.height;
-          return { name, canvas: c, ctx: c.getContext("2d"), visible: true };
-        }
-
-        addFrame() {
-          const f = { layers: [this.createLayer("Layer 1")] };
-          AppState.frames.push(f);
-          AppState.currentFrameIndex = AppState.frames.length - 1;
-          AppState.currentLayerIndex = 0;
-          render.frames();
-          return f;
-        }
-
-        addLayer(name) {
-          AppState.saveState();
-          const f = AppState.frames[AppState.currentFrameIndex];
-          const l = this.createLayer(name || `Layer ${f.layers.length + 1}`);
-          f.layers.push(l);
-          AppState.currentLayerIndex = f.layers.length - 1;
-          render.layers();
-        }
-
-        deleteLayer(idx) {
-          const f = AppState.frames[AppState.currentFrameIndex];
-          if (f.layers.length <= 1) return alert("Mínimo 1 camada!");
-          AppState.saveState();
-          f.layers.splice(idx, 1);
-          AppState.currentLayerIndex = Math.max(0, idx - 1);
-          render.layers();
-          render.canvas();
-        }
-
-        duplicateFrame(idx) {
-          AppState.saveState();
-          const src = AppState.frames[idx];
-          const newF = {
-            layers: src.layers.map((l) => {
-              const nl = this.createLayer(l.name);
-              nl.ctx.drawImage(l.canvas, 0, 0);
-              return nl;
-            }),
-          };
-          AppState.frames.splice(idx + 1, 0, newF);
-          AppState.currentFrameIndex = idx + 1;
-          render.frames();
-          render.canvas();
-        }
-
-        restoreState(state) {
-          this.resizeCanvas(state.w, state.h);
-          AppState.frames = [];
-          state.frames.forEach((fData) => {
-            const layers = fData.layers.map((lData) => {
-              const l = this.createLayer(lData.name);
-              l.visible = lData.visible;
-              const img = new Image();
-              img.onload = () => {
-                l.ctx.drawImage(img, 0, 0);
+            clearSelection: function() {
+                if(this.floatingLayer) {
+                    // Stamp down
+                    const f = this.frames[this.currentFrameIndex];
+                    const l = f.layers[this.currentLayerIndex];
+                    l.ctx.drawImage(this.floatingLayer.canvas, this.floatingLayer.x, this.floatingLayer.y);
+                    this.floatingLayer = null;
+                    AppState.saveState(); // FIX: Was project.saveState() which doesn't exist on the instance
+                }
+                this.selection = null;
                 render.canvas();
-                render.minimap();
-              };
-              img.src = lData.data;
-              return l;
-            });
-            AppState.frames.push({ layers });
-          });
-          AppState.currentFrameIndex = Math.max(0, AppState.frames.length - 1);
-          AppState.currentLayerIndex = 0;
-          render.layers();
-          render.frames();
-        }
+            },
 
-        loadCustomBlocks() {
-          const saved = localStorage.getItem("pixelForge_blocks_v5");
-          if (saved) AppState.customBlocks = JSON.parse(saved);
-          render.blocks();
-        }
+            undo: function() {
+                if(this.history.length === 0) return;
+                const state = JSON.parse(this.history.pop());
+                project.restoreState(state);
+            },
 
-        saveCurrentAsBlock() {
-          const name = prompt("Nome do Bloco:", "Custom");
-          if (!name) return;
-          const tempC = document.createElement("canvas");
-          tempC.width = 32;
-          tempC.height = 32;
-          const tCtx = tempC.getContext("2d");
-          const f = AppState.frames[AppState.currentFrameIndex];
-          f.layers.forEach((l) => {
-            if (l.visible)
-              tCtx.drawImage(
-                l.canvas,
-                0,
-                0,
-                AppState.width,
-                AppState.height,
-                0,
-                0,
-                32,
-                32
-              );
-          });
-          AppState.customBlocks.push({
-            name,
-            type: "custom",
-            data: tempC.toDataURL(),
-          });
-          localStorage.setItem(
-            "pixelForge_blocks_v5",
-            JSON.stringify(AppState.customBlocks)
-          );
-          render.blocks();
-        }
+            saveState: function() {
+                if(this.history.length > 20) this.history.shift();
+                const state = {
+                    w: this.width, h: this.height,
+                    frames: this.frames.map(f => ({
+                        layers: f.layers.map(l => ({
+                            name: l.name, visible: l.visible, data: l.canvas.toDataURL()
+                        }))
+                    }))
+                };
+                this.history.push(JSON.stringify(state));
+            },
 
-        loadAtlas(file) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-              if (
-                confirm(`Carregar Imagem/Atlas ${img.width}x${img.height}px?`)
-              ) {
-                AppState.saveState();
+            updateZoom: function(val) {
+                this.zoom = Math.max(1, Math.min(100, val));
+                document.getElementById('zoom-level').innerText = Math.round(this.zoom * 100 / 10) + '%';
+                
+                const w = this.width * this.zoom;
+                const h = this.height * this.zoom;
+                
+                const container = document.getElementById('pixel-container');
+                container.style.width = w + 'px';
+                container.style.height = h + 'px';
+                
+                // SYNC CHECKERBOARD & GRID
+                const z = this.zoom;
+                container.style.backgroundSize = `${2*z}px ${2*z}px`;
+                container.style.backgroundImage = `conic-gradient(#e5e7eb 90deg, #ffffff 90deg 180deg, #e5e7eb 180deg 270deg, #ffffff 270deg)`;
 
-                // Auto Fit Zoom
-                const vp = document.getElementById("canvas-viewport");
-                // Calcula zoom para caber na tela com margem
-                const fitW = (vp.clientWidth - 40) / img.width;
-                const fitH = (vp.clientHeight - 40) / img.height;
-                const bestFit = Math.floor(Math.min(fitW, fitH));
-                AppState.zoom = Math.max(1, bestFit); // Mínimo 1x
+                const gridOverlay = document.getElementById('grid-overlay');
+                if (AppState.gridEnabled) {
+                     gridOverlay.style.backgroundSize = `${z}px ${z}px`;
+                     gridOverlay.style.backgroundImage = `linear-gradient(to right, rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.1) 1px, transparent 1px)`;
+                }
 
-                this.resizeCanvas(img.width, img.height);
-                AppState.frames = [];
+                // SYNC RULERS
+                render.rulers();
+                render.minimapViewport();
+            }
+        };
 
-                const f = { layers: [] };
-                const lImg = this.createLayer("Ref (Atlas)");
-                lImg.ctx.drawImage(img, 0, 0);
-                f.layers.push(lImg);
-                f.layers.push(this.createLayer("Pintura"));
+        // ==========================================
+        // PROJECT MANAGER
+        // ==========================================
+        class ProjectManager {
+            constructor() {
+                this.addFrame();
+                this.loadCustomBlocks();
+                this.resizeCanvas(32, 32);
+            }
 
+            resizeCanvas(w, h) {
+                AppState.width = w; AppState.height = h;
+                ['main-canvas','onion-canvas','preview-canvas'].forEach(id => {
+                    const c = document.getElementById(id);
+                    c.width = w; c.height = h;
+                });
+                AppState.updateZoom(AppState.zoom);
+            }
+
+            createLayer(name = 'Layer') {
+                const c = document.createElement('canvas');
+                c.width = AppState.width; c.height = AppState.height;
+                return { name, canvas: c, ctx: c.getContext('2d'), visible: true };
+            }
+
+            addFrame() {
+                const f = { layers: [this.createLayer('Layer 1')] };
                 AppState.frames.push(f);
-                AppState.currentFrameIndex = 0;
-                AppState.currentLayerIndex = 1;
+                AppState.currentFrameIndex = AppState.frames.length - 1;
+                AppState.currentLayerIndex = 0;
+                render.frames();
+                return f;
+            }
 
-                document
-                  .getElementById("atlas-upload-container")
-                  .classList.add("hidden");
-                document
-                  .getElementById("minimap-container")
-                  .classList.remove("hidden");
-                document
-                  .getElementById("minimap-container")
-                  .classList.add("flex");
-                document.getElementById(
-                  "atlas-dims"
-                ).innerText = `${img.width}x${img.height}`;
-                document.getElementById("atlas-upload").value = "";
+            addLayer(name) {
+                AppState.saveState();
+                const f = AppState.frames[AppState.currentFrameIndex];
+                const l = this.createLayer(name || `Layer ${f.layers.length + 1}`);
+                f.layers.push(l);
+                AppState.currentLayerIndex = f.layers.length - 1;
+                render.layers();
+            }
 
-                AppState.switchTab("atlas");
-                render.all();
-                render.minimap();
-              }
-            };
-            img.src = e.target.result;
-          };
-          reader.readAsDataURL(file);
+            deleteLayer(idx) {
+                const f = AppState.frames[AppState.currentFrameIndex];
+                if(f.layers.length <= 1) return alert("Mínimo 1 camada!");
+                AppState.saveState();
+                f.layers.splice(idx, 1);
+                AppState.currentLayerIndex = Math.max(0, idx - 1);
+                render.layers(); render.canvas();
+            }
+
+            duplicateFrame(idx) {
+                AppState.saveState();
+                const src = AppState.frames[idx];
+                const newF = { layers: src.layers.map(l => {
+                    const nl = this.createLayer(l.name);
+                    nl.ctx.drawImage(l.canvas, 0, 0);
+                    return nl;
+                })};
+                AppState.frames.splice(idx + 1, 0, newF);
+                AppState.currentFrameIndex = idx + 1;
+                render.frames(); render.canvas();
+            }
+
+            restoreState(state) {
+                this.resizeCanvas(state.w, state.h);
+                AppState.frames = [];
+                state.frames.forEach(fData => {
+                    const layers = fData.layers.map(lData => {
+                        const l = this.createLayer(lData.name);
+                        l.visible = lData.visible;
+                        const img = new Image();
+                        img.onload = () => { l.ctx.drawImage(img, 0, 0); render.canvas(); render.minimap(); };
+                        img.src = lData.data;
+                        return l;
+                    });
+                    AppState.frames.push({ layers });
+                });
+                AppState.currentFrameIndex = Math.max(0, AppState.frames.length - 1);
+                AppState.currentLayerIndex = 0;
+                render.layers(); render.frames();
+            }
+
+            loadCustomBlocks() {
+                const saved = localStorage.getItem('pixelForge_blocks_v5');
+                if(saved) AppState.customBlocks = JSON.parse(saved);
+                render.blocks();
+            }
+
+            saveCurrentAsBlock() {
+                const name = prompt("Nome do Bloco:", "Custom");
+                if(!name) return;
+                const tempC = document.createElement('canvas'); tempC.width=32; tempC.height=32;
+                const tCtx = tempC.getContext('2d');
+                const f = AppState.frames[AppState.currentFrameIndex];
+                f.layers.forEach(l => { if(l.visible) tCtx.drawImage(l.canvas, 0, 0, AppState.width, AppState.height, 0, 0, 32, 32); });
+                AppState.customBlocks.push({ name, type: 'custom', data: tempC.toDataURL() });
+                localStorage.setItem('pixelForge_blocks_v5', JSON.stringify(AppState.customBlocks));
+                render.blocks();
+            }
+
+            loadAtlas(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        if(confirm(`Carregar Imagem/Atlas ${img.width}x${img.height}px?`)) {
+                            AppState.saveState();
+                            const vp = document.getElementById('canvas-viewport');
+                            const fitW = (vp.clientWidth - 40) / img.width;
+                            const fitH = (vp.clientHeight - 40) / img.height;
+                            const bestFit = Math.floor(Math.min(fitW, fitH));
+                            AppState.zoom = Math.max(1, bestFit); 
+                            this.resizeCanvas(img.width, img.height);
+                            AppState.frames = []; 
+                            const f = { layers: [] };
+                            const lImg = this.createLayer("Ref (Atlas)");
+                            lImg.ctx.drawImage(img, 0, 0);
+                            f.layers.push(lImg);
+                            f.layers.push(this.createLayer("Pintura"));
+                            AppState.frames.push(f);
+                            AppState.currentFrameIndex = 0;
+                            AppState.currentLayerIndex = 1;
+                            document.getElementById('atlas-upload-container').classList.add('hidden');
+                            document.getElementById('minimap-container').classList.remove('hidden');
+                            document.getElementById('minimap-container').classList.add('flex');
+                            document.getElementById('atlas-dims').innerText = `${img.width}x${img.height}`;
+                            document.getElementById('atlas-upload').value = '';
+                            AppState.switchTab('atlas');
+                            render.all();
+                            render.minimap();
+                        }
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
         }
-      }
 
-      // ==========================================
-      // RENDERER
-      // ==========================================
-      const render = {
-        all: () => {
-          render.canvas();
-          render.layers();
-          render.frames();
-          render.tools();
-          render.palette();
-          render.grid();
-          render.minimap();
-        },
+        // ==========================================
+        // RENDERER
+        // ==========================================
+        const render = {
+            all: () => { render.canvas(); render.layers(); render.frames(); render.tools(); render.palette(); render.grid(); render.minimap(); render.rulers(); },
+            
+            rulers: () => {
+                const hC = document.getElementById('ruler-h');
+                const vC = document.getElementById('ruler-v');
+                const hWrap = document.getElementById('ruler-h-wrapper');
+                const vWrap = document.getElementById('ruler-v-wrapper');
+                const vp = document.getElementById('canvas-viewport');
 
-        canvas: () => {
-          const ctxM = document.getElementById("main-canvas").getContext("2d");
-          const ctxO = document.getElementById("onion-canvas").getContext("2d");
-          ctxM.clearRect(0, 0, AppState.width, AppState.height);
-          ctxO.clearRect(0, 0, AppState.width, AppState.height);
+                // Dimensões totais da área de desenho zoomada
+                const totalW = AppState.width * AppState.zoom;
+                const totalH = AppState.height * AppState.zoom;
 
-          if (AppState.onionSkinEnabled && AppState.currentFrameIndex > 0) {
-            const prev = AppState.frames[AppState.currentFrameIndex - 1];
-            prev.layers.forEach((l) => {
-              if (l.visible) ctxO.drawImage(l.canvas, 0, 0);
-            });
-          }
+                // Definir tamanho do canvas da régua para cobrir o scroll total
+                // Adicionamos um padding extra para garantir que cubra
+                const drawW = Math.max(totalW, vp.clientWidth) + 100;
+                const drawH = Math.max(totalH, vp.clientHeight) + 100;
 
-          const curr = AppState.frames[AppState.currentFrameIndex];
-          curr.layers.forEach((l) => {
-            if (l.visible) ctxM.drawImage(l.canvas, 0, 0);
-          });
+                hC.width = drawW; hC.height = 24;
+                vC.width = 24; vC.height = drawH;
 
-          const btn = document.getElementById(
-            `frame-btn-${AppState.currentFrameIndex}`
-          );
-          if (btn) {
-            const t = document.createElement("canvas");
-            t.width = 32;
-            t.height = 32;
-            const tx = t.getContext("2d");
-            curr.layers.forEach((l) => {
-              if (l.visible)
-                tx.drawImage(
-                  l.canvas,
-                  0,
-                  0,
-                  AppState.width,
-                  AppState.height,
-                  0,
-                  0,
-                  32,
-                  32
-                );
-            });
-            btn.style.backgroundImage = `url(${t.toDataURL()})`;
-          }
-        },
+                const ctxH = hC.getContext('2d');
+                const ctxV = vC.getContext('2d');
 
-        grid: () => {
-          const el = document.getElementById("grid-overlay");
-          if (AppState.gridEnabled) {
-            el.classList.add("visible");
-            AppState.updateZoom(AppState.zoom);
-          } else {
-            el.classList.remove("visible");
-          }
-        },
+                ctxH.clearRect(0,0, drawW, 24);
+                ctxV.clearRect(0,0, 24, drawH);
+                
+                ctxH.fillStyle = '#a9b1d6'; ctxH.font = '9px monospace'; ctxH.textAlign = 'center';
+                ctxV.fillStyle = '#a9b1d6'; ctxV.font = '9px monospace'; ctxV.textAlign = 'right'; ctxV.textBaseline = 'middle';
 
-        minimap: () => {
-          const m = document.getElementById("minimap-canvas");
-          const ctx = m.getContext("2d");
-          m.width = AppState.width;
-          m.height = AppState.height;
-          ctx.clearRect(0, 0, m.width, m.height);
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(0, 0, m.width, m.height);
-          const curr = AppState.frames[AppState.currentFrameIndex];
-          if (curr)
-            curr.layers.forEach((l) => {
-              if (l.visible) ctx.drawImage(l.canvas, 0, 0);
-            });
-          render.minimapViewport();
-        },
+                // Ticks
+                const step = AppState.zoom >= 10 ? 1 : (AppState.zoom >= 4 ? 5 : 10); // A cada X pixels reais
+                
+                // Offset de centralização do canvas
+                const offsetX = (vp.clientWidth - (AppState.width * AppState.zoom)) / 2;
+                const offsetY = (vp.clientHeight - (AppState.height * AppState.zoom)) / 2;
+                const startX = Math.max(0, offsetX);
+                const startY = Math.max(0, offsetY);
 
-        minimapViewport: () => {
-          const vp = document.getElementById("canvas-viewport");
-          const rect = document.getElementById("minimap-viewport");
-          const viewW = vp.clientWidth;
-          const viewH = vp.clientHeight;
-          const contentW = AppState.width * AppState.zoom;
-          const contentH = AppState.height * AppState.zoom;
-          const pctW = Math.min(1, viewW / contentW);
-          const pctH = Math.min(1, viewH / contentH);
-          const scrollX = vp.scrollLeft / contentW;
-          const scrollY = vp.scrollTop / contentH;
-          rect.style.width = pctW * 100 + "%";
-          rect.style.height = pctH * 100 + "%";
-          rect.style.left = scrollX * 100 + "%";
-          rect.style.top = scrollY * 100 + "%";
-        },
+                // Desenha Horizontal
+                for(let i=0; i <= AppState.width; i+=step) {
+                    const x = startX + (i * AppState.zoom);
+                    if (x < 0) continue; 
+                    const h = i % 5 === 0 ? 12 : 6;
+                    ctxH.fillRect(x, 24-h, 1, h);
+                    if (i % 5 === 0) ctxH.fillText(i, x, 10);
+                }
 
-        layers: () => {
-          const c = document.getElementById("layers-container");
-          c.innerHTML = "";
-          const f = AppState.frames[AppState.currentFrameIndex];
-          for (let i = f.layers.length - 1; i >= 0; i--) {
-            const l = f.layers[i];
-            const div = document.createElement("div");
-            div.className = `layer-item p-1.5 flex justify-between items-center cursor-pointer text-xs mb-0.5 ${
-              i === AppState.currentLayerIndex
-                ? "active"
-                : "hover:bg-[#24283b] text-gray-400"
-            }`;
-            div.innerHTML = `
+                // Desenha Vertical
+                for(let i=0; i <= AppState.height; i+=step) {
+                    const y = startY + (i * AppState.zoom);
+                    if (y < 0) continue;
+                    const w = i % 5 === 0 ? 12 : 6;
+                    ctxV.fillRect(24-w, y, w, 1);
+                    if (i % 5 === 0) ctxV.fillText(i, 20, y);
+                }
+            },
+
+            canvas: () => {
+                const ctxM = document.getElementById('main-canvas').getContext('2d');
+                const ctxO = document.getElementById('onion-canvas').getContext('2d');
+                const ctxP = document.getElementById('preview-canvas').getContext('2d');
+                
+                ctxM.clearRect(0,0, AppState.width, AppState.height);
+                ctxO.clearRect(0,0, AppState.width, AppState.height);
+                ctxP.clearRect(0,0, AppState.width, AppState.height);
+
+                // Onion
+                if (AppState.onionSkinEnabled && AppState.currentFrameIndex > 0) {
+                    const prev = AppState.frames[AppState.currentFrameIndex - 1];
+                    prev.layers.forEach(l => { if(l.visible) ctxO.drawImage(l.canvas, 0, 0); });
+                }
+
+                // Main Layers
+                const curr = AppState.frames[AppState.currentFrameIndex];
+                curr.layers.forEach(l => { if(l.visible) ctxM.drawImage(l.canvas, 0, 0); });
+
+                // Floating Layer (Pasted content)
+                if (AppState.floatingLayer) {
+                    ctxM.save();
+                    ctxM.strokeStyle = '#fff';
+                    ctxM.setLineDash([2, 2]);
+                    ctxM.lineWidth = 1;
+                    ctxM.strokeRect(AppState.floatingLayer.x, AppState.floatingLayer.y, AppState.floatingLayer.w, AppState.floatingLayer.h);
+                    ctxM.drawImage(AppState.floatingLayer.canvas, AppState.floatingLayer.x, AppState.floatingLayer.y);
+                    ctxM.restore();
+                }
+
+                // Selection Box (Marquee)
+                if (AppState.selection) {
+                    const {x, y, w, h} = AppState.selection;
+                    ctxP.save();
+                    ctxP.strokeStyle = '#fff';
+                    ctxP.lineWidth = 1 / AppState.zoom; // Keep thin
+                    ctxP.setLineDash([4/AppState.zoom, 4/AppState.zoom]);
+                    ctxP.strokeRect(x, y, w, h);
+                    ctxP.strokeStyle = '#000';
+                    ctxP.lineDashOffset = 4/AppState.zoom;
+                    ctxP.strokeRect(x, y, w, h);
+                    ctxP.fillStyle = 'rgba(122, 162, 247, 0.2)';
+                    ctxP.fillRect(x, y, w, h);
+                    ctxP.restore();
+                }
+
+                const btn = document.getElementById(`frame-btn-${AppState.currentFrameIndex}`);
+                if(btn) {
+                    const t = document.createElement('canvas'); t.width=32; t.height=32;
+                    const tx = t.getContext('2d');
+                    curr.layers.forEach(l => { if(l.visible) tx.drawImage(l.canvas, 0, 0, AppState.width, AppState.height, 0, 0, 32, 32); });
+                    btn.style.backgroundImage = `url(${t.toDataURL()})`;
+                }
+            },
+
+            grid: () => {
+                const el = document.getElementById('grid-overlay');
+                if(AppState.gridEnabled) {
+                    el.classList.add('visible');
+                    AppState.updateZoom(AppState.zoom);
+                } else {
+                    el.classList.remove('visible');
+                }
+            },
+
+            minimap: () => {
+                const m = document.getElementById('minimap-canvas');
+                const ctx = m.getContext('2d');
+                m.width = AppState.width; m.height = AppState.height;
+                ctx.clearRect(0,0, m.width, m.height);
+                ctx.fillStyle = "#ffffff"; ctx.fillRect(0,0, m.width, m.height);
+                const curr = AppState.frames[AppState.currentFrameIndex];
+                if(curr) curr.layers.forEach(l => { if(l.visible) ctx.drawImage(l.canvas, 0, 0); });
+                render.minimapViewport();
+            },
+
+            minimapViewport: () => {
+                const vp = document.getElementById('canvas-viewport');
+                const rect = document.getElementById('minimap-viewport');
+                const viewW = vp.clientWidth;
+                const viewH = vp.clientHeight;
+                const contentW = AppState.width * AppState.zoom;
+                const contentH = AppState.height * AppState.zoom;
+                const pctW = Math.min(1, viewW / contentW);
+                const pctH = Math.min(1, viewH / contentH);
+                const scrollX = vp.scrollLeft / contentW;
+                const scrollY = vp.scrollTop / contentH;
+                rect.style.width = (pctW * 100) + '%';
+                rect.style.height = (pctH * 100) + '%';
+                rect.style.left = (scrollX * 100) + '%';
+                rect.style.top = (scrollY * 100) + '%';
+            },
+
+            layers: () => {
+                const c = document.getElementById('layers-container'); c.innerHTML = '';
+                const f = AppState.frames[AppState.currentFrameIndex];
+                for(let i=f.layers.length-1; i>=0; i--) {
+                    const l = f.layers[i];
+                    const div = document.createElement('div');
+                    div.className = `layer-item p-1.5 flex justify-between items-center cursor-pointer text-xs mb-0.5 ${i===AppState.currentLayerIndex ? 'active' : 'hover:bg-[#24283b] text-gray-400'}`;
+                    div.innerHTML = `
                         <div class="flex items-center gap-2 overflow-hidden">
-                            <i class="fas fa-eye${
-                              l.visible ? "" : "-slash"
-                            } text-[10px] w-4 hover:text-white" onclick="event.stopPropagation(); project.frames[${
-              AppState.currentFrameIndex
-            }].layers[${i}].visible = !project.frames[${
-              AppState.currentFrameIndex
-            }].layers[${i}].visible; render.canvas(); render.layers();"></i>
-                            <span class="truncate ${
-                              i === AppState.currentLayerIndex
-                                ? "text-white font-bold"
-                                : ""
-                            }">${l.name}</span>
+                            <i class="fas fa-eye${l.visible?'':'-slash'} text-[10px] w-4 hover:text-white" onclick="event.stopPropagation(); project.frames[${AppState.currentFrameIndex}].layers[${i}].visible = !project.frames[${AppState.currentFrameIndex}].layers[${i}].visible; render.canvas(); render.layers();"></i>
+                            <span class="truncate ${i===AppState.currentLayerIndex?'text-white font-bold':''}">${l.name}</span>
                         </div>
                         <i class="fas fa-trash text-[10px] text-red-900 hover:text-red-500" onclick="event.stopPropagation(); project.deleteLayer(${i})"></i>
                     `;
-            div.onclick = () => {
-              AppState.currentLayerIndex = i;
-              render.layers();
-            };
-            c.appendChild(div);
-          }
-        },
+                    div.onclick = () => { AppState.currentLayerIndex = i; render.layers(); };
+                    c.appendChild(div);
+                }
+            },
 
-        frames: () => {
-          const c = document.getElementById("frames-container");
-          c.innerHTML = "";
-          AppState.frames.forEach((f, i) => {
-            const btn = document.createElement("button");
-            btn.id = `frame-btn-${i}`;
-            btn.className = `frame-thumb w-8 h-8 bg-black border border-[#414868] shrink-0 relative mr-1 ${
-              i === AppState.currentFrameIndex ? "active" : ""
-            }`;
-            btn.onclick = () => {
-              AppState.currentFrameIndex = i;
-              AppState.currentLayerIndex = 0;
-              render.all();
-            };
-            btn.style.backgroundSize = "contain";
-            btn.style.imageRendering = "pixelated";
-            const num = document.createElement("span");
-            num.className =
-              "absolute bottom-0 right-0 text-[6px] bg-black/80 text-white px-1";
-            num.innerText = i + 1;
-            btn.appendChild(num);
-            c.appendChild(btn);
-            const t = document.createElement("canvas");
-            t.width = 32;
-            t.height = 32;
-            const tx = t.getContext("2d");
-            f.layers.forEach((l) => {
-              if (l.visible)
-                tx.drawImage(
-                  l.canvas,
-                  0,
-                  0,
-                  AppState.width,
-                  AppState.height,
-                  0,
-                  0,
-                  32,
-                  32
-                );
-            });
-            btn.style.backgroundImage = `url(${t.toDataURL()})`;
-          });
-          const add = document.createElement("button");
-          add.className =
-            "w-8 h-8 border border-dashed border-[#414868] text-gray-500 hover:text-white flex items-center justify-center shrink-0";
-          add.innerHTML = '<i class="fas fa-plus text-xs"></i>';
-          add.onclick = () =>
-            project.duplicateFrame(AppState.currentFrameIndex);
-          c.appendChild(add);
-        },
+            frames: () => {
+                const c = document.getElementById('frames-container'); c.innerHTML = '';
+                AppState.frames.forEach((f, i) => {
+                    const btn = document.createElement('button');
+                    btn.id = `frame-btn-${i}`;
+                    btn.className = `frame-thumb w-8 h-8 bg-black border border-[#414868] shrink-0 relative mr-1 ${i===AppState.currentFrameIndex ? 'active' : ''}`;
+                    btn.onclick = () => { AppState.currentFrameIndex = i; AppState.currentLayerIndex = 0; render.all(); };
+                    btn.style.backgroundSize = 'contain'; btn.style.imageRendering = 'pixelated';
+                    const num = document.createElement('span'); num.className = "absolute bottom-0 right-0 text-[6px] bg-black/80 text-white px-1"; num.innerText = i+1;
+                    btn.appendChild(num);
+                    c.appendChild(btn);
+                    const t = document.createElement('canvas'); t.width=32; t.height=32;
+                    const tx = t.getContext('2d');
+                    f.layers.forEach(l => { if(l.visible) tx.drawImage(l.canvas, 0, 0, AppState.width, AppState.height, 0, 0, 32, 32); });
+                    btn.style.backgroundImage = `url(${t.toDataURL()})`;
+                });
+                const add = document.createElement('button');
+                add.className = "w-8 h-8 border border-dashed border-[#414868] text-gray-500 hover:text-white flex items-center justify-center shrink-0";
+                add.innerHTML = '<i class="fas fa-plus text-xs"></i>';
+                add.onclick = () => project.duplicateFrame(AppState.currentFrameIndex);
+                c.appendChild(add);
+            },
 
-        blocks: () => {
-          const c = document.getElementById("blocks-container");
-          c.innerHTML = "";
-          const createPat = (b) => {
-            const cvs = document.createElement("canvas");
-            cvs.width = 32;
-            cvs.height = 32;
-            const ctx = cvs.getContext("2d");
-            if (b.type === "custom") {
-              const img = new Image();
-              img.src = b.data;
-              img.onload = () => ctx.drawImage(img, 0, 0);
-            } else {
-              ctx.fillStyle = b.color;
-              ctx.fillRect(0, 0, 32, 32);
-              if (b.noise)
-                for (let i = 0; i < 40; i++) {
-                  ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.2})`;
-                  ctx.fillRect(Math.random() * 32, Math.random() * 32, 2, 2);
+            blocks: () => {
+                const c = document.getElementById('blocks-container'); c.innerHTML = '';
+                const createPat = (b) => {
+                    const cvs = document.createElement('canvas'); cvs.width=32; cvs.height=32; const ctx=cvs.getContext('2d');
+                    if(b.type==='custom') { const img=new Image(); img.src=b.data; img.onload=()=>ctx.drawImage(img,0,0); }
+                    else { ctx.fillStyle=b.color; ctx.fillRect(0,0,32,32); if(b.noise) for(let i=0;i<40;i++){ ctx.fillStyle=`rgba(0,0,0,${Math.random()*0.2})`; ctx.fillRect(Math.random()*32,Math.random()*32,2,2); } }
+                    return cvs.toDataURL();
+                };
+                DEFAULT_BLOCKS.concat(AppState.customBlocks).forEach(b => {
+                    const div = document.createElement('div');
+                    div.className = `block-item flex items-center gap-2 p-1 hover:bg-[#24283b] rounded cursor-pointer ${AppState.activeBlock?.name === b.name ? 'selected' : ''}`;
+                    const url = createPat(b);
+                    div.innerHTML = `<div class="w-6 h-6 border border-gray-600 bg-cover rendering-pixelated" style="background-image: url(${url})"></div><span class="text-xs text-gray-300 truncate">${b.name}</span>`;
+                    div.onclick = () => {
+                        AppState.activeBlock = b;
+                        const img = new Image(); img.src = url;
+                        img.onload = () => {
+                            AppState.activeBlockImage = img;
+                            const tCtx = document.createElement('canvas').getContext('2d');
+                            AppState.activeBlockPattern = tCtx.createPattern(img, 'repeat');
+                        };
+                        document.getElementById('btn-clear-block').classList.remove('hidden');
+                        render.blocks();
+                    };
+                    c.appendChild(div);
+                });
+            },
+
+            palette: () => {
+                const c = document.getElementById('palette-container'); c.innerHTML = '';
+                PALETTE.forEach(col => {
+                    const d = document.createElement('div');
+                    d.className = 'w-8 h-8 rounded border border-transparent hover:border-white cursor-pointer';
+                    d.style.backgroundColor = col;
+                    d.onclick = () => updateColor(col);
+                    c.appendChild(d);
+                });
+            },
+
+            tools: () => { 
+                document.querySelectorAll('.tool-btn').forEach(b => {
+                    if (b.dataset.tool === 'ai') return;
+                    b.classList.toggle('active', b.dataset.tool === AppState.currentTool);
+                }); 
+            }
+        };
+
+        // ==========================================
+        // DRAWING & SELECTION LOGIC
+        // ==========================================
+        function getPos(e) {
+            const cvs = document.getElementById('main-canvas');
+            const r = cvs.getBoundingClientRect(); 
+            return {
+                x: Math.floor((e.clientX - r.left) / AppState.zoom),
+                y: Math.floor((e.clientY - r.top) / AppState.zoom),
+                rawX: e.clientX,
+                rawY: e.clientY
+            };
+        }
+
+        function handleDraw(e) {
+            const pos = getPos(e);
+            
+            // Lógica de Seleção (Start)
+            if (AppState.currentTool === 'select') {
+                if (AppState.floatingLayer) {
+                    // Mover camada flutuante
+                    const dx = Math.floor(e.movementX / AppState.zoom);
+                    const dy = Math.floor(e.movementY / AppState.zoom);
+                    AppState.floatingLayer.x += dx;
+                    AppState.floatingLayer.y += dy;
+                    render.canvas();
+                    return;
+                }
+                
+                if (!AppState.isSelecting) {
+                    AppState.isSelecting = true;
+                    AppState.selection = { startX: pos.x, startY: pos.y, x: pos.x, y: pos.y, w: 1, h: 1 };
+                } else {
+                    const sx = AppState.selection.startX;
+                    const sy = AppState.selection.startY;
+                    AppState.selection.x = Math.min(sx, pos.x);
+                    AppState.selection.y = Math.min(sy, pos.y);
+                    AppState.selection.w = Math.abs(pos.x - sx) + 1;
+                    AppState.selection.h = Math.abs(pos.y - sy) + 1;
+                }
+                render.canvas();
+                return;
+            }
+
+            // Normal Drawing
+            if(pos.x < 0 || pos.x >= AppState.width || pos.y < 0 || pos.y >= AppState.height) return;
+            const layer = AppState.frames[AppState.currentFrameIndex].layers[AppState.currentLayerIndex];
+            if(!layer.visible) return;
+            const ctx = layer.ctx;
+            const size = parseInt(AppState.brushSize);
+            const offset = Math.floor(size/2);
+
+            if(AppState.currentTool === 'stamp') {
+                if(AppState.activeBlock && AppState.activeBlockImage) {
+                    const mult = Math.max(1, Math.floor(size / 4) + 1);
+                    const finalW = 32 * mult;
+                    const finalH = 32 * mult;
+                    ctx.drawImage(AppState.activeBlockImage, Math.floor(pos.x - finalW/2), Math.floor(pos.y - finalH/2), finalW, finalH);
                 }
             }
-            return cvs.toDataURL();
-          };
-          DEFAULT_BLOCKS.concat(AppState.customBlocks).forEach((b) => {
-            const div = document.createElement("div");
-            div.className = `block-item flex items-center gap-2 p-1 hover:bg-[#24283b] rounded cursor-pointer ${
-              AppState.activeBlock?.name === b.name ? "selected" : ""
-            }`;
-            const url = createPat(b);
-            div.innerHTML = `<div class="w-6 h-6 border border-gray-600 bg-cover rendering-pixelated" style="background-image: url(${url})"></div><span class="text-xs text-gray-300 truncate">${b.name}</span>`;
-            div.onclick = () => {
-              AppState.activeBlock = b;
-              const img = new Image();
-              img.src = url;
-              img.onload = () => {
-                AppState.activeBlockImage = img;
-                const tCtx = document.createElement("canvas").getContext("2d");
-                AppState.activeBlockPattern = tCtx.createPattern(img, "repeat");
-              };
-              document
-                .getElementById("btn-clear-block")
-                .classList.remove("hidden");
-              render.blocks();
+            else if (AppState.currentTool === 'pencil') {
+                if (AppState.activeBlock && AppState.activeBlockPattern) ctx.fillStyle = AppState.activeBlockPattern;
+                else ctx.fillStyle = AppState.primaryColor;
+                ctx.fillRect(Math.floor(pos.x - offset), Math.floor(pos.y - offset), size, size);
+            }
+            else if (AppState.currentTool === 'eraser') {
+                ctx.clearRect(Math.floor(pos.x - offset), Math.floor(pos.y - offset), size, size);
+            }
+            else if (AppState.currentTool === 'bucket') {
+                const fillStyle = (AppState.activeBlock && AppState.activeBlockPattern) ? AppState.activeBlockPattern : AppState.primaryColor;
+                floodFill(pos.x, pos.y, fillStyle, layer);
+                AppState.isDrawing = false;
+            }
+            else if (AppState.currentTool === 'picker') {
+                const p = ctx.getImageData(pos.x, pos.y, 1, 1).data;
+                const hex = "#" + ("000000" + ((p[0] << 16) | (p[1] << 8) | p[2]).toString(16)).slice(-6);
+                updateColor(hex);
+                AppState.currentTool = 'pencil'; render.tools();
+            }
+            render.canvas(); render.minimap();
+        }
+
+        function floodFill(x, y, style, layer) {
+            const w = AppState.width, h = AppState.height;
+            if(typeof style !== 'string') {
+                layer.ctx.fillStyle = style;
+                layer.ctx.fillRect(0,0,w,h);
+                return;
+            }
+            const imgData = layer.ctx.getImageData(0,0,w,h);
+            const d = imgData.data;
+            const startPos = (y * w + x) * 4;
+            const sr=d[startPos], sg=d[startPos+1], sb=d[startPos+2], sa=d[startPos+3];
+            const tr = parseInt(style.slice(1,3),16), tg=parseInt(style.slice(3,5),16), tb=parseInt(style.slice(5,7),16);
+            if(sr===tr && sg===tg && sb===tb && sa===255) return;
+            const stack = [[x,y]];
+            while(stack.length) {
+                const [cx,cy] = stack.pop();
+                const i = (cy*w+cx)*4;
+                if(cx<0||cx>=w||cy<0||cy>=h) continue;
+                if(d[i]===sr && d[i+1]===sg && d[i+2]===sb && d[i+3]===sa) {
+                    d[i]=tr; d[i+1]=tg; d[i+2]=tb; d[i+3]=255;
+                    stack.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]);
+                }
+            }
+            layer.ctx.putImageData(imgData, 0, 0);
+        }
+
+        function updateColor(hex) {
+            AppState.primaryColor = hex;
+            document.getElementById('btn-color-modal').style.backgroundColor = hex;
+            document.getElementById('native-picker').value = hex;
+            document.getElementById('hex-input').value = hex;
+            AppState.clearBlockSelection();
+        }
+
+        // ==========================================
+        // KEYBOARD ACTIONS (CUT/COPY/PASTE)
+        // ==========================================
+        function performCopy() {
+            if(!AppState.selection) return;
+            const {x, y, w, h} = AppState.selection;
+            const layer = AppState.frames[AppState.currentFrameIndex].layers[AppState.currentLayerIndex];
+            AppState.clipboard = layer.ctx.getImageData(x, y, w, h);
+            console.log("Copied!");
+        }
+
+        function performPaste() {
+            if(!AppState.clipboard) return;
+            AppState.clearSelection(); // Stamp any existing floating
+            
+            // Create floating layer centered
+            const cx = Math.floor(AppState.width/2 - AppState.clipboard.width/2);
+            const cy = Math.floor(AppState.height/2 - AppState.clipboard.height/2);
+            
+            const c = document.createElement('canvas');
+            c.width = AppState.clipboard.width; c.height = AppState.clipboard.height;
+            c.getContext('2d').putImageData(AppState.clipboard, 0, 0);
+            
+            AppState.floatingLayer = { x: cx, y: cy, w: c.width, h: c.height, canvas: c };
+            AppState.currentTool = 'select';
+            render.tools();
+            render.canvas();
+        }
+
+        function performCut() {
+            if(!AppState.selection) return;
+            performCopy();
+            const {x, y, w, h} = AppState.selection;
+            const layer = AppState.frames[AppState.currentFrameIndex].layers[AppState.currentLayerIndex];
+            layer.ctx.clearRect(x, y, w, h);
+            render.canvas();
+        }
+
+        function performDelete() {
+            if(!AppState.selection) return;
+            AppState.saveState();
+            const {x, y, w, h} = AppState.selection;
+            const layer = AppState.frames[AppState.currentFrameIndex].layers[AppState.currentLayerIndex];
+            layer.ctx.clearRect(x, y, w, h);
+            render.canvas();
+        }
+
+        // ==========================================
+        // AI GENERATION LOGIC (INTEGRAÇÃO REAL)
+        // ==========================================
+        async function generateAIArt(prompt, w, h) {
+            const apiKey = ""; // A chave é injetada automaticamente pelo ambiente
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+            const enhancedPrompt = `pixel art sprite of ${prompt}, 8-bit style, white background, centered, high contrast, crisp edges, retro game asset, no blur, flat colors`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        instances: [{ prompt: enhancedPrompt }],
+                        parameters: { sampleCount: 1 }
+                    })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.error?.message || "Erro na API Gemini/Imagen");
+                }
+
+                const data = await response.json();
+                if (!data.predictions || !data.predictions[0] || !data.predictions[0].bytesBase64Encoded) {
+                    throw new Error("Formato de resposta inesperado da API.");
+                }
+
+                const base64 = data.predictions[0].bytesBase64Encoded;
+                
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const tempCvs = document.createElement('canvas');
+                        tempCvs.width = w;
+                        tempCvs.height = h;
+                        const ctx = tempCvs.getContext('2d');
+                        ctx.imageSmoothingEnabled = false; 
+                        // FIX: Garante que o canvas esteja limpo e desenha a imagem forçando o tamanho
+                        ctx.clearRect(0, 0, w, h);
+                        ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, w, h);
+                        resolve(tempCvs);
+                    };
+                    img.onerror = () => reject(new Error("Falha ao carregar imagem gerada."));
+                    img.src = `data:image/png;base64,${base64}`;
+                });
+
+            } catch (error) {
+                console.error("Erro AI:", error);
+                alert("Desculpe, houve um erro ao gerar a arte: " + error.message);
+                return null;
+            }
+        }
+
+        const project = new ProjectManager();
+
+        window.onload = () => {
+            render.all();
+            render.blocks();
+
+            const seq = document.getElementById('sequencer-grid');
+            for(let i=0; i<80; i++) {
+                const d = document.createElement('div'); d.className='bg-[#24283b] hover:bg-[#414868] border border-[#16161e] cursor-pointer'; d.onclick=()=>d.classList.toggle('bg-[#bb9af7]'); seq.appendChild(d);
+            }
+
+            const cvs = document.getElementById('main-canvas');
+            const viewport = document.getElementById('canvas-viewport');
+            
+            // Sync rulers on scroll
+            viewport.onscroll = () => {
+                document.getElementById('ruler-h-wrapper').scrollLeft = viewport.scrollLeft;
+                document.getElementById('ruler-v-wrapper').scrollTop = viewport.scrollTop;
+                render.minimapViewport();
             };
-            c.appendChild(div);
-          });
-        },
 
-        palette: () => {
-          const c = document.getElementById("palette-container");
-          c.innerHTML = "";
-          PALETTE.forEach((col) => {
-            const d = document.createElement("div");
-            d.className =
-              "w-8 h-8 rounded border border-transparent hover:border-white cursor-pointer";
-            d.style.backgroundColor = col;
-            d.onclick = () => updateColor(col);
-            c.appendChild(d);
-          });
-        },
-
-        tools: () => {
-          document
-            .querySelectorAll(".tool-btn")
-            .forEach((b) =>
-              b.classList.toggle(
-                "active",
-                b.dataset.tool === AppState.currentTool
-              )
-            );
-        },
-      };
-
-      // ==========================================
-      // DRAWING LOGIC
-      // ==========================================
-      function getPos(e) {
-        const cvs = document.getElementById("main-canvas");
-        const r = cvs.getBoundingClientRect();
-        return {
-          x: Math.floor((e.clientX - r.left) / AppState.zoom),
-          y: Math.floor((e.clientY - r.top) / AppState.zoom),
-        };
-      }
-
-      function handleDraw(e) {
-        const pos = getPos(e);
-        if (
-          pos.x < 0 ||
-          pos.x >= AppState.width ||
-          pos.y < 0 ||
-          pos.y >= AppState.height
-        )
-          return;
-
-        const layer =
-          AppState.frames[AppState.currentFrameIndex].layers[
-            AppState.currentLayerIndex
-          ];
-        if (!layer.visible) return;
-        const ctx = layer.ctx;
-        const size = parseInt(AppState.brushSize);
-        const offset = Math.floor(size / 2);
-
-        if (AppState.currentTool === "stamp") {
-          if (AppState.activeBlock && AppState.activeBlockImage) {
-            const mult = Math.max(1, Math.floor(size / 4) + 1);
-            const finalW = 32 * mult;
-            const finalH = 32 * mult;
-            ctx.drawImage(
-              AppState.activeBlockImage,
-              Math.floor(pos.x - finalW / 2),
-              Math.floor(pos.y - finalH / 2),
-              finalW,
-              finalH
-            );
-          }
-        } else if (AppState.currentTool === "pencil") {
-          if (AppState.activeBlock && AppState.activeBlockPattern)
-            ctx.fillStyle = AppState.activeBlockPattern;
-          else ctx.fillStyle = AppState.primaryColor;
-          ctx.fillRect(
-            Math.floor(pos.x - offset),
-            Math.floor(pos.y - offset),
-            size,
-            size
-          );
-        } else if (AppState.currentTool === "eraser") {
-          ctx.clearRect(
-            Math.floor(pos.x - offset),
-            Math.floor(pos.y - offset),
-            size,
-            size
-          );
-        } else if (AppState.currentTool === "bucket") {
-          const fillStyle =
-            AppState.activeBlock && AppState.activeBlockPattern
-              ? AppState.activeBlockPattern
-              : AppState.primaryColor;
-          floodFill(pos.x, pos.y, fillStyle, layer);
-          AppState.isDrawing = false;
-        } else if (AppState.currentTool === "picker") {
-          const p = ctx.getImageData(pos.x, pos.y, 1, 1).data;
-          const hex =
-            "#" +
-            ("000000" + ((p[0] << 16) | (p[1] << 8) | p[2]).toString(16)).slice(
-              -6
-            );
-          updateColor(hex);
-          AppState.currentTool = "pencil";
-          render.tools();
-        }
-        render.canvas();
-        render.minimap();
-      }
-
-      function floodFill(x, y, style, layer) {
-        const w = AppState.width,
-          h = AppState.height;
-        if (typeof style !== "string") {
-          layer.ctx.fillStyle = style;
-          layer.ctx.fillRect(0, 0, w, h);
-          return;
-        }
-        const imgData = layer.ctx.getImageData(0, 0, w, h);
-        const d = imgData.data;
-        const startPos = (y * w + x) * 4;
-        const sr = d[startPos],
-          sg = d[startPos + 1],
-          sb = d[startPos + 2],
-          sa = d[startPos + 3];
-        const tr = parseInt(style.slice(1, 3), 16),
-          tg = parseInt(style.slice(3, 5), 16),
-          tb = parseInt(style.slice(5, 7), 16);
-        if (sr === tr && sg === tg && sb === tb && sa === 255) return;
-        const stack = [[x, y]];
-        while (stack.length) {
-          const [cx, cy] = stack.pop();
-          const i = (cy * w + cx) * 4;
-          if (cx < 0 || cx >= w || cy < 0 || cy >= h) continue;
-          if (
-            d[i] === sr &&
-            d[i + 1] === sg &&
-            d[i + 2] === sb &&
-            d[i + 3] === sa
-          ) {
-            d[i] = tr;
-            d[i + 1] = tg;
-            d[i + 2] = tb;
-            d[i + 3] = 255;
-            stack.push([cx + 1, cy], [cx - 1, cy], [cx, cy + 1], [cx, cy - 1]);
-          }
-        }
-        layer.ctx.putImageData(imgData, 0, 0);
-      }
-
-      function updateColor(hex) {
-        AppState.primaryColor = hex;
-        document.getElementById("btn-color-modal").style.backgroundColor = hex;
-        document.getElementById("native-picker").value = hex;
-        document.getElementById("hex-input").value = hex;
-        AppState.clearBlockSelection();
-      }
-
-      const project = new ProjectManager();
-
-      window.onload = () => {
-        render.all();
-        render.blocks();
-
-        const seq = document.getElementById("sequencer-grid");
-        for (let i = 0; i < 80; i++) {
-          const d = document.createElement("div");
-          d.className =
-            "bg-[#24283b] hover:bg-[#414868] border border-[#16161e] cursor-pointer";
-          d.onclick = () => d.classList.toggle("bg-[#bb9af7]");
-          seq.appendChild(d);
-        }
-
-        const cvs = document.getElementById("main-canvas");
-        const viewport = document.getElementById("canvas-viewport");
-
-        viewport.onscroll = () => render.minimapViewport();
-
-        const mmWrapper = document.getElementById("minimap-wrapper");
-        let isNavigating = false;
-
-        function moveViewportTo(e) {
-          const r = mmWrapper.getBoundingClientRect();
-          const clickX = e.clientX - r.left;
-          const clickY = e.clientY - r.top;
-          const pctX = clickX / r.width;
-          const pctY = clickY / r.height;
-          const contentW = AppState.width * AppState.zoom;
-          const contentH = AppState.height * AppState.zoom;
-          viewport.scrollLeft = contentW * pctX - viewport.clientWidth / 2;
-          viewport.scrollTop = contentH * pctY - viewport.clientHeight / 2;
-        }
-
-        mmWrapper.onmousedown = (e) => {
-          isNavigating = true;
-          moveViewportTo(e);
-        };
-        window.addEventListener("mousemove", (e) => {
-          if (isNavigating) moveViewportTo(e);
-        });
-        window.addEventListener("mouseup", () => {
-          isNavigating = false;
-          AppState.isDrawing = false;
-        });
-
-        viewport.addEventListener(
-          "wheel",
-          (e) => {
-            if (e.ctrlKey) {
-              e.preventDefault();
-              AppState.updateZoom(AppState.zoom + (e.deltaY < 0 ? 1 : -1));
+            const mmWrapper = document.getElementById('minimap-wrapper');
+            let isNavigating = false;
+            
+            function moveViewportTo(e) {
+                const r = mmWrapper.getBoundingClientRect();
+                const clickX = e.clientX - r.left;
+                const clickY = e.clientY - r.top;
+                const pctX = clickX / r.width;
+                const pctY = clickY / r.height;
+                const contentW = AppState.width * AppState.zoom;
+                const contentH = AppState.height * AppState.zoom;
+                viewport.scrollLeft = (contentW * pctX) - (viewport.clientWidth / 2);
+                viewport.scrollTop = (contentH * pctY) - (viewport.clientHeight / 2);
             }
-          },
-          { passive: false }
-        );
 
-        cvs.onmousedown = (e) => {
-          AppState.saveState();
-          AppState.isDrawing = true;
-          handleDraw(e);
-        };
-        cvs.onmousemove = (e) => {
-          const pos = getPos(e);
-          const pCtx = document
-            .getElementById("preview-canvas")
-            .getContext("2d");
-          pCtx.clearRect(0, 0, AppState.width, AppState.height);
+            mmWrapper.onmousedown = (e) => { isNavigating = true; moveViewportTo(e); };
+            window.addEventListener('mousemove', (e) => { if(isNavigating) moveViewportTo(e); });
+            window.addEventListener('mouseup', () => { isNavigating = false; AppState.isDrawing = false; AppState.isSelecting = false; });
 
-          const s = parseInt(AppState.brushSize);
-          const offset = Math.floor(s / 2);
+            viewport.addEventListener('wheel', (e) => {
+                if(e.ctrlKey) {
+                    e.preventDefault();
+                    AppState.updateZoom(AppState.zoom + (e.deltaY < 0 ? 1 : -1));
+                }
+            }, { passive: false });
 
-          if (AppState.currentTool === "stamp" && AppState.activeBlockImage) {
-            const mult = Math.max(1, Math.floor(s / 4) + 1);
-            const sw = 32 * mult;
-            pCtx.drawImage(
-              AppState.activeBlockImage,
-              pos.x - sw / 2,
-              pos.y - sw / 2,
-              sw,
-              sw
-            );
-            pCtx.strokeStyle = "#7aa2f7";
-            pCtx.strokeRect(pos.x - sw / 2, pos.y - sw / 2, sw, sw);
-          } else {
-            pCtx.fillStyle =
-              AppState.activeBlock && AppState.activeBlockPattern
-                ? AppState.activeBlockPattern
-                : AppState.primaryColor;
-            pCtx.fillRect(pos.x - offset, pos.y - offset, s, s);
-            pCtx.strokeStyle = "#fff";
-            pCtx.lineWidth = 0.1;
-            pCtx.strokeRect(pos.x - offset, pos.y - offset, s, s);
-          }
+            // Mouse Events for Main Canvas
+            cvs.onmousedown = (e) => { 
+                if(AppState.currentTool === 'select' && AppState.floatingLayer) {
+                    // Se clicar fora do floating, "carimba" ele
+                    // (Lógica simplificada: Se estiver movendo, OK, senão stamp)
+                    AppState.isDrawing = true;
+                } else if (AppState.currentTool !== 'select') {
+                    AppState.clearSelection(); 
+                    AppState.saveState(); 
+                    AppState.isDrawing = true; 
+                    handleDraw(e);
+                } else {
+                    // Start selecting
+                    AppState.isDrawing = true;
+                    handleDraw(e);
+                }
+            };
+            
+            cvs.onmousemove = (e) => {
+                const pos = getPos(e);
+                const pCtx = document.getElementById('preview-canvas').getContext('2d');
+                
+                // Limpa preview apenas se não estiver selecionando (para não apagar a box)
+                if(AppState.currentTool !== 'select') pCtx.clearRect(0,0,AppState.width, AppState.height);
+                else if (!AppState.isSelecting && !AppState.selection) pCtx.clearRect(0,0,AppState.width, AppState.height);
 
-          if (AppState.isDrawing) handleDraw(e);
-        };
+                const s = parseInt(AppState.brushSize);
+                const offset = Math.floor(s/2);
+                
+                if (AppState.currentTool === 'select') {
+                    if (AppState.isDrawing) handleDraw(e); // Moving mouse while selecting
+                }
+                else {
+                    // Preview do pincel
+                    if(AppState.currentTool === 'stamp' && AppState.activeBlockImage) {
+                        const mult = Math.max(1, Math.floor(s/4)+1);
+                        const sw = 32 * mult;
+                        pCtx.drawImage(AppState.activeBlockImage, pos.x - sw/2, pos.y - sw/2, sw, sw);
+                        pCtx.strokeStyle = '#7aa2f7'; pCtx.strokeRect(pos.x - sw/2, pos.y - sw/2, sw, sw);
+                    } else {
+                        pCtx.fillStyle = (AppState.activeBlock && AppState.activeBlockPattern) ? AppState.activeBlockPattern : AppState.primaryColor;
+                        pCtx.fillRect(pos.x - offset, pos.y - offset, s, s);
+                        pCtx.strokeStyle = '#fff'; pCtx.lineWidth=0.1; pCtx.strokeRect(pos.x - offset, pos.y - offset, s, s);
+                    }
+                    if(AppState.isDrawing) handleDraw(e);
+                }
+            };
 
-        document.querySelectorAll(".tool-btn").forEach(
-          (b) =>
-            (b.onclick = () => {
-              AppState.currentTool = b.dataset.tool;
-              render.tools();
-            })
-        );
-        document.getElementById("zoom-in").onclick = () =>
-          AppState.updateZoom(AppState.zoom + 1);
-        document.getElementById("zoom-out").onclick = () =>
-          AppState.updateZoom(AppState.zoom - 1);
-        document.getElementById("brush-size").oninput = (e) => {
-          AppState.brushSize = e.target.value;
-          document.getElementById("brush-size-val").innerText =
-            e.target.value + "px";
-        };
-        document.getElementById("btn-undo").onclick = () => AppState.undo();
-        document.getElementById("add-layer-btn").onclick = () =>
-          project.addLayer();
-        document.getElementById("btn-save-block").onclick = () =>
-          project.saveCurrentAsBlock();
-        document.getElementById("atlas-upload").onchange = (e) => {
-          if (e.target.files[0]) project.loadAtlas(e.target.files[0]);
-        };
-        document.getElementById("btn-grid").onclick = (e) => {
-          AppState.gridEnabled = !AppState.gridEnabled;
-          e.currentTarget.classList.toggle("text-white");
-          render.grid();
-        };
-
-        const btnC = document.getElementById("btn-color-modal");
-        const modalC = document.getElementById("color-modal");
-        btnC.onclick = (e) => {
-          e.stopPropagation();
-          modalC.classList.add("open");
-        };
-        document.getElementById("native-picker").oninput = (e) =>
-          updateColor(e.target.value);
-        window.onclick = (e) => {
-          if (
-            !e.target.closest("#btn-color-modal") &&
-            !e.target.closest("#color-modal")
-          )
-            modalC.classList.remove("open");
-          if (!e.target.closest("#btn-export-menu"))
-            document.getElementById("export-dropdown").classList.remove("open");
-        };
-
-        document.getElementById("btn-export-menu").onclick = (e) => {
-          e.stopPropagation();
-          document.getElementById("export-dropdown").classList.toggle("open");
-        };
-
-        document.getElementById("exp-gif").onclick = () => {
-          const imgs = AppState.frames.map((f) => {
-            const t = document.createElement("canvas");
-            t.width = AppState.width;
-            t.height = AppState.height;
-            const tx = t.getContext("2d");
-            tx.fillStyle = "#ffffff";
-            tx.fillRect(0, 0, t.width, t.height);
-            f.layers.forEach((l) => {
-              if (l.visible) tx.drawImage(l.canvas, 0, 0);
+            document.querySelectorAll('.tool-btn').forEach(b => b.onclick = () => { 
+                if(b.dataset.tool === 'ai') {
+                    const modal = document.getElementById('ai-modal');
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                    setTimeout(() => modal.classList.add('open'), 10);
+                    document.getElementById('ai-width').value = AppState.width;
+                    document.getElementById('ai-height').value = AppState.height;
+                } else {
+                    AppState.clearSelection();
+                    AppState.currentTool = b.dataset.tool; 
+                    render.tools(); 
+                }
             });
-            return t.toDataURL();
-          });
-          gifshot.createGIF(
-            {
-              images: imgs,
-              gifWidth: AppState.width,
-              gifHeight: AppState.height,
-              interval: 1 / AppState.fps,
-              sampleInterval: 10,
-            },
-            (obj) => {
-              if (!obj.error) {
-                const a = document.createElement("a");
-                a.download = "anim.gif";
-                a.href = obj.image;
-                a.click();
-              } else {
-                alert("Erro ao gerar GIF");
-              }
-            }
-          );
-        };
 
-        document.getElementById("exp-png").onclick = () => {
-          const t = document.createElement("canvas");
-          t.width = AppState.width;
-          t.height = AppState.height;
-          const tx = t.getContext("2d");
-          AppState.frames[AppState.currentFrameIndex].layers.forEach((l) => {
-            if (l.visible) tx.drawImage(l.canvas, 0, 0);
-          });
-          const a = document.createElement("a");
-          a.download = "frame.png";
-          a.href = t.toDataURL();
-          a.click();
-        };
+            // Keyboard Shortcuts
+            window.addEventListener('keydown', (e) => {
+                if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
-        window.addEventListener("keydown", (e) => {
-          if ((e.ctrlKey || e.metaKey) && e.key === "z") {
-            e.preventDefault();
-            AppState.undo();
-          }
-        });
-      };
+                if (e.key === 'Delete') performDelete();
+                if (e.key === 'm' || e.key === 'M') { AppState.currentTool = 'select'; render.tools(); }
+                if (e.ctrlKey || e.metaKey) {
+                    if (e.key === 'c') { e.preventDefault(); performCopy(); }
+                    if (e.key === 'v') { e.preventDefault(); performPaste(); }
+                    if (e.key === 'x') { e.preventDefault(); performCut(); }
+                    if (e.key === 'z') { e.preventDefault(); AppState.undo(); }
+                }
+                // Alt Drag Duplicate Logic handled in mousedown usually, but simple alt+drag requires mouse tracking
+                if (e.altKey && AppState.selection && AppState.currentTool === 'select' && !AppState.floatingLayer) {
+                     // Instant duplicate on press if mouse down? 
+                     // For simplicity: Press Alt -> Perform Copy -> Perform Paste immediately
+                     // This way dragging the new selection moves the copy.
+                     if (!AppState.isSelecting) {
+                         performCopy();
+                         performPaste();
+                     }
+                }
+            });
+
+            // AI Modal Controls
+            document.getElementById('close-ai-modal').onclick = () => {
+                const modal = document.getElementById('ai-modal');
+                modal.classList.remove('open');
+                setTimeout(() => {
+                    modal.classList.remove('flex');
+                    modal.classList.add('hidden');
+                }, 200);
+            };
+
+            document.getElementById('btn-generate-ai').onclick = async () => {
+                const prompt = document.getElementById('ai-prompt-input').value;
+                const w = parseInt(document.getElementById('ai-width').value);
+                const h = parseInt(document.getElementById('ai-height').value);
+                
+                if(!prompt) return alert("Digite um prompt!");
+
+                const btn = document.getElementById('btn-generate-ai');
+                const loading = document.getElementById('ai-loading');
+                btn.classList.add('hidden');
+                loading.classList.remove('hidden');
+                loading.classList.add('flex');
+
+                if(w !== AppState.width || h !== AppState.height) {
+                    project.resizeCanvas(w, h);
+                }
+
+                const resultCanvas = await generateAIArt(prompt, w, h);
+
+                if (resultCanvas) {
+                    project.addLayer("AI Gen");
+                    const f = AppState.frames[AppState.currentFrameIndex];
+                    const l = f.layers[f.layers.length-1];
+                    l.ctx.drawImage(resultCanvas, 0, 0);
+                    render.canvas(); render.layers();
+                    
+                    const modal = document.getElementById('ai-modal');
+                    modal.classList.remove('open');
+                    setTimeout(() => {
+                        modal.classList.remove('flex');
+                        modal.classList.add('hidden');
+                    }, 200);
+                }
+                loading.classList.add('hidden');
+                btn.classList.remove('hidden');
+            };
+
+            document.getElementById('zoom-in').onclick = () => AppState.updateZoom(AppState.zoom + 1);
+            document.getElementById('zoom-out').onclick = () => AppState.updateZoom(AppState.zoom - 1);
+            document.getElementById('brush-size').oninput = (e) => { AppState.brushSize = e.target.value; document.getElementById('brush-size-val').innerText = e.target.value + 'px'; };
+            document.getElementById('btn-undo').onclick = () => AppState.undo();
+            document.getElementById('add-layer-btn').onclick = () => project.addLayer();
+            document.getElementById('btn-save-block').onclick = () => project.saveCurrentAsBlock();
+            document.getElementById('atlas-upload').onchange = (e) => { if(e.target.files[0]) project.loadAtlas(e.target.files[0]); };
+            document.getElementById('btn-grid').onclick = (e) => { AppState.gridEnabled = !AppState.gridEnabled; e.currentTarget.classList.toggle('text-white'); render.grid(); };
+
+            const btnC = document.getElementById('btn-color-modal');
+            const modalC = document.getElementById('color-modal');
+            btnC.onclick = (e) => { e.stopPropagation(); modalC.classList.add('open'); };
+            document.getElementById('native-picker').oninput = (e) => updateColor(e.target.value);
+            window.onclick = (e) => { if(!e.target.closest('#btn-color-modal') && !e.target.closest('#color-modal')) modalC.classList.remove('open'); if(!e.target.closest('#btn-export-menu')) document.getElementById('export-dropdown').classList.remove('open'); };
+            
+            document.getElementById('btn-export-menu').onclick = (e) => { e.stopPropagation(); document.getElementById('export-dropdown').classList.toggle('open'); };
+            
+            document.getElementById('exp-gif').onclick = () => {
+                 const imgs = AppState.frames.map(f => {
+                     const t = document.createElement('canvas'); t.width=AppState.width; t.height=AppState.height;
+                     const tx = t.getContext('2d'); 
+                     tx.fillStyle='#ffffff'; tx.fillRect(0,0,t.width,t.height);
+                     f.layers.forEach(l => { if(l.visible) tx.drawImage(l.canvas,0,0); });
+                     return t.toDataURL();
+                 });
+                 gifshot.createGIF({
+                     images: imgs,
+                     gifWidth: AppState.width, 
+                     gifHeight: AppState.height, 
+                     interval: 1/AppState.fps,
+                     sampleInterval: 10
+                 }, (obj) => {
+                     if(!obj.error) { const a = document.createElement('a'); a.download='anim.gif'; a.href=obj.image; a.click(); } else { alert("Erro ao gerar GIF"); }
+                 });
+            };
+            
+            document.getElementById('exp-png').onclick = () => {
+                 const t = document.createElement('canvas'); t.width=AppState.width; t.height=AppState.height;
+                 const tx = t.getContext('2d');
+                 AppState.frames[AppState.currentFrameIndex].layers.forEach(l => { if(l.visible) tx.drawImage(l.canvas,0,0); });
+                 const a = document.createElement('a'); a.download='frame.png'; a.href=t.toDataURL(); a.click();
+            };
+
+            document.getElementById('exp-json').onclick = () => {
+                const exportFrames = AppState.frames.map(f => ({
+                    layers: f.layers.map(l => {
+                        const matrix = [];
+                        const ctx = l.canvas.getContext('2d');
+                        const imgData = ctx.getImageData(0, 0, AppState.width, AppState.height).data;
+                        for (let y = 0; y < AppState.height; y++) {
+                            const row = [];
+                            for (let x = 0; x < AppState.width; x++) {
+                                const i = (y * AppState.width + x) * 4;
+                                const r = imgData[i], g = imgData[i+1], b = imgData[i+2], a = imgData[i+3];
+                                if (a === 0) row.push(null);
+                                else row.push("#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1));
+                            }
+                            matrix.push(row);
+                        }
+                        return { name: l.name, visible: l.visible, matrix: matrix, data: l.canvas.toDataURL() };
+                    })
+                }));
+                const projectData = { version: "6.2", width: AppState.width, height: AppState.height, fps: AppState.fps, frames: exportFrames, customBlocks: AppState.customBlocks };
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(projectData, null, 2));
+                const a = document.createElement('a');
+                a.setAttribute("href", dataStr);
+                a.setAttribute("download", "pixelforge_matrix.json");
+                document.body.appendChild(a);
+                a.click(); a.remove();
+            };
+        };
     </script>
-  </body>
+</body>
 </html>

@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gerador de Texture Atlas - Stranger Craft</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              "game-dark": "#0f0f0f",
+              "game-gray": "#1a1a1a",
+              "game-green": "#22c55e",
+              "game-blue": "#3b82f6",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-game-dark text-white min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-game-green mb-2">
+          Gerador de Texture Atlas
+        </h1>
+        <p class="text-xl text-gray-300">
+          Stranger Craft - Sistema de Otimização de Texturas
+        </p>
+      </div>
+
+      <div class="bg-game-gray rounded-lg p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4 text-game-blue">
+          O que é Texture Atlas?
+        </h2>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <p class="text-gray-300 mb-4">
+              Um <strong class="text-game-green">Texture Atlas</strong> é uma
+              imagem que combina todas as texturas do jogo em uma única folha.
+              Isso permite carregar tudo de uma vez, em vez de fazer múltiplas
+              requisições HTTP.
+            </p>
+            <div class="bg-black p-4 rounded">
+              <h3 class="text-lg font-semibold mb-2">Benefícios:</h3>
+              <ul class="text-sm text-gray-300 space-y-1">
+                <li>✅ <strong>Carregamento instantâneo</strong> do jogo</li>
+                <li>✅ <strong>Menor uso de memória</strong> de GPU</li>
+                <li>✅ <strong>Melhor performance</strong> visual</li>
+                <li>✅ <strong>Redução de travamentos</strong> iniciais</li>
+              </ul>
+            </div>
+          </div>
+          <div class="flex flex-col items-center gap-4">
+            <canvas
+              id="atlasCanvas"
+              width="256"
+              height="320"
+              class="border-2 border-game-green rounded cursor-crosshair"
+            ></canvas>
+            <div
+              id="blockInfo"
+              class="text-center text-sm text-gray-300 bg-black px-4 py-2 rounded"
+            >
+              Passe o mouse sobre o atlas para ver informações dos blocos
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-4 justify-center mb-8">
+        <button
+          onclick="generateAtlas()"
+          class="bg-game-green hover:bg-green-600 text-black font-bold py-3 px-6 rounded-lg transition-colors"
+        >
+          🎨 Gerar Atlas
+        </button>
+        <button
+          onclick="downloadAtlas()"
+          class="bg-game-blue hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+        >
+          💾 Baixar PNG
+        </button>
+        <button
+          onclick="autoGenerate()"
+          class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+        >
+          🚀 Gerar e Baixar Automático
+        </button>
+      </div>
+
+      <div class="bg-game-gray rounded-lg p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-6 text-game-blue">
+          📚 Guia dos Blocos - Texture Atlas
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Linha 0 -->
+          <div class="bg-black p-4 rounded-lg">
+            <h3 class="text-lg font-semibold mb-3 text-game-green">
+              🌱 Linha 0 - Superfícies
+            </h3>
+            <div class="space-y-2">
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-green-600 rounded"></div>
+                <span
+                  ><strong>Topo da Grama</strong> - Superfície dos biomas
+                  normais</span
+                >
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-amber-800 rounded"></div>
+                <span
+                  ><strong>Terra</strong> - Camadas intermediárias com
+                  grama</span
+                >
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-amber-700 rounded"></div>
+                <span><strong>Terra Pura</strong> - Subsuperfície</span>
+              </div>
+              <div class="w-4 h-4 bg-gray-500 rounded"></div>
+              <span
+                ><strong>Pedra</strong> - Rocha sólida dos subterrâneos</span
+              >
+            </div>
+          </div>
+
+          <!-- Linha 1 -->
+          <div class="bg-black p-4 rounded-lg">
+            <h3 class="text-lg font-semibold mb-3 text-game-green">
+              🏖️ Linha 1 - Materiais Naturais
+            </h3>
+            <div class="space-y-2">
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-yellow-400 rounded"></div>
+                <span><strong>Areia</strong> - Praias e desertos</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-amber-900 rounded"></div>
+                <span><strong>Madeira Escura</strong> - Troncos com anéis</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-amber-600 rounded"></div>
+                <span><strong>Madeira Clara</strong> - Troncos lisos</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-green-500 rounded"></div>
+                <span><strong>Folhas</strong> - Vegetação das árvores</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Linha 2 -->
+          <div class="bg-black p-4 rounded-lg">
+            <h3 class="text-lg font-semibold mb-3 text-game-green">
+              💧 Linha 2 - Líquidos & Estruturas
+            </h3>
+            <div class="space-y-2">
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-amber-500 rounded"></div>
+                <span
+                  ><strong>Terra com Padrão</strong> - Textura estruturada</span
+                >
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-blue-400 rounded opacity-75"></div>
+                <span><strong>Água</strong> - Líquido translúcido</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-gray-800 rounded"></div>
+                <span><strong>Bedrock</strong> - Rocha indestrutível</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-blue-900 rounded"></div>
+                <span
+                  ><strong>Prédio Moderno</strong> - Construções urbanas</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Linha 3 -->
+          <div class="bg-black p-4 rounded-lg">
+            <h3 class="text-lg font-semibold mb-3 text-red-400">
+              👹 Linha 3 - Mundo Invertido
+            </h3>
+            <div class="space-y-2">
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-gray-600 rounded"></div>
+                <span
+                  ><strong>Corrupta Clara</strong> - Superfície distorcida</span
+                >
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-red-900 rounded"></div>
+                <span><strong>Corrupta Escura</strong> - Matéria instável</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-gray-800 rounded"></div>
+                <span
+                  ><strong>Corrupta Muito Escura</strong> - Abismo
+                  profundo</span
+                >
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-red-600 rounded opacity-75"></div>
+                <span><strong>Água Corrupta</strong> - Líquido tóxico</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Linha 4 -->
+          <div class="bg-black p-4 rounded-lg">
+            <h3 class="text-lg font-semibold mb-3 text-game-green">
+              🏙️ Linha 4 - Civilização
+            </h3>
+            <div class="space-y-2">
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-gray-400 rounded"></div>
+                <span><strong>Concreto</strong> - Construções modernas</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-gray-900 rounded"></div>
+                <span><strong>Asfalto</strong> - Ruas das cidades</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-red-700 rounded"></div>
+                <span><strong>Tijolos</strong> - Construções residenciais</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-yellow-200 rounded"></div>
+                <span><strong>Luz/Lâmpada</strong> - Fontes de iluminação</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Como Usar -->
+          <div class="bg-black p-4 rounded-lg">
+            <h3 class="text-lg font-semibold mb-3 text-game-green">
+              📖 Como Usar
+            </h3>
+            <div class="text-sm text-gray-300 space-y-2">
+              <p>
+                1. <strong>Clique em "Gerar Atlas"</strong> para criar a textura
+              </p>
+              <p>2. <strong>Clique em "Baixar PNG"</strong> para salvar</p>
+              <p>
+                3. <strong>Coloque o arquivo</strong> em
+                <code class="bg-gray-800 px-1 rounded"
+                  >lib/texture-atlas.png</code
+                >
+              </p>
+              <p>
+                4. <strong>Reinicie o jogo</strong> - carregamento instantâneo!
+              </p>
+
+              <div class="mt-4 p-3 bg-game-dark rounded">
+                <p class="text-xs text-gray-400">
+                  💡 <strong>Dica:</strong> Use "Gerar e Baixar Automático" para
+                  fazer tudo de uma vez!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-game-gray rounded-lg p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-6 text-game-blue">
+          🎯 Como as Texturas São Usadas no Código
+        </h2>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <h3 class="text-lg font-semibold mb-3">
+              Sistema de Coordenadas UV
+            </h3>
+            <div class="bg-black p-4 rounded font-mono text-sm">
+              <div class="text-game-green">
+                // Cada bloco = 64x64 pixels em atlas de 256x320
+              </div>
+              <div class="text-gray-300">
+                u = (coluna * 0.25) + 0.003 // Margem de segurança
+              </div>
+              <div class="text-gray-300">
+                v = 1.0 - ((linha + 1) * 0.2) + 0.003
+              </div>
+              <div class="text-gray-300">
+                largura = 0.25 - 0.006 // Remove margens
+              </div>
+              <div class="text-gray-300">altura = 0.20 - 0.006</div>
+            </div>
+
+            <div class="mt-4">
+              <h4 class="font-semibold mb-2">Exemplo - Grama (0,0):</h4>
+              <div class="bg-black p-3 rounded font-mono text-xs text-gray-300">
+                u: 0.003, v: 0.803<br />
+                u2: 0.247, v2: 0.997
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold mb-3">Mapeamento de Blocos</h3>
+            <div class="bg-black p-4 rounded">
+              <div class="grid grid-cols-4 gap-1 text-xs font-mono">
+                <div class="text-center p-2 bg-green-600 text-black rounded">
+                  GRASS
+                </div>
+                <div class="text-center p-2 bg-amber-800 rounded">DIRT</div>
+                <div class="text-center p-2 bg-amber-700 rounded">DIRT</div>
+                <div class="text-center p-2 bg-gray-500 rounded">STONE</div>
+
+                <div class="text-center p-2 bg-yellow-400 rounded">SAND</div>
+                <div class="text-center p-2 bg-amber-900 rounded">LOG</div>
+                <div class="text-center p-2 bg-amber-600 rounded">WOOD</div>
+                <div class="text-center p-2 bg-green-500 rounded">LEAVES</div>
+
+                <div class="text-center p-2 bg-amber-500 rounded">COBBLE</div>
+                <div class="text-center p-2 bg-blue-400 rounded opacity-75">
+                  WATER
+                </div>
+                <div class="text-center p-2 bg-gray-800 rounded">BEDROCK</div>
+                <div class="text-center p-2 bg-blue-900 rounded">OFFICE</div>
+
+                <div class="text-center p-2 bg-gray-600 rounded">CORRUPT</div>
+                <div class="text-center p-2 bg-red-900 rounded">CORRUPT</div>
+                <div class="text-center p-2 bg-gray-800 rounded">CORRUPT</div>
+                <div class="text-center p-2 bg-red-600 rounded opacity-75">
+                  CORRUPT_W
+                </div>
+
+                <div class="text-center p-2 bg-gray-400 rounded">CONCRETE</div>
+                <div class="text-center p-2 bg-gray-900 rounded">ASPHALT</div>
+                <div class="text-center p-2 bg-red-700 rounded">BRICKS</div>
+                <div class="text-center p-2 bg-yellow-200 rounded">LIGHT</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center text-gray-400 text-sm">
+        <p>Stranger Craft - Texture Atlas Generator v2.0</p>
+        <p>Otimizado para máxima performance e experiência de jogo fluida</p>
+      </div>
+    </div>
+
+    <script>
+      let atlasCanvas, ctx;
+
+      function generateAtlas() {
+        atlasCanvas = document.getElementById("atlasCanvas");
+        ctx = atlasCanvas.getContext("2d");
+
+        const size = 64;
+        const cols = 4;
+        const rows = 5;
+
+        // Fundo preto
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, atlasCanvas.width, atlasCanvas.height);
+
+        // Função auxiliar para desenhar blocos
+        function drawBlock(x, y, color, noiseAlpha = 0.1) {
+          ctx.fillStyle = color;
+          ctx.fillRect(x, y, size, size);
+          for (let i = 0; i < 300; i++) {
+            ctx.fillStyle = `rgba(0,0,0,${Math.random() * noiseAlpha})`;
+            ctx.fillRect(
+              x + Math.random() * size,
+              y + Math.random() * size,
+              2,
+              2
+            );
+          }
+        }
+
+        // Linha 0 (Topo)
+        drawBlock(0, 0, "#5DAF61"); // Grass Top
+        drawBlock(size, 0, "#795548");
+        ctx.fillStyle = "#5DAF61";
+        ctx.fillRect(size, 0, size, 14);
+        for (let i = 0; i < 50; i++)
+          ctx.fillRect(
+            size + Math.random() * size,
+            12 + Math.random() * 4,
+            2,
+            2
+          );
+
+        drawBlock(size * 2, 0, "#795548"); // Dirt
+        drawBlock(size * 3, 0, "#9E9E9E"); // Stone
+
+        // Linha 1
+        drawBlock(0, size, "#F0E68C"); // Sand
+        drawBlock(size, size, "#5D4037");
+        for (let i = 10; i < size; i += 15) {
+          ctx.fillStyle = "#4E342E";
+          ctx.fillRect(size + i, size, 4, size);
+        }
+        drawBlock(size * 2, size, "#8D6E63");
+        ctx.beginPath();
+        ctx.arc(
+          size * 2 + size / 2,
+          size + size / 2,
+          size / 2 - 4,
+          0,
+          Math.PI * 2
+        );
+        ctx.strokeStyle = "#5D4037";
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        drawBlock(size * 3, size, "#388E3C"); // Leaves
+
+        // Linha 2
+        drawBlock(0, size * 2, "#A1887F");
+        ctx.fillStyle = "#6D4C41";
+        ctx.fillRect(0, size * 2, size, 2);
+        ctx.fillRect(0, size * 2 + 21, size, 2);
+        ctx.fillRect(0, size * 2 + 42, size, 2);
+        ctx.fillStyle = "rgba(33, 150, 243, 0.8)";
+        ctx.fillRect(size, size * 2, size, size); // Water
+        drawBlock(size * 2, size * 2, "#212121", 0.4); // Bedrock
+
+        drawBlock(size * 3, size * 2, "#2c3e50"); // Office
+        ctx.fillStyle = "#34495e";
+        ctx.fillRect(size * 3 + 4, size * 2 + 4, size - 8, size - 8);
+
+        // Linha 3 (Corrupted)
+        drawBlock(0, size * 3, "#2D2D2D");
+        drawBlock(size, size * 3, "#3E2723");
+        ctx.fillStyle = "#1A1A1A";
+        ctx.fillRect(size, size * 3, size, 12);
+        drawBlock(size * 2, size * 3, "#1B1B1B");
+        for (let i = 10; i < size; i += 15) {
+          ctx.fillStyle = "#000";
+          ctx.fillRect(size * 2 + i, size * 3, 4, size);
+        }
+        ctx.fillStyle = "rgba(74, 14, 46, 0.8)";
+        ctx.fillRect(size * 3, size * 3, size, size);
+
+        // Linha 4 (Cidade)
+        drawBlock(0, size * 4, "#999999"); // Concreto
+        drawBlock(size, size * 4, "#222222");
+        ctx.fillStyle = "#FEFEFE";
+        ctx.fillRect(size + 28, size * 4 + 10, 8, 44);
+        drawBlock(size * 2, size * 4, "#AA5544");
+        ctx.fillStyle = "#884433";
+        for (let i = 0; i < size; i += 16)
+          ctx.fillRect(size * 2, size * 4 + i, size, 2);
+        drawBlock(size * 3, size * 4, "#FFFFCC");
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(size * 3 + 20, size * 4 + 20, 24, 24);
+
+        console.log("Atlas gerado!");
+      }
+
+      function downloadAtlas() {
+        if (!atlasCanvas) {
+          alert("Gere o atlas primeiro!");
+          return;
+        }
+
+        const link = document.createElement("a");
+        link.download = "texture-atlas.png";
+        link.href = atlasCanvas.toDataURL("image/png");
+        link.click();
+
+        console.log("Atlas baixado como texture-atlas.png");
+      }
+
+      function autoGenerate() {
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = "⏳ Gerando...";
+        button.disabled = true;
+
+        generateAtlas();
+
+        setTimeout(() => {
+          downloadAtlas();
+          button.innerHTML = "✅ Concluído!";
+          button.className =
+            "bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-colors";
+
+          setTimeout(() => {
+            button.innerHTML = originalText;
+            button.className =
+              "bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-colors";
+            button.disabled = false;
+          }, 3000);
+        }, 200);
+      }
+
+      // Informações dos blocos para o preview
+      const blockInfo = [
+        [
+          {
+            name: "Topo da Grama",
+            desc: "Superfície dos biomas normais",
+            color: "bg-green-600",
+          },
+          {
+            name: "Terra com Grama",
+            desc: "Camada superior do solo",
+            color: "bg-amber-800",
+          },
+          {
+            name: "Terra Pura",
+            desc: "Subsuperfície natural",
+            color: "bg-amber-700",
+          },
+          {
+            name: "Pedra",
+            desc: "Rocha sólida subterrânea",
+            color: "bg-gray-500",
+          },
+        ],
+        [
+          { name: "Areia", desc: "Praias e desertos", color: "bg-yellow-400" },
+          {
+            name: "Tronco Escuro",
+            desc: "Madeira com anéis",
+            color: "bg-amber-900",
+          },
+          { name: "Tronco Claro", desc: "Madeira lisa", color: "bg-amber-600" },
+          {
+            name: "Folhas",
+            desc: "Vegetação das árvores",
+            color: "bg-green-500",
+          },
+        ],
+        [
+          {
+            name: "Terra com Padrão",
+            desc: "Textura estruturada",
+            color: "bg-amber-500",
+          },
+          { name: "Água", desc: "Líquido translúcido", color: "bg-blue-400" },
+          {
+            name: "Bedrock",
+            desc: "Rocha indestrutível",
+            color: "bg-gray-800",
+          },
+          {
+            name: "Prédio Moderno",
+            desc: "Construções urbanas",
+            color: "bg-blue-900",
+          },
+        ],
+        [
+          {
+            name: "Matéria Corrupta Clara",
+            desc: "Superfície distorcida",
+            color: "bg-gray-600",
+          },
+          {
+            name: "Matéria Corrupta Escura",
+            desc: "Matéria instável",
+            color: "bg-red-900",
+          },
+          {
+            name: "Abismo Profundo",
+            desc: "Escuridão absoluta",
+            color: "bg-gray-800",
+          },
+          {
+            name: "Água Corrupta",
+            desc: "Líquido tóxico",
+            color: "bg-red-600",
+          },
+        ],
+        [
+          {
+            name: "Concreto",
+            desc: "Construções modernas",
+            color: "bg-gray-400",
+          },
+          {
+            name: "Asfalto",
+            desc: "Ruárias das cidades",
+            color: "bg-gray-900",
+          },
+          { name: "Tijolos", desc: "Casas residenciais", color: "bg-red-700" },
+          {
+            name: "Lâmpada/Luz",
+            desc: "Fontes de iluminação",
+            color: "bg-yellow-200",
+          },
+        ],
+      ];
+
+      // Preview interativo do mouse sobre o canvas
+      atlasCanvas.addEventListener("mousemove", (e) => {
+        const rect = atlasCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const blockSize = 64;
+        const col = Math.floor(x / blockSize);
+        const row = Math.floor(y / blockSize);
+
+        if (row >= 0 && row < 5 && col >= 0 && col < 4) {
+          const block = blockInfo[row][col];
+          const blockInfoEl = document.getElementById("blockInfo");
+          blockInfoEl.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 ${block.color} rounded"></div>
+                        <strong>${block.name}</strong>
+                    </div>
+                    <div class="text-xs text-gray-400 mt-1">${block.desc}</div>
+                    <div class="text-xs text-gray-500">Posição: Linha ${row}, Coluna ${col}</div>
+                `;
+        }
+      });
+
+      atlasCanvas.addEventListener("mouseleave", () => {
+        document.getElementById("blockInfo").innerHTML =
+          "Passe o mouse sobre o atlas para ver informações dos blocos";
+      });
+
+      // Gerar automaticamente ao carregar
+      window.onload = autoGenerate;
+    </script>
+  </body>
+</html>

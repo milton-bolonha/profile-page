@@ -1,0 +1,265 @@
+/* Stranger Craft - Global Styles */
+
+/* Reset e Base */
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: "Courier New", Courier, monospace;
+  background-color: #000;
+}
+
+canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Crosshair (Mira) */
+#ui {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  mix-blend-mode: difference;
+  z-index: 10;
+}
+
+#ui::before,
+#ui::after {
+  content: "";
+  position: absolute;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+#ui::before {
+  top: 9px;
+  left: 0;
+  width: 20px;
+  height: 2px;
+}
+
+#ui::after {
+  top: 0;
+  left: 9px;
+  width: 2px;
+  height: 20px;
+}
+
+/* Hotbar (Barra de Itens) */
+#hotbar {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 5px;
+  border-radius: 5px;
+  gap: 5px;
+  pointer-events: none;
+  transition: transform 0.3s;
+}
+
+.slot {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #555;
+  background-size: cover;
+  image-rendering: pixelated;
+  transition: transform 0.1s, border-color 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.slot.active {
+  border-color: #fff;
+  transform: scale(1.1);
+}
+
+.slot.blueprint {
+  border-color: #00aaff;
+  background: rgba(0, 40, 80, 0.6);
+  color: white;
+  text-shadow: 0 0 5px #00aaff;
+}
+
+.slot.blueprint.active {
+  border-color: #00ffff;
+  background: rgba(0, 80, 160, 0.8);
+  box-shadow: 0 0 10px #00aaff;
+}
+
+/* HUD Stats (Barras de Status) */
+#hud-stats {
+  position: absolute;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 300px;
+  pointer-events: none;
+}
+
+.stat-bar {
+  height: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #333;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.stat-fill {
+  height: 100%;
+  transition: width 0.2s;
+}
+
+#health-fill {
+  background-color: #ff3333;
+  width: 100%;
+}
+
+#stamina-fill {
+  background-color: #ffcc00;
+  width: 100%;
+}
+
+#oxygen-fill {
+  background-color: #33ccff;
+  width: 100%;
+}
+
+#oxygen-bar {
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+/* Instruções */
+#instructions {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  border-radius: 5px;
+  pointer-events: none;
+  font-size: 14px;
+}
+
+/* Dialog Box (Caixa de Diálogo) */
+#dialog-box {
+  position: absolute;
+  bottom: 150px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: #ffff55;
+  padding: 15px;
+  border-radius: 8px;
+  border: 2px solid #fff;
+  font-size: 18px;
+  display: none;
+  pointer-events: none;
+  text-align: center;
+}
+
+/* Info de Bloco */
+#block-info {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 8px;
+  border-radius: 5px;
+  pointer-events: none;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#mode-label {
+  position: absolute;
+  top: 35px;
+  right: 10px;
+  color: #aaa;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+/* Display de Tempo */
+#time-display {
+  position: absolute;
+  top: 50px;
+  right: 10px;
+  color: #ffd700;
+  font-weight: bold;
+  font-size: 14px;
+  text-shadow: 1px 1px 0 #000;
+  pointer-events: none;
+}
+
+/* Loading Screen */
+#loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 24px;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  border-radius: 10px;
+  z-index: 100;
+}
+
+/* Label de Dimensão */
+#dimension-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -150%);
+  color: #ff0000;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 40px;
+  font-weight: bold;
+  opacity: 0;
+  transition: opacity 1s;
+  pointer-events: none;
+  text-shadow: 0 0 10px #000;
+  text-align: center;
+}
+
+/* Radar de Cidade */
+#city-radar {
+  position: absolute;
+  top: 80px;
+  right: 10px;
+  color: #00ffaa;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: right;
+  pointer-events: none;
+  text-shadow: 1px 1px 0 #000;
+}
+
+/* Overlay de Dano */
+.damage-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: red;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s;
+}
