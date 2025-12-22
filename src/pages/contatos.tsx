@@ -56,7 +56,7 @@ const Contatos = ({ contacts }: ContatosProps) => {
   return (
     <>
       <Head>
-        <title>Contacts | Guilherme</title>
+        <title>Contacts | Milton</title>
       </Head>
       <div className=" px-6 md:px-32 bg-h-blue-900 rounded-lg shadow-lg py-10">
         <h1 className="text-5xl md:text-7xl font-bold text-center mb-10">Contacts</h1>

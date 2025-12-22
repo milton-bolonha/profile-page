@@ -62,8 +62,8 @@ const clientSettings = {
     keywords: ["portfolio", "web developer"]
   }),
   getBusinessSettings: () => ({
-    brandName: "Guilherme Cirelli Lopes",
-    brandEmail: "guilopes.030206@gmail.com",
+    brandName: "Milton Bolonha",
+    brandEmail: "miltonbolonha@gmail.com",
     brandPhone: "+55 43 99157-5781"
   }),
   getGeneralSettings: () => ({
@@ -73,12 +73,12 @@ const clientSettings = {
   getLinkTreeData: () => ({
     linkTree: [
       {
-        href: "https://linkedin.com/in/guilherme-cirelli",
+        href: "https://linkedin.com/in/miltonbolonha",
         label: "LinkedIn",
         icon: "FaLinkedin"
       },
       {
-        href: "https://github.com/guilherme-cirelli",
+        href: "https://github.com/milton-bolonha",
         label: "GitHub",
         icon: "FaGithub"
       }

@@ -41,7 +41,7 @@ export const Header = () => {
       <div className="flex items-center">
         <a
           href="/files/Curriculo 02072025.pdf"
-          download="Curriculo_Guilherme_Cirelli.pdf"
+          download="Curriculo_Milton_Bolonha.pdf"
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

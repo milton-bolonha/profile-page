@@ -1,31 +1,31 @@
 // Configurações estáticas para evitar problemas com fs no cliente
 const businessSettingsPT = {
-  "brandName": "Guilherme Cirelli Lopes",
+  "brandName": "Milton Bolonha",
   "brandDescription": "Desenvolvedor web apaixonado por criar soluções eficientes e práticas.",
-  "brandEmail": "guilopes.030206@gmail.com",
+  "brandEmail": "miltonbolonha@gmail.com",
   "brandKeywords": ["Desenvolvedor Web", "Portfolio", "JavaScript", "Next.js", "React", "Node.js"],
   "brandPhone": "+55 43 99157-5781"
 };
 
 const businessSettingsEN = {
-  "brandName": "Guilherme Cirelli Lopes",
+  "brandName": "Milton Bolonha",
   "brandDescription": "Web developer passionate about delivering efficient and practical solutions.",
-  "brandEmail": "guilopes.030206@gmail.com",
+  "brandEmail": "miltonbolonha@gmail.com",
   "brandKeywords": ["Web Developer", "Portfolio", "JavaScript", "Next.js", "React", "Node.js"],
   "brandPhone": "+55 43 99157-5781"
 };
 
 const generalSettings = {
   "siteUrl": "https://guilherme-cirelli.dev",
-  "footerText": "© 2025 Guilherme Cirelli Lopes. Todos os direitos reservados. Construído com Next.js e muito ☕.",
+  "footerText": "© 2025 Milton Bolonha. Todos os direitos reservados. Construído com Next.js e muito ☕.",
   "postsToShow": 6,
   "homeCategory": "Development",
   "cookieConsent": false,
   "darkModeSwitcher": true,
-  "feedbackEmail": "guilopes.030206@gmail.com",
+  "feedbackEmail": "miltonbolonha@gmail.com",
   "publishedDate": "2025-01-15 00:00:00",
   "i18n": "en",
-  "errorMessage": "Oops... something went wrong. Please try again later or contact us: guilopes.030206@gmail.com"
+  "errorMessage": "Oops... something went wrong. Please try again later or contact us: miltonbolonha@gmail.com"
 };
 
 const themeSettings = {
@@ -106,7 +106,7 @@ const linkTreeData = {
       "icon": "FaGithub"
     },
     {
-      "href": "mailto:guilopes.030206@gmail.com",
+      "href": "mailto:miltonbolonha@gmail.com",
       "label": "Email",
       "icon": "FaEnvelope"
     }
@@ -160,6 +160,6 @@ export const getVersionInfo = () => {
   return {
     version: "1.0.0",
     nextVersion: "13.5.7",
-    message: "Portfolio pessoal - Guilherme Cirelli Lopes"
+    message: "Portfolio pessoal - Milton Bolonha"
   };
 };

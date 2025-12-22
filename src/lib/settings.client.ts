@@ -11,8 +11,8 @@ export function getSeoSettings() {
 
 export function getBusinessSettings() {
   return {
-    brandName: "Guilherme Cirelli Lopes",
-    brandEmail: "guilopes.030206@gmail.com",
+    brandName: "Milton Bolonha",
+    brandEmail: "miltonbolonha@gmail.com",
     brandPhone: "+55 43 99157-5781"
   };
 }

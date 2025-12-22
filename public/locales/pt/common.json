@@ -8,7 +8,7 @@
   },
   "home": {
     "title": "Prazer, eu sou",
-    "titleBold": "Guilherme",
+    "titleBold": "Milton",
     "subtitle": "Desenvolvedor Full Stack que transforma ideias em soluções digitais funcionais",
     "whatsapp": "WhatsApp",
     "hero": {
@@ -119,7 +119,7 @@
   },
   "about": {
     "title": "Sobre Mim",
-    "introduction": "Olá! Sou Guilherme Cirelli Lopes, estudante de Análise e Desenvolvimento de Sistemas, conhecido por ser esforçado e honrado em cumprir o que prometo. Meu objetivo é ajudar empreendedores e profissionais como você a transformar ideias em projetos digitais de sucesso, com soluções escaláveis, modernas e funcionais.",
+    "introduction": "Olá! Sou Milton Bolonha, estudante de Análise e Desenvolvimento de Sistemas, conhecido por ser esforçado e honrado em cumprir o que prometo. Meu objetivo é ajudar empreendedores e profissionais como você a transformar ideias em projetos digitais de sucesso, com soluções escaláveis, modernas e funcionais.",
     "education": {
       "title": "Educação",
       "degree": "Graduando em Análise e Desenvolvimento de Sistemas",
@@ -232,7 +232,7 @@
   "footer": {
     "quickLinks": "Links Rápidos",
     "contact": "Contato",
-    "copyright": "© 2025 Guilherme Cirelli Lopes. Todos os direitos reservados. Construído com Next.js e muito ☕."
+    "copyright": "© 2025 Milton Bolonha. Todos os direitos reservados. Construído com Next.js e muito ☕."
   },
   "auth": {
     "signIn": "Entrar",

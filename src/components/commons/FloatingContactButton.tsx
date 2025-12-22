@@ -65,14 +65,14 @@ export const FloatingContactButton = () => {
               </Link>
 
               <a
-                href="mailto:guilopes.030206@gmail.com"
+                href="mailto:miltonbolonha@gmail.com"
                 className="flex items-center gap-3 px-4 py-3 rounded-full border border-white/20 hover:border-white/40 transition-all"
               >
                 <svg className="w-4 h-4 text-white flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                   <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                 </svg>
-                <span className="text-xs text-white/80 truncate">guilopes.030206@gmail.com</span>
+                <span className="text-xs text-white/80 truncate">miltonbolonha@gmail.com</span>
               </a>
 
               <div className="flex items-center gap-3 justify-center pt-2">

@@ -57,12 +57,12 @@ const HomeContent = ({
 
   const seoData = {
     title:
-      "Guilherme Cirelli — Desenvolvedor Full Stack | Next.js, React, Node.js",
+      "Milton Bolonha — Desenvolvedor Full Stack | Next.js, React, Node.js",
     description:
       "Desenvolvedor Full Stack especializado em Next.js, React e Node.js. Criação de aplicações web modernas, responsivas e escaláveis. Veja meu portfolio e entre em contato.",
     siteUrl: generalSettings.siteUrl,
     slug: "/",
-    author: "Guilherme Cirelli",
+    author: "Milton Bolonha",
     keywords: [
       "desenvolvedor full stack",
       "next.js",

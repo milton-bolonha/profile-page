@@ -1,7 +1,7 @@
 ---
 title: "Projeto 6"
 date: "2025-01-15"
-author: "Guilherme Cirelli Lopes"
+author: "Milton Bolonha"
 public: true
 ---
 

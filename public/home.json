@@ -2,7 +2,7 @@
   "aboutMe": {
     "title": {
   "default": "Pleasure, I am",
-  "bold": "Guilherme"
+  "bold": "Milton"
 },
     "description": "I'm a web developer passionate about technology...",
     "contact": {
@@ -22,7 +22,7 @@
     "pfp": {
   "image": {
     "url": "/img/foto perfil.jpeg",
-    "alt": "Foto de Guilherme Cirelli Lopes"
+    "alt": "Foto de Milton Bolonha"
   },
   "experience": {
     "default": "Undergraduate in",

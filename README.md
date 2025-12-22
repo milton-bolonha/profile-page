@@ -1,4 +1,4 @@
-# Portfolio Guilherme Cirelli Lopes
+# Portfolio Milton Bolonha
 
 Um portfolio pessoal moderno e responsivo desenvolvido com Next.js, TypeScript e Tailwind CSS, implementando as melhores práticas de desenvolvimento web.
 
@@ -246,12 +246,12 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 📞 Contato
 
-**Guilherme Cirelli Lopes**
+**Milton Bolonha**
 
-- Email: guilherme@cirelli.dev
-- LinkedIn: [linkedin.com/in/guicirelli](https://linkedin.com/in/guicirelli)
-- GitHub: [github.com/guicirelli](https://github.com/guicirelli)
+- Email: miltonbolonha@gmail.com
+- LinkedIn: [linkedin.com/in/miltonbolonha](https://linkedin.com/in/miltonbolonha)
+- GitHub: [github.com/milton-bolonha](https://github.com/milton-bolonha)
 
 ---
 
-Desenvolvido com ❤️ por Guilherme Cirelli Lopes
+Desenvolvido com ❤️ por Milton Bolonha

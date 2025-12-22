@@ -20,7 +20,7 @@ exports.handler = async (event, context) => {
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
   const msg = {
-    to: 'guilopes.030206@gmail.com', // Replace with your recipient email
+    to: 'miltonbolonha@gmail.com', // Replace with your recipient email
     from: 'percicirelli.33@gmail.com', // Replace with your verified SendGrid sender
     subject: `New message from ${name} (${email})`,
     text: message,

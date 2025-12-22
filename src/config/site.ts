@@ -1,5 +1,5 @@
 export const siteConfig = {
-  name: "Guilherme Cirelli",
+  name: "Milton Bolonha",
   description: "Desenvolvedor Full Stack especializado em Next.js, React e Node.js. Criação de aplicações web modernas, responsivas e escaláveis.",
   url: "https://www.guilhermecirelli.com.br",
   ogImage: "/img/og-image.jpg",
@@ -17,7 +17,7 @@ export const siteConfig = {
     "frontend",
     "backend"
   ],
-  creator: "Guilherme Cirelli",
+  creator: "Milton Bolonha",
   themeColor: "#0f172a",
   socialLinks: [
     {

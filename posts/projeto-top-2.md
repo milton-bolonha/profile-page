@@ -1,7 +1,7 @@
 ---
 title: "🏆 Projeto 2"
 date: "2025-01-19"
-author: "Guilherme Cirelli Lopes"
+author: "Milton Bolonha"
 public: true
 ---
 

@@ -58,14 +58,14 @@ const Sobre = ({ businessSettings, generalSettings }: SobreProps) => {
                 <div className="flex-shrink-0 flex flex-row sm:flex-col gap-4 sm:gap-8 justify-center lg:justify-start">
                   <Image
                     src="/img/perfil2.jpeg"
-                    alt="Guilherme Cirelli Lopes"
+                    alt="Milton Bolonha"
                     width={256}
                     height={256}
                     className="w-24 h-24 sm:w-48 sm:h-48 lg:w-64 lg:h-64 rounded-full object-cover shadow-2xl"
                   />
                   <Image
                     src="/img/perfil3.jpeg"
-                    alt="Guilherme Cirelli Lopes working"
+                    alt="Milton Bolonha working"
                     width={256}
                     height={256}
                     className="w-24 h-24 sm:w-48 sm:h-48 lg:w-64 lg:h-64 rounded-full object-cover shadow-2xl"
