@@ -65,10 +65,10 @@ const themeSettings = {
 
 const logos = {
   "faviconLogo": "/favicon.svg",
-  "mainLogo": "/img/foto perfil.jpeg",
-  "markLogo": "/img/foto perfil.jpeg",
-  "cardLogo": "/img/foto perfil.jpeg",
-  "postAuthorLogo": "/img/foto perfil.jpeg",
+  "mainLogo": "/img/foto-perfil.jpg",
+  "markLogo": "/img/foto-perfil.jpg",
+  "cardLogo": "/img/foto-perfil.jpg",
+  "postAuthorLogo": "/img/foto-perfil.jpg",
   "mainLogoWH": "375x375"
 };
 

@@ -38,7 +38,7 @@ content/data/
       "textKey": "home.hero.experience"
     },
     "photo": {
-      "url": "/img/foto perfil.jpeg",
+      "url": "/img/foto-perfil.jpg",
       "alt": "Guilherme Cirelli Lopes",
       "width": 400,
       "height": 400
