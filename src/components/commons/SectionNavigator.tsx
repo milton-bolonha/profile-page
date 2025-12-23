@@ -63,7 +63,7 @@ export const SectionNavigator = () => {
           <button
             key={section.id}
             onClick={() => scrollToSection(section.id)}
-            className="group relative flex items-center justify-center"
+            className="group relative flex items-center justify-center cursor-pointer"
           >
             <div
               className={`w-2 h-2 rounded-full transition-all duration-300 ${

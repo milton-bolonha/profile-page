@@ -1,0 +1,33 @@
+{
+  "name": "neon-flight-game",
+  "version": "1.0.0",
+  "description": "A 3D flight game built with React and Three.js",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@types/three": "^0.182.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "three": "^0.182.0"
+  },
+  "devDependencies": {
+    "react-scripts": "^5.0.1"
+  }
+}
