@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guilherme Cirelli - Full Stack Developer</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- GSAP (Mantido para animações de UI se necessário) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+    <!-- Estilos Personalizados -->
+    <style>
+        /* Animações Originais do Site */
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            animation: marquee 30s linear infinite;
+        }
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        html { scroll-behavior: smooth; }
+
+        /* CONFIGURAÇÃO DO JOGO (BACKGROUND) */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Fica atrás de tudo */
+            overflow: hidden;
+        }
+
+        /* CONFIGURAÇÃO DO CONTEÚDO (FRENTE) */
+        /* Header e Main precisam estar acima do canvas */
+        header {
+            position: fixed;
+            z-index: 50;
+        }
+
+        /* O HUD do jogo (Placar) */
+        #game-hud {
+            position: fixed;
+            top: 80px; /* Abaixo do header */
+            left: 20px;
+            z-index: 40;
+            pointer-events: none; /* Deixa clicar através */
+        }
+
+        #loader, #mobile-menu, .fixed-buttons {
+            z-index: 60;
+        }
+
+        /* Conteúdo do site com fundo semi-transparente para ver o jogo */
+        main, section, footer {
+            position: relative;
+            z-index: 10;
+            pointer-events: none; /* Permite que o mouse interaja com o jogo quando não houver conteúdo */
+        }
+
+        /* Mas o conteúdo dentro das seções precisa ser clicável */
+        section > * {
+            pointer-events: auto;
+        }
+
+        /* Fundo sutil para legibilidade */
+        section {
+            background-color: rgba(0, 0, 0, 0.4); 
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        /* Hero Section transparente para ver o avião inicial */
+        #inicio {
+            background-color: transparent;
+            border: none;
+        }
+    </style>
+
+    <!-- Import Map para Three.js -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body class="bg-black text-white font-sans min-h-screen selection:bg-blue-500 selection:text-white overflow-x-hidden">
+
+    <!-- CAMADA 1: JOGO 3D -->
+    <div id="canvas-container"></div>
+
+    <!-- CAMADA 2: HUD DO JOGO -->
+    <div id="game-hud" class="flex flex-col gap-2 font-mono text-xs md:text-sm">
+        <div class="flex gap-2">
+            <div id="score-el" class="bg-black/60 backdrop-blur border border-white/10 text-white px-3 py-1 rounded-lg">
+                DIST: 0m
+            </div>
+            <div id="turbo-el" class="bg-black/60 backdrop-blur border border-white/10 text-white/30 px-3 py-1 rounded-lg flex items-center gap-2 transition-all">
+                <i data-lucide="zap" class="w-3 h-3"></i> TURBO
+            </div>
+        </div>
+        <div class="text-white/30 bg-black/40 p-2 rounded hidden md:block">
+            [WASD] Voar &nbsp; [ESPAÇO] Turbo
+        </div>
+    </div>
+
+    <!-- Loader -->
+    <div id="loader" class="fixed bottom-10 right-10 z-[60] text-xs font-mono text-blue-500 bg-black/80 px-4 py-2 rounded-full border border-blue-500/30 backdrop-blur transition-opacity duration-500">
+        Abastecendo Aeronave...
+    </div>
+
+    <!-- Header -->
+    <header class="fixed top-0 w-full bg-black/80 backdrop-blur-md border-b border-white/10 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3 group cursor-pointer" onclick="scrollToSection('inicio')">
+                <div class="relative w-10 h-10 rounded-full overflow-hidden border border-white/20 group-hover:border-white/50 transition-colors">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?fit=crop&w=100&h=100" alt="Profile" class="w-full h-full object-cover"/>
+                </div>
+                <span class="font-bold text-lg tracking-tight group-hover:text-blue-400 transition-colors">Guilherme Cirelli</span>
+            </div>
+
+            <nav class="hidden md:flex items-center gap-1 bg-white/5 px-2 py-1.5 rounded-full border border-white/10 backdrop-blur-sm">
+                <button onclick="scrollToSection('inicio')" class="nav-link px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 text-gray-400 hover:text-white hover:bg-white/10" data-section="inicio">
+                    <i data-lucide="globe" class="w-3.5 h-3.5"></i> Início
+                </button>
+                <button onclick="scrollToSection('sobre')" class="nav-link px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 text-gray-400 hover:text-white hover:bg-white/10" data-section="sobre">
+                    <i data-lucide="user" class="w-3.5 h-3.5"></i> Sobre
+                </button>
+                <button onclick="scrollToSection('projetos')" class="nav-link px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 text-gray-400 hover:text-white hover:bg-white/10" data-section="projetos">
+                    <i data-lucide="layers" class="w-3.5 h-3.5"></i> Projetos
+                </button>
+                <button onclick="scrollToSection('stack')" class="nav-link px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 text-gray-400 hover:text-white hover:bg-white/10" data-section="stack">
+                    <i data-lucide="code" class="w-3.5 h-3.5"></i> Stack
+                </button>
+                <button onclick="scrollToSection('contato')" class="nav-link px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 text-gray-400 hover:text-white hover:bg-white/10" data-section="contato">
+                    <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Contato
+                </button>
+            </nav>
+
+            <div class="hidden md:flex items-center gap-4">
+                <a href="#" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-all shadow-[0_0_15px_rgba(37,99,235,0.5)] hover:shadow-[0_0_25px_rgba(37,99,235,0.7)] flex items-center gap-2">
+                    <i data-lucide="briefcase" class="w-4 h-4"></i> Currículo
+                </a>
+            </div>
+
+            <button class="md:hidden p-2 text-white/80 hover:text-white" onclick="toggleMenu()">
+                <i data-lucide="menu" id="menu-icon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 bg-black/95 backdrop-blur-xl transition-transform duration-500 translate-x-full md:hidden flex flex-col justify-center items-center gap-8">
+        <button onclick="scrollToSection('inicio')" class="text-2xl font-light tracking-widest hover:text-blue-500 transition-colors uppercase">inicio</button>
+        <button onclick="scrollToSection('sobre')" class="text-2xl font-light tracking-widest hover:text-blue-500 transition-colors uppercase">sobre</button>
+        <button onclick="scrollToSection('projetos')" class="text-2xl font-light tracking-widest hover:text-blue-500 transition-colors uppercase">projetos</button>
+        <button onclick="scrollToSection('stack')" class="text-2xl font-light tracking-widest hover:text-blue-500 transition-colors uppercase">stack</button>
+        <button onclick="scrollToSection('historia')" class="text-2xl font-light tracking-widest hover:text-blue-500 transition-colors uppercase">historia</button>
+        <button onclick="scrollToSection('faq')" class="text-2xl font-light tracking-widest hover:text-blue-500 transition-colors uppercase">faq</button>
+        <button onclick="scrollToSection('contato')" class="text-2xl font-light tracking-widest hover:text-blue-500 transition-colors uppercase">contato</button>
+    </div>
+
+    <!-- MAIN CONTENT (Seu site intacto) -->
+    <main>
+        <!-- Hero Section -->
+        <section id="inicio" class="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+            <div class="relative z-10 max-w-7xl mx-auto px-6 grid lg:grid-cols-[1.2fr_1fr] gap-12 items-center">
+                <div class="space-y-8 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs font-semibold tracking-wider uppercase animate-fade-in-up">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                        </span>
+                        Disponível para novos projetos
+                    </div>
+                    
+                    <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold leading-[0.9] tracking-tight">
+                        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/50">Cirelli.</span>
+                        <span class="block text-3xl md:text-5xl lg:text-6xl mt-4 font-light text-gray-400">Full Stack Developer</span>
+                    </h1>
+                    
+                    <p class="text-lg md:text-xl text-gray-400 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                        Transformo ideias complexas em experiências digitais <span class="text-white font-medium">elegantes</span>, <span class="text-white font-medium">rápidas</span> e <span class="text-white font-medium">escaláveis</span>.
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+                        <button onclick="scrollToSection('contato')" class="px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-gray-200 transition-all flex items-center justify-center gap-2 group pointer-events-auto">
+                            Iniciar Projeto
+                            <i data-lucide="rocket" class="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></i>
+                        </button>
+                        <button onclick="scrollToSection('projetos')" class="px-8 py-4 bg-white/5 text-white border border-white/10 font-semibold rounded-full hover:bg-white/10 transition-all flex items-center justify-center gap-2 backdrop-blur-sm pointer-events-auto">
+                            Ver Portfolio
+                            <i data-lucide="chevron-down" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    <div class="pt-8 border-t border-white/10 flex gap-8 justify-center lg:justify-start text-center lg:text-left">
+                        <div>
+                            <div class="text-2xl md:text-3xl font-bold text-white">5+</div>
+                            <div class="text-sm text-gray-500 uppercase tracking-wider">Anos Exp.</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl md:text-3xl font-bold text-white">50+</div>
+                            <div class="text-sm text-gray-500 uppercase tracking-wider">Projetos</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl md:text-3xl font-bold text-white">30+</div>
+                            <div class="text-sm text-gray-500 uppercase tracking-wider">Clientes</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Espaço vazio para o avião -->
+                <div class="relative hidden lg:block h-[500px]"></div>
+            </div>
+            
+            <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50 animate-bounce">
+                <span class="text-[10px] uppercase tracking-[0.2em]">Scroll</span>
+                <div class="w-[1px] h-10 bg-gradient-to-b from-white to-transparent"></div>
+            </div>
+        </section>
+
+        <!-- Services -->
+        <section id="sobre" class="py-24 relative backdrop-blur-sm">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="grid md:grid-cols-2 gap-16 items-center">
+                    <div class="relative order-2 md:order-1">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-4 translate-y-8">
+                                <div class="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm hover:border-blue-500/50 transition-colors">
+                                    <i data-lucide="code" class="w-8 h-8 text-blue-400 mb-4"></i>
+                                    <h3 class="font-bold mb-2">Frontend</h3>
+                                    <p class="text-sm text-gray-400">React, Next.js, Tailwind</p>
+                                </div>
+                                <div class="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm hover:border-purple-500/50 transition-colors">
+                                    <i data-lucide="layers" class="w-8 h-8 text-purple-400 mb-4"></i>
+                                    <h3 class="font-bold mb-2">UI/UX</h3>
+                                    <p class="text-sm text-gray-400">Figma, Design Systems</p>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm hover:border-green-500/50 transition-colors">
+                                    <i data-lucide="globe" class="w-8 h-8 text-green-400 mb-4"></i>
+                                    <h3 class="font-bold mb-2">Backend</h3>
+                                    <p class="text-sm text-gray-400">Node.js, Postgres</p>
+                                </div>
+                                <div class="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-sm hover:border-orange-500/50 transition-colors">
+                                    <i data-lucide="rocket" class="w-8 h-8 text-orange-400 mb-4"></i>
+                                    <h3 class="font-bold mb-2">Performance</h3>
+                                    <p class="text-sm text-gray-400">SEO, Analytics</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="order-1 md:order-2 space-y-6 relative z-10">
+                        <span class="text-blue-500 font-semibold tracking-wider text-sm uppercase">O que eu faço</span>
+                        <h2 class="text-4xl md:text-5xl font-bold leading-tight">Soluções completas.</h2>
+                        <p class="text-gray-400 text-lg leading-relaxed">
+                            Foco em entregar software de alta qualidade que resolve problemas reais.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects -->
+        <section id="projetos" class="py-32 relative overflow-hidden">
+            <div class="max-w-7xl mx-auto px-6 relative z-10">
+                <div class="text-center max-w-3xl mx-auto mb-20 space-y-4">
+                    <span class="text-blue-500 font-semibold tracking-wider text-sm uppercase">Portfólio</span>
+                    <h2 class="text-4xl md:text-5xl font-bold">Projetos em Destaque</h2>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Project Cards -->
+                    <div class="group relative h-[450px] perspective-1000">
+                        <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0 rounded-3xl border border-white/10 group-hover:border-white/20 transition-all duration-500 group-hover:-translate-y-4 shadow-xl backdrop-blur-md p-8 flex flex-col">
+                            <div class="flex justify-between items-start mb-auto">
+                                <div class="px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs text-white/70">Next.js</div>
+                                <span class="text-6xl font-black text-white/5 font-serif">01</span>
+                            </div>
+                            <div class="mt-8 space-y-4">
+                                <h3 class="text-3xl font-bold">E-commerce</h3>
+                                <p class="text-gray-400 text-sm">Plataforma robusta de vendas.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="group relative h-[450px] perspective-1000">
+                        <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0 rounded-3xl border border-white/10 group-hover:border-white/20 transition-all duration-500 group-hover:-translate-y-4 shadow-xl backdrop-blur-md p-8 flex flex-col">
+                            <div class="flex justify-between items-start mb-auto">
+                                <div class="px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs text-white/70">React</div>
+                                <span class="text-6xl font-black text-white/5 font-serif">02</span>
+                            </div>
+                            <div class="mt-8 space-y-4">
+                                <h3 class="text-3xl font-bold">Dashboard</h3>
+                                <p class="text-gray-400 text-sm">Analytics em tempo real.</p>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="group relative h-[450px] perspective-1000">
+                        <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0 rounded-3xl border border-white/10 group-hover:border-white/20 transition-all duration-500 group-hover:-translate-y-4 shadow-xl backdrop-blur-md p-8 flex flex-col">
+                            <div class="flex justify-between items-start mb-auto">
+                                <div class="px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs text-white/70">Node</div>
+                                <span class="text-6xl font-black text-white/5 font-serif">03</span>
+                            </div>
+                            <div class="mt-8 space-y-4">
+                                <h3 class="text-3xl font-bold">Financeiro</h3>
+                                <p class="text-gray-400 text-sm">Gestão de ativos.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stack -->
+        <section id="stack" class="py-20 bg-neutral-900/50 border-y border-white/5 overflow-hidden backdrop-blur-sm">
+            <div class="max-w-7xl mx-auto px-6 mb-10 text-center">
+                <h3 class="text-2xl font-bold mb-2">Stack Tecnológica</h3>
+            </div>
+            <div class="relative flex overflow-x-hidden group">
+                <div class="animate-marquee whitespace-nowrap flex gap-8 items-center" id="marquee-content"></div>
+                <div class="absolute top-0 left-0 w-32 h-full bg-gradient-to-r from-black to-transparent z-10"></div>
+                <div class="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-black to-transparent z-10"></div>
+            </div>
+        </section>
+
+        <!-- Timeline -->
+        <section id="historia" class="py-32 relative bg-black/90">
+            <div class="max-w-5xl mx-auto px-6">
+                <div class="text-center mb-20">
+                    <h2 class="text-4xl font-bold mb-4">Minha Jornada</h2>
+                </div>
+                <div class="relative border-l border-white/10 ml-4 md:ml-0 md:pl-0 space-y-16">
+                    <div class="relative md:grid md:grid-cols-[1fr_4rem_1fr] md:gap-0 items-center">
+                        <div class="hidden md:block text-right pr-10">
+                            <span class="text-5xl font-black text-white/5 absolute top-0 transform -translate-y-4 select-none right-10">2025</span>
+                            <h3 class="text-2xl font-bold text-white relative z-10">Tech Lead</h3>
+                        </div>
+                        <div class="absolute left-[-5px] md:left-1/2 md:-translate-x-1/2 w-3 h-3 bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.8)] z-10"></div>
+                        <div class="md:hidden pl-8">
+                            <h3 class="text-xl font-bold text-white">Tech Lead</h3>
+                        </div>
+                    </div>
+                     <div class="relative md:grid md:grid-cols-[1fr_4rem_1fr] md:gap-0 items-center">
+                        <div class="hidden md:block col-start-3 pl-10">
+                            <span class="text-5xl font-black text-white/5 absolute top-0 transform -translate-y-4 select-none left-10">2023</span>
+                            <h3 class="text-2xl font-bold text-white relative z-10">Senior Dev</h3>
+                        </div>
+                        <div class="absolute left-[-5px] md:left-1/2 md:-translate-x-1/2 w-3 h-3 bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.8)] z-10"></div>
+                        <div class="md:hidden pl-8">
+                            <h3 class="text-xl font-bold text-white">Senior Dev</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section id="faq" class="py-24 bg-white/[0.02]">
+            <div class="max-w-3xl mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl font-bold mb-4">FAQ</h2>
+                </div>
+                <div class="space-y-4">
+                    <details class="group bg-black border border-white/10 rounded-2xl overflow-hidden transition-all duration-300 open:border-blue-500/30 open:bg-blue-500/5">
+                        <summary class="flex items-center justify-between p-6 cursor-pointer list-none">
+                            <span class="font-medium text-lg pr-4">Freelance?</span>
+                            <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform"></i>
+                        </summary>
+                        <div class="px-6 pb-6 text-gray-400 leading-relaxed border-t border-white/5 pt-4">Sim!</div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact -->
+        <section id="contato" class="py-32 relative overflow-hidden bg-black/90">
+            <div class="max-w-4xl mx-auto px-6 relative z-10 text-center">
+                <h2 class="text-5xl md:text-6xl font-bold mb-8">Vamos conversar?</h2>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+                    <a href="mailto:guilopes@example.com" class="group relative px-8 py-4 bg-white text-black font-bold rounded-full overflow-hidden pointer-events-auto">
+                        <div class="absolute inset-0 w-full h-full bg-gray-200 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                        <span class="relative z-10 flex items-center gap-2">
+                            <i data-lucide="mail" class="w-5 h-5"></i> Enviar E-mail
+                        </span>
+                    </a>
+                    <a href="https://wa.me/" class="px-8 py-4 bg-transparent border border-white/20 text-white font-bold rounded-full hover:bg-white/10 transition-all flex items-center gap-2 pointer-events-auto">
+                        <i data-lucide="message-circle" class="w-5 h-5"></i> WhatsApp
+                    </a>
+                </div>
+            </div>
+            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-96 bg-gradient-to-t from-blue-900/20 to-transparent pointer-events-none blur-3xl"></div>
+        </section>
+    </main>
+
+    <footer class="border-t border-white/10 bg-black py-12 text-center text-gray-500 text-sm relative z-10 pointer-events-auto">
+        <p>&copy; <span id="year"></span> Guilherme Cirelli.</p>
+    </footer>
+
+    <div class="fixed bottom-8 right-8 z-[60] fixed-buttons">
+        <button onclick="window.open('https://wa.me/', '_blank')" class="w-14 h-14 bg-green-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(22,163,74,0.5)] hover:bg-green-500 hover:scale-110 transition-all duration-300 pointer-events-auto">
+            <i data-lucide="message-circle" class="w-7 h-7 text-white"></i>
+        </button>
+    </div>
+
+    <!-- UI Scripts -->
+    <script>
+        lucide.createIcons();
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Populate Marquee
+        const techStack = ['Next.js', 'React', 'TypeScript', 'Tailwind', 'Node.js', 'PostgreSQL', 'Docker', 'AWS', 'Figma', 'Git', 'Three.js', 'GSAP'];
+        const marqueeContainer = document.getElementById('marquee-content');
+        for (let i = 0; i < 2; i++) {
+            techStack.forEach(tech => {
+                const div = document.createElement('div');
+                div.className = "inline-flex items-center justify-center px-8 py-4 rounded-xl bg-white/5 border border-white/5 text-xl font-medium text-gray-400 mx-2";
+                div.textContent = tech;
+                marqueeContainer.appendChild(div);
+            });
+        }
+        
+        function scrollToSection(id) {
+            document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+            toggleMenu(false);
+        }
+
+        const mobileMenu = document.getElementById('mobile-menu');
+        let isMenuOpen = false;
+        function toggleMenu(forceState) {
+            isMenuOpen = forceState !== undefined ? forceState : !isMenuOpen;
+            if (isMenuOpen) {
+                mobileMenu.classList.remove('translate-x-full');
+                mobileMenu.classList.add('translate-x-0');
+            } else {
+                mobileMenu.classList.add('translate-x-full');
+                mobileMenu.classList.remove('translate-x-0');
+            }
+        }
+    </script>
+
+    <!-- GAME LOGIC (THREE.JS) -->
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+        // --- 1. CONFIGURAÇÃO INICIAL ---
+        const CONFIG = {
+            SPEED_BASE: 0.5,
+            SPEED_TURBO: 1.2,
+            LANE_WIDTH: 8,
+            LANE_HEIGHT: 5,
+            COLORS: [0x3b82f6, 0x8b5cf6, 0xec4899] // Cores do tema (Azul, Roxo, Rosa)
+        };
+
+        const state = {
+            speed: CONFIG.SPEED_BASE,
+            distance: 0,
+            turbo: false,
+            playerX: 0,
+            playerY: 0
+        };
+
+        const keys = { w: false, a: false, s: false, d: false, space: false };
+
+        // HUD Elements
+        const scoreEl = document.getElementById('score-el');
+        const turboEl = document.getElementById('turbo-el');
+        const loaderEl = document.getElementById('loader');
+
+        // Setup Three.js
+        const scene = new THREE.Scene();
+        // Fog escuro para esconder o horizonte
+        scene.fog = new THREE.Fog('#050505', 10, 50);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 2, 10);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // --- 2. ILUMINAÇÃO ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0x4f46e5, 2);
+        dirLight.position.set(10, 10, 10);
+        dirLight.castShadow = true;
+        scene.add(dirLight);
+
+        const pointLight = new THREE.PointLight(0xef4444, 1.5);
+        pointLight.position.set(-10, -5, -5);
+        scene.add(pointLight);
+
+        // --- 3. JOGADOR (AVIÃO) ---
+        let playerMesh = null;
+        const loader = new GLTFLoader();
+        
+        const modelUrl = 'https://raw.githubusercontent.com/Domenicobrz/R3F-takes-flight/episode_1/public/assets/models/airplane.glb';
+
+        loader.load(modelUrl, (gltf) => {
+            playerMesh = gltf.scene;
+            playerMesh.scale.set(0.5, 0.5, 0.5);
+            playerMesh.position.set(0, 0, 0);
+            playerMesh.rotation.y = Math.PI; // Virar para frente
+            
+            playerMesh.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+            
+            scene.add(playerMesh);
+            loaderEl.style.opacity = '0'; // Esconde loader
+        }, undefined, (error) => {
+            console.error(error);
+            loaderEl.innerText = "Erro ao carregar nave.";
+        });
+
+        // --- 4. CENÁRIO (PARTÍCULAS E OBJETOS) ---
+        // 4.1 Estrelas (Túnel)
+        const starGeo = new THREE.BufferGeometry();
+        const starCount = 400;
+        const starPos = new Float32Array(starCount * 3);
+        
+        for(let i=0; i<starCount * 3; i++) {
+            starPos[i] = (Math.random() - 0.5) * 100;
+        }
+        
+        starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+        const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.2 });
+        const stars = new THREE.Points(starGeo, starMat);
+        scene.add(stars);
+
+        // 4.2 Objetos Flutuantes (Formas Geométricas)
+        const shapes = [];
+        const shapeGeo = new THREE.DodecahedronGeometry(0.5);
+        
+        for (let i = 0; i < 20; i++) {
+            const mat = new THREE.MeshStandardMaterial({ 
+                color: CONFIG.COLORS[Math.floor(Math.random() * CONFIG.COLORS.length)],
+                wireframe: true,
+                emissive: 0x222222
+            });
+            const mesh = new THREE.Mesh(shapeGeo, mat);
+            
+            mesh.position.set(
+                (Math.random() - 0.5) * 40,
+                (Math.random() - 0.5) * 25,
+                -(Math.random() * 100 + 10)
+            );
+            
+            mesh.userData = {
+                rotSpeed: Math.random() * 0.05 + 0.01,
+                speedOffset: Math.random() * 0.5 + 0.8
+            };
+            
+            scene.add(mesh);
+            shapes.push(mesh);
+        }
+
+        // --- 5. CONTROLES E INPUT ---
+        window.addEventListener('keydown', (e) => {
+            const k = e.key.toLowerCase();
+            // Previne scroll apenas se focar no jogo (opcional), aqui deixamos livre
+            // mas o turbo (espaço) costuma dar scroll, então:
+            if(k === ' ') {
+                // e.preventDefault(); // Descomente se quiser travar o scroll com espaço
+                keys.space = true;
+            }
+            if(['w','arrowup'].includes(k)) keys.w = true;
+            if(['s','arrowdown'].includes(k)) keys.s = true;
+            if(['a','arrowleft'].includes(k)) keys.a = true;
+            if(['d','arrowright'].includes(k)) keys.d = true;
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const k = e.key.toLowerCase();
+            if(['w','arrowup'].includes(k)) keys.w = false;
+            if(['s','arrowdown'].includes(k)) keys.s = false;
+            if(['a','arrowleft'].includes(k)) keys.a = false;
+            if(['d','arrowright'].includes(k)) keys.d = false;
+            if(k === ' ') keys.space = false;
+        });
+
+        // --- 6. GAME LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // 6.1 Lógica de Velocidade
+            const targetSpeed = keys.space ? CONFIG.SPEED_TURBO : CONFIG.SPEED_BASE;
+            state.speed += (targetSpeed - state.speed) * 0.1; 
+            state.distance += state.speed;
+            state.turbo = keys.space;
+
+            // 6.2 HUD Update
+            scoreEl.innerText = `DIST: ${Math.floor(state.distance)}m`;
+            if(state.turbo) {
+                turboEl.classList.remove('text-white/30');
+                turboEl.classList.add('text-yellow-400', 'scale-105');
+            } else {
+                turboEl.classList.add('text-white/30');
+                turboEl.classList.remove('text-yellow-400', 'scale-105');
+            }
+
+            // 6.3 Movimento do Player
+            const lateralSpeed = 0.3;
+            if(keys.a) state.playerX -= lateralSpeed;
+            if(keys.d) state.playerX += lateralSpeed;
+            if(keys.w) state.playerY += lateralSpeed;
+            if(keys.s) state.playerY -= lateralSpeed;
+
+            // Limites
+            state.playerX = Math.max(Math.min(state.playerX, CONFIG.LANE_WIDTH), -CONFIG.LANE_WIDTH);
+            state.playerY = Math.max(Math.min(state.playerY, CONFIG.LANE_HEIGHT), -CONFIG.LANE_HEIGHT);
+
+            if (playerMesh) {
+                // Suavização do movimento
+                playerMesh.position.x += (state.playerX - playerMesh.position.x) * 0.1;
+                playerMesh.position.y += (state.playerY - playerMesh.position.y) * 0.1;
+
+                // Rotação visual (Banking)
+                const targetRotZ = -state.playerX * 0.05; 
+                const targetRotX = -state.playerY * 0.05; 
+                
+                playerMesh.rotation.z = targetRotZ; 
+                playerMesh.rotation.x = targetRotX;
+
+                // Girar hélice
+                const propeller = playerMesh.getObjectByName("Helix");
+                if (propeller) propeller.rotation.x += state.speed * 0.5;
+            }
+
+            // 6.4 Câmera Segue Player
+            camera.position.x += (state.playerX * 0.3 - camera.position.x) * 0.05;
+            camera.position.y += (state.playerY * 0.3 + 2 - camera.position.y) * 0.05;
+            
+            // FOV Effect no Turbo
+            const targetFov = state.turbo ? 55 : 45;
+            camera.fov += (targetFov - camera.fov) * 0.05;
+            camera.updateProjectionMatrix();
+
+            // 6.5 Movimento do Cenário (Ilusão de velocidade)
+            shapes.forEach(shape => {
+                // Traz o objeto para perto (Z positivo)
+                shape.position.z += state.speed;
+                
+                // Rotação do objeto
+                shape.rotation.x += shape.userData.rotSpeed;
+                shape.rotation.y += shape.userData.rotSpeed;
+
+                // Reset quando passa da câmera
+                if(shape.position.z > 5) {
+                    shape.position.z = -100 - Math.random() * 50; // Joga lá pro fundo
+                    shape.position.x = (Math.random() - 0.5) * 50;
+                    shape.position.y = (Math.random() - 0.5) * 30;
+                }
+            });
+
+            // Estrelas
+            const positions = stars.geometry.attributes.position.array;
+            for(let i=2; i<positions.length; i+=3) {
+                positions[i] += state.speed * 2;
+                if(positions[i] > 10) {
+                    positions[i] = -100;
+                }
+            }
+            stars.geometry.attributes.position.needsUpdate = true;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // 7. Responsividade
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+    </script>
+</body>
+</html>

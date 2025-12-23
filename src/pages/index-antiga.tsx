@@ -1,20 +1,20 @@
-import { Inicio } from '@/components/Home/Inicio';
-import { AboutSection } from '@/components/Home/AboutSection';
-import { ServicesSection } from '@/components/Home/ServicesSection';
-import { FeaturedProjects } from '@/components/Home/FeaturedProjects';
-import { TechStack } from '@/components/Home/TechStack';
-import { TimelineSection } from '@/components/Home/TimelineSection';
-import { CTASection } from '@/components/Home/CTASection';
-import { Project, AboutMe as TAboutMe } from '@/types/Home';
-import { GetStaticProps } from 'next';
-import Head from 'next/head';
-import { getSortedPostsData, PostData } from '@/lib/posts';
+import { Inicio } from "@/components/Home/Inicio";
+import { AboutSection } from "@/components/Home/AboutSection";
+import { ServicesSection } from "@/components/Home/ServicesSection";
+import { FeaturedProjects } from "@/components/Home/FeaturedProjects";
+import { TechStack } from "@/components/Home/TechStack";
+import { TimelineSection } from "@/components/Home/TimelineSection";
+import { CTASection } from "@/components/Home/CTASection";
+import { Project, AboutMe as TAboutMe } from "@/types/Home";
+import { GetStaticProps } from "next";
+import Head from "next/head";
+import { getSortedPostsData, PostData } from "@/lib/posts";
 import { useUser } from "@clerk/nextjs";
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getBusinessSettings, getGeneralSettings } from '@/lib/settings';
-import { ClientOnly } from '@/components/commons/ClientOnly';
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getBusinessSettings, getGeneralSettings } from "@/lib/settings";
+import { ClientOnly } from "@/components/commons/ClientOnly";
 
-import homeData from '../../public/home.json';
+import homeData from "../../public/home.json";
 
 interface HomeProps {
   home: {
@@ -31,7 +31,12 @@ interface HomeProps {
   generalSettings: any;
 }
 
-const HomeContent = ({ home, allPostsData, businessSettings, generalSettings }: HomeProps) => {
+const HomeContent = ({
+  home,
+  allPostsData,
+  businessSettings,
+  generalSettings,
+}: HomeProps) => {
   const { aboutMe } = home || { aboutMe: {} as TAboutMe };
   const { t } = useLanguage();
   const { isSignedIn } = useUser(); // Usar o hook useUser
@@ -40,28 +45,54 @@ const HomeContent = ({ home, allPostsData, businessSettings, generalSettings }: 
     <>
       <Head>
         {/* SEO básico */}
-        <title>Guilherme Cirelli — Desenvolvedor Full Stack | Next.js, React, Node.js</title>
+        <title>
+          Guilherme Cirelli — Desenvolvedor Full Stack | Next.js, React, Node.js
+        </title>
         <meta
           name="description"
           content="Desenvolvedor Full Stack especializado em Next.js, React e Node.js. Criação de aplicações web modernas, responsivas e escaláveis. Veja meu portfolio e entre em contato."
         />
-        <meta name="keywords" content="desenvolvedor full stack, next.js, react, node.js, typescript, desenvolvimento web" />
+        <meta
+          name="keywords"
+          content="desenvolvedor full stack, next.js, react, node.js, typescript, desenvolvimento web"
+        />
         <link rel="canonical" href={generalSettings.siteUrl} />
         <meta name="robots" content="index, follow" />
 
         {/* Open Graph */}
-        <meta property="og:title" content="Guilherme Cirelli — Desenvolvedor Full Stack" />
-        <meta property="og:description" content="Desenvolvimento de aplicações web modernas com Next.js, React e Node.js. Veja meu portfolio de projetos." />
+        <meta
+          property="og:title"
+          content="Guilherme Cirelli — Desenvolvedor Full Stack"
+        />
+        <meta
+          property="og:description"
+          content="Desenvolvimento de aplicações web modernas com Next.js, React e Node.js. Veja meu portfolio de projetos."
+        />
         <meta property="og:url" content={generalSettings.siteUrl} />
-        <meta property="og:image" content={`${generalSettings.siteUrl}/img/og-image.jpg`} />
-        <meta property="og:image:alt" content="Portfolio Guilherme Cirelli - Desenvolvedor Full Stack" />
+        <meta
+          property="og:image"
+          content={`${generalSettings.siteUrl}/img/og-image.jpg`}
+        />
+        <meta
+          property="og:image:alt"
+          content="Portfolio Guilherme Cirelli - Desenvolvedor Full Stack"
+        />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
 
         {/* Twitter */}
-        <meta name="twitter:title" content="Guilherme Cirelli — Desenvolvedor Full Stack" />
-        <meta name="twitter:description" content="Desenvolvimento de aplicações web modernas com Next.js, React e Node.js. Veja meu portfolio de projetos." />
-        <meta name="twitter:image" content={`${generalSettings.siteUrl}/img/twitter-image.jpg`} />
+        <meta
+          name="twitter:title"
+          content="Guilherme Cirelli — Desenvolvedor Full Stack"
+        />
+        <meta
+          name="twitter:description"
+          content="Desenvolvimento de aplicações web modernas com Next.js, React e Node.js. Veja meu portfolio de projetos."
+        />
+        <meta
+          name="twitter:image"
+          content={`${generalSettings.siteUrl}/img/twitter-image.jpg`}
+        />
 
         {/* JSON-LD */}
         <script
@@ -72,31 +103,32 @@ const HomeContent = ({ home, allPostsData, businessSettings, generalSettings }: 
               "@graph": [
                 {
                   "@type": "Person",
-                  "name": "Guilherme Cirelli",
-                  "jobTitle": "Desenvolvedor Full Stack",
-                  "url": generalSettings.siteUrl,
-                  "image": `${generalSettings.siteUrl}/img/perfil.jpeg`,
-                  "sameAs": [
+                  name: "Guilherme Cirelli",
+                  jobTitle: "Desenvolvedor Full Stack",
+                  url: generalSettings.siteUrl,
+                  image: `${generalSettings.siteUrl}/img/perfil.jpg`,
+                  sameAs: [
                     "https://github.com/seu-github",
-                    "https://linkedin.com/in/seu-linkedin"
+                    "https://linkedin.com/in/seu-linkedin",
                   ],
-                  "knowsAbout": [
+                  knowsAbout: [
                     "Next.js",
                     "React",
                     "Node.js",
                     "TypeScript",
-                    "Desenvolvimento Web Full Stack"
-                  ]
+                    "Desenvolvimento Web Full Stack",
+                  ],
                 },
                 {
                   "@type": "WebSite",
-                  "name": "Portfolio Guilherme Cirelli",
-                  "url": generalSettings.siteUrl,
-                  "description": "Professional portfolio of Guilherme Cirelli, Full Stack developer specialized in Next.js, React and Node.js",
-                  "inLanguage": "en-US"
-                }
-              ]
-            })
+                  name: "Portfolio Guilherme Cirelli",
+                  url: generalSettings.siteUrl,
+                  description:
+                    "Professional portfolio of Guilherme Cirelli, Full Stack developer specialized in Next.js, React and Node.js",
+                  inLanguage: "en-US",
+                },
+              ],
+            }),
           }}
         />
       </Head>
@@ -145,7 +177,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   const generalSettings = getGeneralSettings();
 
   return {
-    props: { 
+    props: {
       home,
       allPostsData,
       businessSettings,

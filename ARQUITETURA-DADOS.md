@@ -26,6 +26,7 @@ content/data/
 ## 🔍 MAPEAMENTO: JSON → COMPONENTE
 
 ### 1. **hero.json** → `Inicio.tsx`
+
 ```json
 {
   "hero": {
@@ -46,16 +47,19 @@ content/data/
   }
 }
 ```
+
 **Loop usado:** Não usa loop (dados únicos)
 **Importação:**
+
 ```tsx
-import heroData from '../../../content/data/hero.json';
+import heroData from "../../../content/data/hero.json";
 const { badge, experienceBadge, photo } = heroData.hero;
 ```
 
 ---
 
 ### 2. **stats.json** → `StatsSection.tsx`
+
 ```json
 {
   "titleEmoji": "📊",
@@ -70,22 +74,25 @@ const { badge, experienceBadge, photo } = heroData.hero;
   ]
 }
 ```
+
 **Loop usado:** `.map()`
+
 ```tsx
-import statsData from '../../../content/data/stats.json';
-{statsData.stats.map((stat) => (
-  <div key={stat.id}>...</div>
-))}
+import statsData from "../../../content/data/stats.json";
+{
+  statsData.stats.map((stat) => <div key={stat.id}>...</div>);
+}
 ```
 
 ---
 
 ### 3. **about.json** → `AboutSection.tsx`
+
 ```json
 {
   "about": {
     "photo": {
-      "url": "/img/perfil2.jpeg",
+      "url": "/img/perfil2.jpg",
       "alt": "Guilherme Cirelli",
       "width": 300,
       "height": 300
@@ -94,16 +101,19 @@ import statsData from '../../../content/data/stats.json';
   }
 }
 ```
+
 **Loop usado:** Não (dados únicos)
 **Importação:**
+
 ```tsx
-import aboutData from '../../../content/data/about.json';
+import aboutData from "../../../content/data/about.json";
 const { photo, link } = aboutData.about;
 ```
 
 ---
 
 ### 4. **services.json** → `ServicesSection.tsx`
+
 ```json
 {
   "services": [
@@ -118,19 +128,26 @@ const { photo, link } = aboutData.about;
   ]
 }
 ```
+
 **Loops usados:** 2x `.map()` (services + techs)
+
 ```tsx
-import servicesData from '../../../content/data/services.json';
-{servicesData.services.map((service) => (
-  <div key={service.id}>
-    {service.techs.map((tech, idx) => <span key={idx}>{tech}</span>)}
-  </div>
-))}
+import servicesData from "../../../content/data/services.json";
+{
+  servicesData.services.map((service) => (
+    <div key={service.id}>
+      {service.techs.map((tech, idx) => (
+        <span key={idx}>{tech}</span>
+      ))}
+    </div>
+  ));
+}
 ```
 
 ---
 
 ### 5. **whyMe.json** → `WhyMeSection.tsx`
+
 ```json
 {
   "reasons": [
@@ -144,17 +161,20 @@ import servicesData from '../../../content/data/services.json';
   ]
 }
 ```
+
 **Loop usado:** `.map()`
+
 ```tsx
-import whyMeData from '../../../content/data/whyMe.json';
-{whyMeData.reasons.map((reason) => (
-  <div key={reason.id}>...</div>
-))}
+import whyMeData from "../../../content/data/whyMe.json";
+{
+  whyMeData.reasons.map((reason) => <div key={reason.id}>...</div>);
+}
 ```
 
 ---
 
 ### 6. **featuredProjects.json** → `FeaturedProjects.tsx`
+
 ```json
 {
   "titleEmoji": "🎯",
@@ -171,19 +191,26 @@ import whyMeData from '../../../content/data/whyMe.json';
   ]
 }
 ```
+
 **Loops usados:** 2x `.map()` (projects + techs)
+
 ```tsx
-import featuredProjectsData from '../../../content/data/featuredProjects.json';
-{featuredProjectsData.projects.map((project) => (
-  <Link key={project.id} href={project.link}>
-    {project.techs.map((tech, idx) => <span key={idx}>{tech}</span>)}
-  </Link>
-))}
+import featuredProjectsData from "../../../content/data/featuredProjects.json";
+{
+  featuredProjectsData.projects.map((project) => (
+    <Link key={project.id} href={project.link}>
+      {project.techs.map((tech, idx) => (
+        <span key={idx}>{tech}</span>
+      ))}
+    </Link>
+  ));
+}
 ```
 
 ---
 
 ### 7. **technologies.json** → `TechStack.tsx`
+
 ```json
 {
   "titleEmoji": "💡",
@@ -197,19 +224,24 @@ import featuredProjectsData from '../../../content/data/featuredProjects.json';
   ]
 }
 ```
+
 **Loop usado:** `.map()`
+
 ```tsx
-import technologiesData from '../../../content/data/technologies.json';
-{technologiesData.technologies.map((tech) => (
-  <div key={tech.id} className={tech.color}>
-    {t(tech.nameKey)}
-  </div>
-))}
+import technologiesData from "../../../content/data/technologies.json";
+{
+  technologiesData.technologies.map((tech) => (
+    <div key={tech.id} className={tech.color}>
+      {t(tech.nameKey)}
+    </div>
+  ));
+}
 ```
 
 ---
 
 ### 8. **timeline.json** → `TimelineSection.tsx`
+
 ```json
 {
   "titleEmoji": "📖",
@@ -223,17 +255,20 @@ import technologiesData from '../../../content/data/technologies.json';
   ]
 }
 ```
+
 **Loop usado:** `.map()`
+
 ```tsx
-import timelineData from '../../../content/data/timeline.json';
-{timelineData.timeline.map((item) => (
-  <div key={item.id}>...</div>
-))}
+import timelineData from "../../../content/data/timeline.json";
+{
+  timelineData.timeline.map((item) => <div key={item.id}>...</div>);
+}
 ```
 
 ---
 
 ### 9. **cta.json** → `CTASection.tsx`
+
 ```json
 {
   "cta": {
@@ -255,11 +290,15 @@ import timelineData from '../../../content/data/timeline.json';
   }
 }
 ```
+
 **Loop usado:** `.map()`
+
 ```tsx
-import ctaData from '../../../content/data/cta.json';
-<Link href={ctaData.cta.link}>...</Link>
-{ctaData.cta.contacts.map((contact) => <a key={contact.type}>...</a>)}
+import ctaData from "../../../content/data/cta.json";
+<Link href={ctaData.cta.link}>...</Link>;
+{
+  ctaData.cta.contacts.map((contact) => <a key={contact.type}>...</a>);
+}
 ```
 
 ---
@@ -267,6 +306,7 @@ import ctaData from '../../../content/data/cta.json';
 ## ✅ CHECKLIST DE VERIFICAÇÃO
 
 ### Arquivos JSON criados:
+
 - ✓ `content/data/hero.json`
 - ✓ `content/data/stats.json`
 - ✓ `content/data/about.json`
@@ -278,6 +318,7 @@ import ctaData from '../../../content/data/cta.json';
 - ✓ `content/data/cta.json`
 
 ### Componentes refatorados:
+
 - ✓ `src/components/Home/Inicio.tsx`
 - ✓ `src/components/Home/StatsSection.tsx`
 - ✓ `src/components/Home/AboutSection.tsx`
@@ -289,6 +330,7 @@ import ctaData from '../../../content/data/cta.json';
 - ✓ `src/components/Home/CTASection.tsx`
 
 ### Verificações:
+
 - ✓ Nenhum texto em português/inglês hardcoded
 - ✓ Todos os dados vêm de JSON ou traduções
 - ✓ Todos os loops usam `.map()` com `key` único
@@ -302,6 +344,7 @@ import ctaData from '../../../content/data/cta.json';
 ## 📊 TIPOS DE DADOS SEPARADOS
 
 ### Dados Estruturais (JSON):
+
 - URLs de imagens
 - Links de navegação
 - Listas de tecnologias
@@ -311,6 +354,7 @@ import ctaData from '../../../content/data/cta.json';
 - Ícones/emojis
 
 ### Dados Traduzíveis (i18n):
+
 - Títulos
 - Descrições
 - Textos de botões
@@ -328,7 +372,7 @@ import ctaData from '../../../content/data/cta.json';
 ✅ **Build otimizado: 5.9 kB**
 
 **Para editar conteúdo:**
+
 1. Textos traduzíveis → `/public/locales/{pt|en}/common.json`
 2. Dados estruturais → `/content/data/*.json`
 3. Nunca edite os componentes `.tsx` para mudar conteúdo!
-
