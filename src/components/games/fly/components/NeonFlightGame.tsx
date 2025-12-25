@@ -819,20 +819,16 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full bg-black font-sans select-none debug-container"
+      className="relative w-full h-full bg-black font-sans select-none debug-container mt-[100px]"
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600&display=swap');
-        .minimal-btn { padding: 15px 40px; font-size: 0.9rem; font-weight: 600; letter-spacing: 2px; background: transparent; color: white; border: 1px solid rgba(255,255,255,0.5); cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; font-family: 'Montserrat', sans-serif; }
+        .minimal-btn { padding: 15px 40px; font-size: 0.9rem; font-weight: 600; letter-spacing: 2px; background: transparent; color: white; border: 1px solid rgba(255,255,255,0.5); cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; font-family: 'Inter', sans-serif; }
         .minimal-btn:hover { background: white; color: black; border-color: white; }
         .intro-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 50; transition: opacity 0.8s ease; }
-        .turbo-ready { color: #4CAF50; border: 1px solid #4CAF50; padding: 4px 10px; font-size: 0.7rem; letter-spacing: 2px; }
-        .turbo-used { color: #F44336; border: 1px solid #F44336; padding: 4px 10px; font-size: 0.7rem; letter-spacing: 2px; }
+        .turbo-ready { font-size: 0.7rem; letter-spacing: 2px; }
+        .turbo-used { font-size: 0.7rem; letter-spacing: 2px; }
         
-        /* DEBUG BORDERS */
-        .debug-container { border: 3px solid red !important; }
-        .debug-canvas { border: 3px solid blue !important; }
-        .debug-overlay { border: 3px solid green !important; }
+
       `}</style>
 
       <div ref={canvasRef} className="absolute top-0 left-0 w-full h-full debug-canvas" />
@@ -841,10 +837,10 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
         ref={(el) => { if (uiRefs.current) uiRefs.current.introScreen = el }}
         className="intro-overlay debug-overlay"
       >
-        <h1 className="text-5xl md:text-7xl text-white font-light tracking-[0.2em] mb-4 text-center font-['Montserrat']">
+        <h1 className="text-5xl md:text-7xl text-white font-light tracking-[0.2em] mb-4 text-center font-['Inter']">
           MVP 0.2
         </h1>
-        <p className="text-gray-400 text-xs tracking-[0.5em] mb-12 uppercase font-['Montserrat']">
+        <p className="text-gray-400 text-xs tracking-[0.5em] mb-12 uppercase font-['Inter']">
           Full Flight System
         </p>
         <button className="minimal-btn" onClick={() => (window as any).startNeonGame()}>
@@ -943,7 +939,7 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
 
         <div
           ref={(el) => { if (uiRefs.current) uiRefs.current.countdown = el }}
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-8xl text-white font-light opacity-0 transition-opacity duration-300 font-['Montserrat']"
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-8xl text-white font-light opacity-0 transition-opacity duration-300 font-['Inter']"
         >
           3
         </div>

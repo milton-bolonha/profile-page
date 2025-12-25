@@ -146,7 +146,7 @@ const HomeContent = ({
 
 
           {/* Experience / Showcase Section */}
-          <SectionWrapper id="experience" vPadding="py-24" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+          <SectionWrapper id="experience" vPadding="pb-14 pt-48" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
              
              {/* HEADER & TABS CONTAINER */}
              <div className="relative z-30 max-w-7xl mx-auto px-6 w-full flex flex-col items-center text-center">
@@ -195,7 +195,7 @@ const HomeContent = ({
              </div>
 
              {/* CONTENT AREA */}
-             <div className="relative w-full flex-1 flex flex-col items-center justify-center min-h-[400px]">
+             <div className="relative w-full flex-1 flex flex-col items-center justify-center min-h-[600px] -mt-[100px]">
                 
                 {/* GAME DEV CONTENT */}
                 {activeTab === 'game' && (
@@ -216,7 +216,6 @@ const HomeContent = ({
                                         style={{ 
                                             backgroundImage: `url(${slide.bg})`, 
                                             filter: 'brightness(0.3) blur(8px)',
-                                            transform: 'scale(1.0)'
                                         }}
                                     />
                                     

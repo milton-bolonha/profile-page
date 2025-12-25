@@ -35,7 +35,7 @@ export const Header = () => {
 
   return (
     <header
-      className="bg-black text-sm flex py-3 px-5 justify-between items-center sticky top-0 z-20"
+      className="bg-black/90 text-sm flex py-3 px-5 justify-between items-center sticky top-0 z-50"
     >
       {/* Download Resume Button */}
       <div className="flex items-center">
