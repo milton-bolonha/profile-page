@@ -10,3 +10,11 @@
   port = 8888
   framework = "next"
   functions = "netlify/functions"
+
+[[headers]]
+  for = "/games/stranger-craft/models/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, HEAD, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Range"
+    Cross-Origin-Resource-Policy = "cross-origin"
