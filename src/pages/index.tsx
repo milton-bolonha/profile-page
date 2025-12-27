@@ -17,6 +17,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getBusinessSettings, getGeneralSettings } from "@/lib/settings";
 import NeonFlightGame from "@/components/games/fly/components/NeonFlightGame";
 import BoilerplateGame from "@/components/games/fly/components/BoilerplateGame";
+import TheBeeBoilerplate from "@/components/games/fly/components/TheBeeBoilerplate";
 import { ClientOnly } from "@/components/commons/ClientOnly";
 import MagneticButton from "@/components/ui/MagneticButton";
 import Seo from "@/components/commons/Seo";
@@ -154,6 +155,13 @@ const HomeContent = ({
   <SectionWrapper id="boilerplate" vPadding="py-0" fullHeight>
     <ClientOnly>
       <BoilerplateGame />
+    </ClientOnly>
+  </SectionWrapper>
+
+  {/* TEMPORARY: The Bee Boilerplate */}
+  <SectionWrapper id="bee-boilerplate" vPadding="py-0" fullHeight>
+    <ClientOnly>
+      <TheBeeBoilerplate />
     </ClientOnly>
   </SectionWrapper>
 
