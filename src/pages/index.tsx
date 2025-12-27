@@ -146,7 +146,7 @@ const HomeContent = ({
 
 
           {/* Experience / Showcase Section */}
-          <SectionWrapper id="experience" vPadding="pb-14 pt-48" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+          <SectionWrapper id="o-que-faco" vPadding="pb-14 pt-48" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
              
              {/* HEADER & TABS CONTAINER */}
              <div className="relative z-30 max-w-7xl mx-auto px-6 w-full flex flex-col items-center text-center">

@@ -26,7 +26,7 @@ import {
   updateTurboVisuals,
 } from "../utils/turbo";
 import { setupPhysicsSystem } from "../systems/PhysicsSystem";
-import { setupCameraSystem } from "../systems/CameraSystem";
+import { setupCameraSystem, cameraOffsets } from "../systems/CameraSystem";
 import { setupUISystem, UIRefs } from "../systems/UISystem";
 import { setupInputSystem, GameState } from "../systems/InputSystem";
 
@@ -58,6 +58,7 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   // Auto-launch by default now
   const [isLaunched, setIsLaunched] = useState(true);
+  const [showDebugControls, setShowDebugControls] = useState(false);
   
   // Refs
   const playerRef = useRef<THREE.Group>(null);
@@ -84,6 +85,7 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
     const gameState: GameState = {
       gameActive: false,
       isPaused: false,
+      isDebugPaused: false,  // Debug pause for positioning
       controlsLocked: false,
       isPointerLocked: false,
       isStartingCinematic: false,
@@ -123,6 +125,7 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
         c: false,
         z: false,
         p: false,
+        j: false,  // Debug pause key
       },
     };
 
@@ -141,8 +144,8 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
       0.1,
       2000
     );
-    // Camera Position Reverted
-    camera.position.set(0, 2.0, 5.0);
+    // Camera Position Adjusted - Raised for better view
+    camera.position.set(0, 4.0, 5.0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
     renderer.setSize(width, height); // Use container size
@@ -282,6 +285,7 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
     };
 
     const spawnSpaceObstacle = () => {
+      if (!playerRef.current) return; // Need player position
       if (Math.random() > 0.015) return;
       const size = 2 + Math.random() * 1.5;
       const geo = new THREE.BoxGeometry(size, size, size);
@@ -303,7 +307,9 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
 
       const angle = Math.random() * Math.PI * 2;
       const rad = 8 + Math.random() * 15;
-      mesh.position.set(Math.cos(angle) * rad, Math.sin(angle) * rad, -300);
+      // Spawn relative to player!
+      const spawnZ = playerRef.current.position.z - 400; // 400 units ahead
+      mesh.position.set(Math.cos(angle) * rad, Math.sin(angle) * rad, spawnZ);
       mesh.rotation.set(Math.random(), Math.random(), Math.random());
 
       scene.add(mesh);
@@ -319,6 +325,9 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
     };
 
     const updateProjectiles = () => {
+      // ... (keep projectile logic, it's relative enough as bullets move fast)
+      // Actually bullets move -6.0 per frame relative to world.
+      // If player moves -1.65, bullets move faster away. Correct.
       for (let i = projectiles.length - 1; i >= 0; i--) {
         const p = projectiles[i];
         p.mesh.position.z -= 6.0;
@@ -328,6 +337,7 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
           const obs = spaceObstacles[j];
           if (p.mesh.position.distanceTo(obs.mesh.position) < obs.size + 1.5) {
             spawnConfettiWrapper(obs.mesh.position, 15);
+            // ... (keep flash effect logic)
             const flashGeo = new THREE.SphereGeometry(obs.size * 1.5, 16, 16);
             const flashMat = new THREE.MeshBasicMaterial({
               color: 0xffffff,
@@ -370,6 +380,9 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
 
     const updateSpaceObstacles = (moveSpeed: number) => {
         if (!playerRef.current) return;
+        const playerZ = playerRef.current.position.z;
+        const cleanupThreshold = playerZ + 50; // Behind player
+
       for (let i = spaceObstacles.length - 1; i >= 0; i--) {
         const obs = spaceObstacles[i];
         obs.mesh.rotation.x += obs.rotVel.x;
@@ -377,7 +390,8 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
         obs.mesh.rotation.z += obs.rotVel.z;
         obs.mesh.position.z += moveSpeed * 1.5;
 
-        if (obs.mesh.position.z > 20) {
+        // Cleanup relative to player
+        if (obs.mesh.position.z > cleanupThreshold) {
           scene.remove(obs.mesh);
           spaceObstacles.splice(i, 1);
           continue;
@@ -403,7 +417,7 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
       const group = new THREE.Group();
       (playerRef as any).current = group; 
       
-      group.position.set(0, 5, 0);
+      group.position.set(0, 4.5, -24);  // Optimal spawn position
       if (loadedGLB) {
         const model = loadedGLB.clone();
         group.add(model);
@@ -613,15 +627,17 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
         spaceGroup,
         gameState.speed,
         starsSystem,
+        tunnelSegments,  // Pass tunnel segments
         wormholeParticles,
         planetaryBodies,
-        spaceDebris
+        spaceDebris,
+        playerRef.current
       );
       spawnSpaceObstacle();
       updateSpaceObstacles(gameState.speed);
       updateProjectiles();
       if (gameState.isTurbo)
-        updateTurboVisuals(turboGroup, turboTubes, speedEffectGroup);
+        updateTurboVisuals(turboGroup, turboTubes, speedEffectGroup, playerRef.current); // Pass player
       updateEngineParticlesWrapper();
       updateConfettiWrapper();
 
@@ -644,14 +660,12 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
       if (gameState.isTurbo) {
         gameState.turboTimer--;
         gameState.speed = THREE.MathUtils.lerp(gameState.speed, 3.0, 0.1);
-        camera.position.x += (Math.random() - 0.5) * 0.1;
-        camera.position.y += (Math.random() - 0.5) * 0.1;
         gameState.score += 5;
         if (gameState.turboTimer <= 0) {
           gameState.isTurbo = false;
-          gameState.hasUsedTurbo = false;
+          // Don't reset hasUsedTurbo - allow reuse
           toggleTurboVisuals(turboGroup, speedEffectGroup, false);
-          uiSystem.updateTurboStatus(false);
+          uiSystem.updateTurboStatus(true);  // Re-enable turbo
         }
       } else {
         gameState.speed = THREE.MathUtils.lerp(gameState.speed, 1.1, 0.05);
@@ -727,6 +741,13 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
         gameState.score,
         gameState.paperIntegrity
       );
+      
+      // Update camera position display (show offsets)
+      const camDisplay = document.getElementById('cam-pos-display');
+      if (camDisplay) {
+        camDisplay.textContent = 'X: ' + cameraOffsets.x.toFixed(1) + ' | Y: ' + cameraOffsets.y.toFixed(1) + ' | Z: ' + cameraOffsets.z.toFixed(1);
+      }
+      
       renderer.render(scene, camera);
     };
 
@@ -759,12 +780,31 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
 
     const handleKeyDownGlobal = (e: KeyboardEvent) => {
       if (e.key.toLowerCase() === "p" || e.key === "Escape") togglePause();
+      // J key toggles debug pause (physics freeze for positioning)
+      if (e.key.toLowerCase() === "j" && gameState.gameActive) {
+        gameState.isDebugPaused = !gameState.isDebugPaused;
+        setShowDebugControls(gameState.isDebugPaused);  // Update React state
+        console.log('🔧 Debug Pause:', gameState.isDebugPaused ? 'ON' : 'OFF');
+        // Update HUD indicator
+        const debugIndicator = document.getElementById('debug-pause-indicator');
+        if (debugIndicator) {
+          debugIndicator.style.display = gameState.isDebugPaused ? 'block' : 'none';
+        }
+      }
     };
 
     const handleFullscreenChange = () => {
       // Auto-pause when exiting fullscreen
       if (!document.fullscreenElement && gameState.gameActive && !gameState.isPaused) {
         togglePause();
+        
+        // Prevent scroll jump - keep page on game section
+        setTimeout(() => {
+          const gameSection = document.getElementById('o-que-faco');
+          if (gameSection) {
+            gameSection.scrollIntoView({ behavior: 'instant', block: 'center' });
+          }
+        }, 100);
       }
     };
 
@@ -780,6 +820,70 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
       (window as any).resetToMenu = resetToMenu;
       (window as any).resumeGame = resumeGame;
       (window as any).quitGame = quitGame;
+
+      // Camera Debug Controls
+      (window as any).setCameraX = function(value: number) {
+        cameraOffsets.x = value;
+        cameraOffsets.manualControl = true;
+        console.log('Camera X offset set to:', value);
+      };
+
+      (window as any).setCameraY = function(value: number) {
+        cameraOffsets.y = value;
+        cameraOffsets.manualControl = true;
+        console.log('Camera Y offset set to:', value);
+      };
+
+      (window as any).setCameraZ = function(value: number) {
+        cameraOffsets.z = value;
+        cameraOffsets.manualControl = true;
+        console.log('Camera Z offset set to:', value);
+      };
+
+      (window as any).resetCamera = function() {
+        cameraOffsets.x = 0;
+        cameraOffsets.y = 3.0;  // Optimal tested value
+        cameraOffsets.z = 9.0;  // Better field of view
+        cameraOffsets.manualControl = true;
+        const display = document.getElementById('cam-pos-display');
+        if (display) {
+          display.textContent = 'X: 0.0 | Y: 3.0 | Z: 9.0';
+        }
+        console.log('Camera offsets reset to optimal defaults');
+      };
+
+      // Airplane Position Controls (for debug mode)
+      (window as any).setPlaneX = function(value: number) {
+        if (playerRef.current) {
+          playerRef.current.position.x = value;
+          console.log('Plane X set to:', value);
+        }
+      };
+
+      (window as any).setPlaneY = function(value: number) {
+        if (playerRef.current) {
+          playerRef.current.position.y = value;
+          console.log('Plane Y set to:', value);
+        }
+      };
+
+      (window as any).setPlaneZ = function(value: number) {
+        if (playerRef.current) {
+          playerRef.current.position.z = value;
+          console.log('Plane Z set to:', value);
+        }
+      };
+
+      (window as any).resetPlane = function() {
+        if (playerRef.current) {
+          playerRef.current.position.set(0, 4.5, -24);
+          const display = document.getElementById('plane-pos-display');
+          if (display) {
+            display.textContent = 'X: 0.0 | Y: 3.5 | Z: 0.0';
+          }
+          console.log('Plane position reset to spawn');
+        }
+      };
 
 
     return () => {
@@ -828,6 +932,85 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
         .turbo-ready { font-size: 0.7rem; letter-spacing: 2px; }
         .turbo-used { font-size: 0.7rem; letter-spacing: 2px; }
         
+        .slider-cyan::-webkit-slider-thumb {
+          appearance: none;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #00ffff, #00cccc);
+          cursor: pointer;
+          border: 2px solid #00ffff;
+          box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+          transition: all 0.2s ease;
+        }
+        .slider-cyan::-webkit-slider-thumb:hover {
+          transform: scale(1.2);
+          box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+        }
+        .slider-cyan::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #00ffff, #00cccc);
+          cursor: pointer;
+          border: 2px solid #00ffff;
+          box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+          transition: all 0.2s ease;
+        }
+        .slider-cyan::-moz-range-thumb:hover {
+          transform: scale(1.2);
+          box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+        }
+        .slider-cyan::-webkit-slider-runnable-track {
+          background: linear-gradient(to right, #1a1a1a, #2a2a2a);
+          height: 8px;
+          border-radius: 4px;
+        }
+        .slider-cyan::-moz-range-track {
+          background: linear-gradient(to right, #1a1a1a, #2a2a2a);
+          height: 8px;
+          border-radius: 4px;
+        }
+
+        .slider-green::-webkit-slider-thumb {
+          appearance: none;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #00ff00, #00cc00);
+          cursor: pointer;
+          border: 2px solid #00ff00;
+          box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+          transition: all 0.2s ease;
+        }
+        .slider-green::-webkit-slider-thumb:hover {
+          transform: scale(1.2);
+          box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+        }
+        .slider-green::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #00ff00, #00cc00);
+          cursor: pointer;
+          border: 2px solid #00ff00;
+          box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+          transition: all 0.2s ease;
+        }
+        .slider-green::-moz-range-thumb:hover {
+          transform: scale(1.2);
+          box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+        }
+        .slider-green::-webkit-slider-runnable-track {
+          background: linear-gradient(to right, #1a1a1a, #2a2a2a);
+          height: 8px;
+          border-radius: 4px;
+        }
+        .slider-green::-moz-range-track {
+          background: linear-gradient(to right, #1a1a1a, #2a2a2a);
+          height: 8px;
+          border-radius: 4px;
+        }
 
       `}</style>
 
@@ -929,6 +1112,124 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
           <p className="text-gray-500 text-xs tracking-widest">MACH</p>
         </div>
 
+        {/* Debug Pause Indicator */}
+        <div 
+          id="debug-pause-indicator"
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-yellow-500/20 backdrop-blur-md border-2 border-yellow-500 rounded-xl p-6 pointer-events-none"
+          style={{ display: 'none' }}
+        >
+          <div className="text-center">
+            <h2 className="text-4xl font-bold text-yellow-400 mb-2">⏸️ DEBUG PAUSE</h2>
+            <p className="text-yellow-300 text-sm">Physics Frozen - Use Sliders to Position</p>
+            <p className="text-yellow-200 text-xs mt-2">Press J to Resume</p>
+          </div>
+        </div>
+
+        {/* Airplane Position Controls */}
+        <div className="absolute top-1/2 right-8 transform -translate-y-1/2 bg-black/80 backdrop-blur-md border-2 border-green-500/50 rounded-xl p-6 pointer-events-auto shadow-[0_0_30px_rgba(0,255,0,0.3)] min-w-[280px]">
+          <h3 className="text-green-400 text-sm font-bold tracking-widest mb-4 border-b-2 border-green-500/30 pb-2">✈️ AIRPLANE POSITION</h3>
+          
+          <div className="mb-4 text-xs text-green-300 font-mono bg-black/50 p-2 rounded border border-green-500/30">
+            <div id="plane-pos-display">
+              X: 0.0 | Y: 4.5 | Z: -24.0
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <label className="text-green-300 text-xs font-semibold tracking-wider block mb-2">SIDE (X): <span id="plane-x-val" className="text-white">0.0</span></label>
+            <input 
+              type="range"
+              id="plane-x-slider"
+              min="-30"
+              max="30"
+              step="0.5"
+              defaultValue="0.0"
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                (window as any).setPlaneX?.(val);
+                const label = document.getElementById('plane-x-val');
+                if (label) label.textContent = val.toFixed(1);
+              }}
+              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-green"
+            />
+            <div className="flex justify-between text-[9px] text-gray-500 mt-1">
+              <span>-30</span>
+              <span>30</span>
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <label className="text-green-300 text-xs font-semibold tracking-wider block mb-2">HEIGHT (Y): <span id="plane-y-val" className="text-white">4.5</span></label>
+            <input 
+              type="range"
+              id="plane-y-slider"
+              min="0"
+              max="15"
+              step="0.5"
+              defaultValue="4.5"
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                (window as any).setPlaneY?.(val);
+                const label = document.getElementById('plane-y-val');
+                if (label) label.textContent = val.toFixed(1);
+              }}
+              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-green"
+            />
+            <div className="flex justify-between text-[9px] text-gray-500 mt-1">
+              <span>0</span>
+              <span>15</span>
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <label className="text-green-300 text-xs font-semibold tracking-wider block mb-2">FORWARD (Z): <span id="plane-z-val" className="text-white">-24.0</span></label>
+            <input 
+              type="range"
+              id="plane-z-slider"
+              min="-50"
+              max="50"
+              step="1"
+              defaultValue="-24"
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                (window as any).setPlaneZ?.(val);
+                const label = document.getElementById('plane-z-val');
+                if (label) label.textContent = val.toFixed(1);
+              }}
+              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-green"
+            />
+            <div className="flex justify-between text-[9px] text-gray-500 mt-1">
+              <span>-50</span>
+              <span>50</span>
+            </div>
+          </div>
+
+          <button 
+            onClick={() => {
+              (window as any).resetPlane?.();
+              const xSlider = document.getElementById('plane-x-slider') as HTMLInputElement;
+              const ySlider = document.getElementById('plane-y-slider') as HTMLInputElement;
+              const zSlider = document.getElementById('plane-z-slider') as HTMLInputElement;
+              if (xSlider) xSlider.value = '0.0';
+              if (ySlider) ySlider.value = '4.5';
+              if (zSlider) zSlider.value = '-24';
+              const xVal = document.getElementById('plane-x-val');
+              const yVal = document.getElementById('plane-y-val');
+              const zVal = document.getElementById('plane-z-val');
+              if (xVal) xVal.textContent = '0.0';
+              if (yVal) yVal.textContent = '4.5';
+              if (zVal) zVal.textContent = '-24.0';
+            }}
+            className="w-full mt-2 px-4 py-2 bg-green-500/30 hover:bg-green-500/50 text-green-200 text-sm font-bold rounded-lg border-2 border-green-500/50 transition-all hover:scale-105 active:scale-95"
+          >
+            🔄 RESET PLANE
+          </button>
+
+          <div className="mt-4 pt-4 border-t border-green-500/30">
+            <p className="text-green-300/60 text-[10px] text-center">Press J to toggle debug pause</p>
+          </div>
+        </div>
+
         <div className="absolute bottom-8 right-8 flex flex-col gap-1 text-right text-gray-600 text-[10px] tracking-widest font-mono">
           <p>[WASD] PILOT</p>
           <p>[SPACE] WARP</p>
@@ -937,12 +1238,118 @@ const NeonFlightGame = ({ onExit, autoLaunch = true }: NeonFlightGameProps) => {
           <p>[Z] FIRE</p>
         </div>
 
-        <div
-          ref={(el) => { if (uiRefs.current) uiRefs.current.countdown = el }}
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-8xl text-white font-light opacity-0 transition-opacity duration-300 font-['Inter']"
-        >
-          3
+        {/* Camera Controls - Only visible in debug pause */}
+        {showDebugControls && (
+        <div className="absolute top-1/2 left-8 transform -translate-y-1/2 bg-black/80 backdrop-blur-md border-2 border-cyan-500/50 rounded-xl p-6 pointer-events-auto shadow-[0_0_30px_rgba(0,255,255,0.3)] min-w-[280px]">
+          <h3 className="text-cyan-400 text-sm font-bold tracking-widest mb-4 border-b-2 border-cyan-500/30 pb-2">📷 CAMERA DEBUG</h3>
+          
+          <div className="mb-4 text-xs text-cyan-300 font-mono bg-black/50 p-2 rounded border border-cyan-500/30">
+            <div id="cam-pos-display">
+              X: 0.0 | Y: 3.0 | Z: 9.0
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <label className="text-cyan-300 text-xs font-semibold tracking-wider block mb-2">HEIGHT (Y): <span id="cam-y-val" className="text-white">3.0</span></label>
+            <input 
+              type="range"
+              id="cam-y-slider"
+              min="-5"
+              max="15"
+              step="0.5"
+              defaultValue="3.0"
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                (window as any).setCameraY?.(val);
+                const label = document.getElementById('cam-y-val');
+                if (label) label.textContent = val.toFixed(1);
+              }}
+              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-cyan"
+            />
+            <div className="flex justify-between text-[9px] text-gray-500 mt-1">
+              <span>-5</span>
+              <span>15</span>
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <label className="text-cyan-300 text-xs font-semibold tracking-wider block mb-2">DISTANCE (Z): <span id="cam-z-val" className="text-white">9.0</span></label>
+            <input 
+              type="range"
+              id="cam-z-slider"
+              min="1"
+              max="20"
+              step="0.5"
+              defaultValue="9.0"
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                (window as any).setCameraZ?.(val);
+                const label = document.getElementById('cam-z-val');
+                if (label) label.textContent = val.toFixed(1);
+              }}
+              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-cyan"
+            />
+            <div className="flex justify-between text-[9px] text-gray-500 mt-1">
+              <span>1</span>
+              <span>20</span>
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <label className="text-cyan-300 text-xs font-semibold tracking-wider block mb-2">SIDE (X): <span id="cam-x-val" className="text-white">0.0</span></label>
+            <input 
+              type="range"
+              id="cam-x-slider"
+              min="-10"
+              max="10"
+              step="0.5"
+              defaultValue="0.0"
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                (window as any).setCameraX?.(val);
+                const label = document.getElementById('cam-x-val');
+                if (label) label.textContent = val.toFixed(1);
+              }}
+              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-cyan"
+            />
+            <div className="flex justify-between text-[9px] text-gray-500 mt-1">
+              <span>-10</span>
+              <span>10</span>
+            </div>
+          </div>
+
+          <button 
+            onClick={() => {
+              (window as any).resetCamera?.();
+              const ySlider = document.getElementById('cam-y-slider') as HTMLInputElement;
+              const zSlider = document.getElementById('cam-z-slider') as HTMLInputElement;
+              const xSlider = document.getElementById('cam-x-slider') as HTMLInputElement;
+              if (ySlider) ySlider.value = '3.0';
+              if (zSlider) zSlider.value = '9.0';
+              if (xSlider) xSlider.value = '0.0';
+              const yVal = document.getElementById('cam-y-val');
+              const zVal = document.getElementById('cam-z-val');
+              const xVal = document.getElementById('cam-x-val');
+              if (yVal) yVal.textContent = '3.0';
+              if (zVal) zVal.textContent = '9.0';
+              if (xVal) xVal.textContent = '0.0';
+            }}
+            className="w-full mt-2 px-4 py-2 bg-red-500/30 hover:bg-red-500/50 text-red-200 text-sm font-bold rounded-lg border-2 border-red-500/50 transition-all hover:scale-105 active:scale-95"
+          >
+            🔄 RESET
+          </button>
         </div>
+        )}
+
+        <div className="absolute bottom-8 right-8 flex flex-col gap-1 text-right text-gray-600 text-[10px] tracking-widest font-mono">
+          <p>[WASD] PILOT</p>
+          <p>[SPACE] WARP</p>
+          <p>[F] ROLL</p>
+          <p>[C] LOOP</p>
+          <p>[Z] FIRE</p>
+          <p className="mt-2 text-yellow-400">[J] DEBUG PAUSE</p>
+        </div>
+
       </div>
     </div>
   );

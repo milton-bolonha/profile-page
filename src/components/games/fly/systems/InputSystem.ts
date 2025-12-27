@@ -9,12 +9,14 @@ export interface GameKeys {
   c: boolean;
   z: boolean;
   p: boolean;
+  j: boolean;  // Debug pause key
   [key: string]: boolean;
 }
 
 export interface GameState {
   gameActive: boolean;
   isPaused: boolean;
+  isDebugPaused: boolean;  // New: Physics pause for debugging
   controlsLocked: boolean;
   isPointerLocked: boolean;
   isStartingCinematic: boolean;
@@ -82,7 +84,8 @@ export const setupInputSystem = (gameState: GameState, containerRef: React.RefOb
   };
 
   const handleMouseMove = (e: MouseEvent) => {
-    if (!gameState.gameActive || gameState.isPaused) return;
+    // Disable mouse control during debug pause
+    if (!gameState.gameActive || gameState.isPaused || gameState.isDebugPaused) return;
     if (gameState.isPointerLocked) {
       gameState.virtualMouseX += e.movementX * gameState.mouseSensitivity;
       gameState.virtualMouseY += e.movementY * gameState.mouseSensitivity;

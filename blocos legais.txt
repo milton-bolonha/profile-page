@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triple Cell - Voxels Evolution</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a0a1f 100%);
+            font-family: 'Courier New', Courier, monospace;
+        }
+        
+        #canvas-container { width: 100vw; height: 100vh; }
+        
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            pointer-events: none;
+            max-width: 500px;
+            background: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+            padding: 20px;
+            border-left: 2px solid #00ff88;
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fff;
+        }
+
+        .cell-labels {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .cell-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .tag-hollow { 
+            display: inline-block; 
+            background: rgba(0, 255, 136, 0.2); 
+            padding: 3px 8px; 
+            border-radius: 3px; 
+            color: #00ff88; 
+            font-size: 0.7rem;
+            border: 1px solid rgba(0, 255, 136, 0.4);
+        }
+        
+        .tag-solid { 
+            display: inline-block; 
+            background: rgba(0, 255, 255, 0.2); 
+            padding: 3px 8px; 
+            border-radius: 3px; 
+            color: #00ffff; 
+            font-size: 0.7rem;
+            border: 1px solid rgba(0, 255, 255, 0.4);
+        }
+        
+        .tag-off { 
+            display: inline-block; 
+            background: #333; 
+            padding: 3px 8px; 
+            border-radius: 3px; 
+            color: #888; 
+            font-size: 0.7rem;
+            border: 1px solid #555;
+        }
+
+        .tag-purple {
+            background: rgba(180, 0, 255, 0.2);
+            color: #c300ff;
+            border: 1px solid rgba(180, 0, 255, 0.4);
+            display: inline-block; 
+            padding: 3px 8px; 
+            border-radius: 3px; 
+            font-size: 0.7rem;
+        }
+
+        .tag-yellow {
+            background: rgba(255, 204, 0, 0.2);
+            color: #ffcc00;
+            border: 1px solid rgba(255, 204, 0, 0.4);
+            display: inline-block; 
+            padding: 3px 8px; 
+            border-radius: 3px; 
+            font-size: 0.7rem;
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        button {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 12px 24px;
+            border-radius: 0;
+            cursor: pointer;
+            font-family: inherit;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: #00ff88;
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+        }
+        
+        button.secondary {
+            border-color: #555;
+            color: #aaa;
+        }
+        
+        button.secondary.active {
+            border-color: #00ffff;
+            color: #00ffff;
+            background: rgba(0, 255, 255, 0.1);
+        }
+
+        #stats-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            text-align: right;
+            font-size: 0.75rem;
+            color: #aaa;
+            background: rgba(0,0,0,0.5);
+            padding: 12px;
+            border-radius: 4px;
+            min-width: 200px;
+        }
+        
+        .stat-val { font-weight: bold; }
+        .col-hollow { color: #00ff88; }
+        .col-solid { color: #00ffff; }
+        .col-purple { color: #c300ff; }
+        .col-yellow { color: #ffcc00; }
+
+        .hint {
+            position: absolute;
+            bottom: 100px;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            font-size: 0.9rem;
+            pointer-events: none;
+            text-shadow: 0 2px 4px black;
+        }
+        
+        kbd {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #555;
+            font-family: monospace;
+        }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <div id="ui">
+        <h1>Triple Cell Evolution</h1>
+        <p>Comparação de resoluções e configurações de voxels.</p>
+        
+        <div class="cell-labels">
+            <div class="cell-row">
+                <span class="tag-purple">ESQUERDA: 1×1 Minimal</span>
+            </div>
+            <div class="cell-row">
+                <span class="tag-off" id="tag-solid-center">CENTRO SÓLIDA (OFF)</span>
+                <span class="tag-hollow">CENTRO OCA: 32×32</span>
+            </div>
+            <div class="cell-row">
+                <span class="tag-yellow">DIREITA: 10×10 Voxel Art</span>
+            </div>
+        </div>
+        
+        <div style="margin-top:10px; font-size: 0.8em; color: #ccc;">
+            - Ativação de tensão em 98% (Transição extrema).<br>
+            - Conservação de massa via compensação centrípeta.<br>
+            - Bug de zoom desativado via frustumCulled.
+        </div>
+    </div>
+
+    <div id="stats-panel">
+        VOXELS ATIVOS<br>
+        -----------------<br>
+        ESQUERDA (1×1): <span id="count-left" class="stat-val col-purple">0</span><br>
+        CENTRO OCA (32×32): <span id="count-hollow" class="stat-val col-hollow">0</span><br>
+        CENTRO SÓLIDA (32×32): <span id="count-solid" class="stat-val col-solid">0</span><br>
+        DIREITA (10×10): <span id="count-right" class="stat-val col-yellow">0</span><br>
+        -----------------<br>
+    </div>
+    
+    <div class="hint">Segure <kbd>SHIFT</kbd> para mover o Cubo Vermelho | Zoom liberado</div>
+
+    <div id="controls">
+        <button id="btn-add">Encher (+)</button>
+        <button id="btn-reset">Resetar</button>
+        <button id="btn-toggle-solid" class="secondary">👁️ Ver Sólido Centro</button>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x050505);
+        scene.fog = new THREE.FogExp2(0x050505, 0.012);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.05, 100);
+        camera.position.set(0, 8, 24);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.minDistance = 2;
+        controls.maxDistance = 60;
+        controls.panSpeed = 0.8;
+        controls.rotateSpeed = 0.6;
+        controls.mouseButtons = {
+            LEFT: THREE.MOUSE.ROTATE,
+            MIDDLE: THREE.MOUSE.DOLLY,
+            RIGHT: THREE.MOUSE.PAN
+        };
+        
+        // Custom smooth zoom control
+        let targetZoom = camera.position.length();
+        renderer.domElement.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY * 0.001; // Muito mais suave
+            targetZoom *= (1 + delta);
+            targetZoom = Math.max(2, Math.min(60, targetZoom));
+        }, { passive: false });
+        
+        controls.enabled = true;
+
+        // Lighting
+        scene.add(new THREE.AmbientLight(0xffffff, 0.1));
+        const light = new THREE.DirectionalLight(0xffffff, 1.5);
+        light.position.set(0, 10, 5);
+        scene.add(light);
+
+        const lightLeft = new THREE.PointLight(0xc300ff, 15, 15);
+        lightLeft.position.set(-7, 4, 4);
+        scene.add(lightLeft);
+
+        const lightCenterHollow = new THREE.PointLight(0x00ff88, 15, 15);
+        lightCenterHollow.position.set(0, 4, 4);
+        scene.add(lightCenterHollow);
+        
+        const lightCenterSolid = new THREE.PointLight(0x00ffff, 0, 15);
+        lightCenterSolid.position.set(0, 4, 4);
+        scene.add(lightCenterSolid);
+
+        const lightRight = new THREE.PointLight(0xffcc00, 15, 15);
+        lightRight.position.set(7, 4, 4);
+        scene.add(lightRight);
+
+        // Wireframes
+        const wireframeSize = 2.8;
+        const edgesGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(wireframeSize, wireframeSize, wireframeSize));
+        
+        function createWireframe(x, color) {
+            const mat = new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: 0.4 });
+            const wire = new THREE.LineSegments(edgesGeo, mat);
+            wire.position.x = x;
+            scene.add(wire);
+            return wire;
+        }
+
+        const wireLeft = createWireframe(-7, 0xc300ff);
+        const wireCenterHollow = createWireframe(0, 0x00ff88);
+        const wireCenterSolid = createWireframe(0, 0x00ffff);
+        wireCenterSolid.visible = false;
+        const wireRight = createWireframe(7, 0xffcc00);
+
+        // Probe
+        const probeSize = 0.9;
+        const probeGeo = new THREE.BoxGeometry(probeSize, probeSize, probeSize);
+        const probeMat = new THREE.MeshStandardMaterial({ 
+            color: 0xff0055, 
+            emissive: 0xff1144,
+            emissiveIntensity: 0.5,
+            roughness: 0.4, 
+            transparent: true, 
+            opacity: 0.7 
+        });
+        const probe = new THREE.Mesh(probeGeo, probeMat);
+        probe.add(new THREE.LineSegments(new THREE.EdgesGeometry(probeGeo), new THREE.LineBasicMaterial({ color: 0xffaaaa })));
+        scene.add(probe);
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+        const planeIntersect = new THREE.Vector3();
+        let isShiftDown = false;
+
+        const state = {
+            volume: 0.05,
+            targetVolume: 0.05,
+            time: 0,
+            showSolid: false
+        };
+
+        const SIM_SIZE = 3.2;
+        const probeInvMatrix = new THREE.Matrix4();
+        const probeHalfSize = (probeSize / 2) + 0.05;
+        const dummy = new THREE.Object3D();
+        const tempVec = new THREE.Vector3();
+
+        // SDF Function
+        function evaluateField(pos, vol, time) {
+            const halfSize = wireframeSize / 2;
+            const ax = Math.abs(pos.x);
+            const ay = Math.abs(pos.y);
+            const az = Math.abs(pos.z);
+            
+            const theoreticalRadius = vol * (halfSize * 1.38);
+            const reach = theoreticalRadius / halfSize;
+            
+            let tension = 0;
+            const activationStart = 0.98;
+            const activationRange = 0.35;
+            
+            if (reach > activationStart) {
+                let t = (reach - activationStart) / activationRange;
+                t = Math.min(1, Math.max(0, t));
+                tension = Math.pow(t, 4);
+            }
+            
+            const overflow = Math.max(0, vol - 1.1);
+            const tensionDecay = Math.max(0, 1.0 - overflow * 0.6);
+            const effectiveTension = tension * tensionDecay;
+
+            const massCorrection = effectiveTension * 0.13;
+            const baseRadius = theoreticalRadius * (1.0 - massCorrection);
+
+            let d = baseRadius - pos.length();
+
+            const nx = Math.min(1, ax / halfSize);
+            const ny = Math.min(1, ay / halfSize);
+            const nz = Math.min(1, az / halfSize);
+            const edgeProx = (nx * ny) + (nx * nz) + (ny * nz);
+            
+            if (effectiveTension > 0) {
+                d += edgeProx * 0.14 * effectiveTension;
+            }
+
+            const boxDist = Math.max(ax, ay, az) - halfSize;
+            
+            if (boxDist > 0) {
+                const membraneStiffness = Math.max(0.15, 12.0 / (vol * vol * 2.2 + 0.1));
+                d -= boxDist * membraneStiffness;
+            } else {
+                if (effectiveTension > 0.1 && vol < 1.1) {
+                    const faceSuck = (1.0 - edgeProx * 0.55) * (1.1 - vol);
+                    d -= faceSuck * 0.32 * effectiveTension;
+                    
+                    if (d < 0.13 && vol > 0.2 && edgeProx < 0.5) {
+                        d = Math.max(0.09, d);
+                    }
+                }
+            }
+
+            const noise = Math.sin(pos.x * 3.5 + time) * Math.cos(pos.y * 3.5 + time) * Math.sin(pos.z * 3.5);
+            if (d > -0.16 && d < 0.16) {
+                d += noise * 0.06;
+            }
+            
+            return d;
+        }
+
+        // LEFT SYSTEM (1x1)
+        const leftPositions = [new THREE.Vector3(0, 0, 0)];
+        const leftVelocities = new Float32Array(3);
+        const leftGeo = new THREE.BoxGeometry(1, 1, 1);
+        const leftMat = new THREE.MeshStandardMaterial({ color: 0xc300ff, metalness: 0.7, roughness: 0.2 });
+        const leftMesh = new THREE.InstancedMesh(leftGeo, leftMat, 1);
+        leftMesh.position.x = -7;
+        leftMesh.frustumCulled = false;
+        scene.add(leftMesh);
+
+        // CENTER SYSTEM (32x32)
+        const GRID_RES = 32;
+        const TOTAL_CENTER = GRID_RES ** 3;
+        const voxSize = SIM_SIZE / GRID_RES;
+        const centerGeo = new THREE.BoxGeometry(voxSize * 0.94, voxSize * 0.94, voxSize * 0.94);
+        
+        const centerSolidMesh = new THREE.InstancedMesh(centerGeo,
+            new THREE.MeshStandardMaterial({ color: 0x00ffff, roughness: 0.1, metalness: 0.2, transparent: true, opacity: 0.5 }),
+            TOTAL_CENTER);
+        centerSolidMesh.frustumCulled = false;
+        centerSolidMesh.visible = false;
+        scene.add(centerSolidMesh);
+
+        const centerHollowMesh = new THREE.InstancedMesh(centerGeo,
+            new THREE.MeshStandardMaterial({ color: 0x00ff88, roughness: 0.1, metalness: 0.2, transparent: true, opacity: 0.9 }),
+            TOTAL_CENTER);
+        centerHollowMesh.frustumCulled = false;
+        scene.add(centerHollowMesh);
+
+        const centerPositions = [];
+        const centerVelocities = new Float32Array(TOTAL_CENTER * 3 * 2);
+        const offset = SIM_SIZE / 2;
+
+        for(let x=0; x<GRID_RES; x++) {
+            for(let y=0; y<GRID_RES; y++) {
+                for(let z=0; z<GRID_RES; z++) {
+                    const px = (x / GRID_RES) * SIM_SIZE - offset + voxSize/2;
+                    const py = (y / GRID_RES) * SIM_SIZE - offset + voxSize/2;
+                    const pz = (z / GRID_RES) * SIM_SIZE - offset + voxSize/2;
+                    centerPositions.push(new THREE.Vector3(px, py, pz));
+                }
+            }
+        }
+
+        // RIGHT SYSTEM (10x10)
+        const rightRes = 10;
+        const rightTotal = rightRes ** 3;
+        const rightVoxSize = SIM_SIZE / rightRes;
+        const rightGeo = new THREE.BoxGeometry(rightVoxSize * 0.95, rightVoxSize * 0.95, rightVoxSize * 0.95);
+        const rightMat = new THREE.MeshStandardMaterial({ color: 0xffcc00, metalness: 0.2, roughness: 0.3 });
+        const rightMesh = new THREE.InstancedMesh(rightGeo, rightMat, rightTotal);
+        rightMesh.position.x = 7;
+        rightMesh.frustumCulled = false;
+        scene.add(rightMesh);
+
+        const rightPositions = [];
+        const rightVelocities = new Float32Array(rightTotal * 3);
+
+        for(let x=0; x<rightRes; x++) {
+            for(let y=0; y<rightRes; y++) {
+                for(let z=0; z<rightRes; z++) {
+                    const px = (x / rightRes) * SIM_SIZE - offset + rightVoxSize/2;
+                    const py = (y / rightRes) * SIM_SIZE - offset + rightVoxSize/2;
+                    const pz = (z / rightRes) * SIM_SIZE - offset + rightVoxSize/2;
+                    rightPositions.push(new THREE.Vector3(px, py, pz));
+                }
+            }
+        }
+
+        // Process voxel with collision
+        function processVoxelWithCollision(localPos, velArray, velIdx, mesh, instanceIdx, scale) {
+            tempVec.copy(localPos);
+            tempVec.x += velArray[velIdx];
+            tempVec.y += velArray[velIdx+1];
+            tempVec.z += velArray[velIdx+2];
+
+            const worldPos = tempVec.clone().add(mesh.position);
+            const posInProbe = worldPos.applyMatrix4(probeInvMatrix);
+            
+            if (Math.abs(posInProbe.x) < probeHalfSize && 
+                Math.abs(posInProbe.y) < probeHalfSize && 
+                Math.abs(posInProbe.z) < probeHalfSize) {
+                
+                const dx = probeHalfSize - Math.abs(posInProbe.x);
+                const dy = probeHalfSize - Math.abs(posInProbe.y);
+                const dz = probeHalfSize - Math.abs(posInProbe.z);
+                
+                let pushDir = new THREE.Vector3();
+                let pen = 0;
+                
+                if (dx < dy && dx < dz) {
+                    pushDir.set(Math.sign(posInProbe.x), 0, 0); pen = dx;
+                } else if (dy < dz) {
+                    pushDir.set(0, Math.sign(posInProbe.y), 0); pen = dy;
+                } else {
+                    pushDir.set(0, 0, Math.sign(posInProbe.z)); pen = dz;
+                }
+                
+                const pushWorld = pushDir.transformDirection(probe.matrixWorld);
+                const force = pen * 0.45;
+                
+                velArray[velIdx] += pushWorld.x * force;
+                velArray[velIdx+1] += pushWorld.y * force;
+                velArray[velIdx+2] += pushWorld.z * force;
+                
+                tempVec.addScaledVector(pushWorld, pen);
+            }
+
+            velArray[velIdx] *= 0.88;
+            velArray[velIdx+1] *= 0.88;
+            velArray[velIdx+2] *= 0.88;
+
+            dummy.position.copy(tempVec);
+            dummy.scale.setScalar(scale);
+            dummy.updateMatrix();
+            mesh.setMatrixAt(instanceIdx, dummy.matrix);
+        }
+
+        // Update
+        function updateSimulation() {
+            state.volume += (state.targetVolume - state.volume) * 0.08;
+            state.time += 0.015;
+            
+            probe.updateMatrixWorld();
+            probeInvMatrix.copy(probe.matrixWorld).invert();
+
+            const vol = state.volume;
+            
+            // LEFT (1x1)
+            let countLeft = 0;
+            const densityLeft = evaluateField(leftPositions[0], vol, state.time);
+            if (densityLeft > 0) {
+                const s = Math.min(SIM_SIZE * 0.95, vol * 2.6);
+                processVoxelWithCollision(leftPositions[0], leftVelocities, 0, leftMesh, countLeft++, s);
+            }
+            leftMesh.count = countLeft;
+            leftMesh.instanceMatrix.needsUpdate = true;
+
+            // CENTER (32x32)
+            let countHollow = 0;
+            let countSolid = 0;
+            const shellThickness = 0.7;
+            const resSq = GRID_RES * GRID_RES;
+
+            for (let i = 0; i < TOTAL_CENTER; i++) {
+                const ix = Math.floor(i / resSq);
+                const rem = i % resSq;
+                const iy = Math.floor(rem / GRID_RES);
+                const iz = rem % GRID_RES;
+
+                const localPos = centerPositions[i];
+                const density = evaluateField(localPos, vol, state.time);
+                
+                if (density > 0) {
+                    if (state.showSolid) {
+                        const idxS = i * 3;
+                        let scale = 1.0;
+                        if (density < 0.2) scale = density * 5.0;
+                        scale = Math.max(0.1, Math.min(1, scale));
+                        processVoxelWithCollision(localPos, centerVelocities, idxS, centerSolidMesh, countSolid++, scale);
+                    }
+
+                    const isGridBorder = (ix === 0 || ix === GRID_RES-1 || 
+                                          iy === 0 || iy === GRID_RES-1 || 
+                                          iz === 0 || iz === GRID_RES-1);
+
+                    if (density < shellThickness || isGridBorder || density <= 0.14) {
+                        const idxH = (TOTAL_CENTER + i) * 3;
+                        let scale = 1.0;
+                        if (density < 0.2) scale = density * 5.0;
+                        scale = Math.max(0.1, Math.min(1, scale));
+                        processVoxelWithCollision(localPos, centerVelocities, idxH, centerHollowMesh, countHollow++, scale);
+                    }
+                }
+            }
+            
+            centerHollowMesh.count = countHollow;
+            centerHollowMesh.instanceMatrix.needsUpdate = true;
+            if (state.showSolid) {
+                centerSolidMesh.count = countSolid;
+                centerSolidMesh.instanceMatrix.needsUpdate = true;
+            }
+
+            // RIGHT (10x10)
+            let countRight = 0;
+            for (let i = 0; i < rightTotal; i++) {
+                const density = evaluateField(rightPositions[i], vol, state.time);
+                if (density > 0) {
+                    let scale = 1.0;
+                    if (density < 0.18) scale = density / 0.18;
+                    scale = Math.max(0.1, Math.min(1, scale));
+                    processVoxelWithCollision(rightPositions[i], rightVelocities, i * 3, rightMesh, countRight++, scale);
+                }
+            }
+            rightMesh.count = countRight;
+            rightMesh.instanceMatrix.needsUpdate = true;
+
+            document.getElementById('count-left').innerText = countLeft;
+            document.getElementById('count-hollow').innerText = countHollow;
+            document.getElementById('count-solid').innerText = state.showSolid ? countSolid : 0;
+            document.getElementById('count-right').innerText = countRight;
+        }
+
+        // Input
+        window.addEventListener('keydown', (e) => {
+            if(e.key === 'Shift') {
+                isShiftDown = true;
+                controls.enabled = false;
+                renderer.domElement.style.cursor = 'crosshair';
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if(e.key === 'Shift') {
+                isShiftDown = false;
+                controls.enabled = true;
+                renderer.domElement.style.cursor = 'grab';
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isShiftDown) return;
+            
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            
+            raycaster.setFromCamera(mouse, camera);
+            
+            // Plane perpendicular à câmera na posição atual do probe
+            const camDir = new THREE.Vector3();
+            camera.getWorldDirection(camDir);
+            plane.setFromNormalAndCoplanarPoint(camDir, probe.position);
+            
+            const intersect = new THREE.Vector3();
+            if (raycaster.ray.intersectPlane(plane, intersect)) {
+                probe.position.lerp(intersect, 0.3);
+            }
+        });
+
+        // Add smooth camera controls feedback
+        renderer.domElement.style.cursor = 'grab';
+        renderer.domElement.addEventListener('mousedown', () => {
+            if (!isShiftDown) renderer.domElement.style.cursor = 'grabbing';
+        });
+        renderer.domElement.addEventListener('mouseup', () => {
+            if (!isShiftDown) renderer.domElement.style.cursor = 'grab';
+        });
+        function animate() {
+            requestAnimationFrame(animate);
+            updateSimulation();
+            controls.update();
+            probe.rotation.x += 0.015;
+            probe.rotation.y += 0.02;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Controls
+        const btnAdd = document.getElementById('btn-add');
+        let addInterval;
+        btnAdd.addEventListener('mousedown', () => {
+            addInterval = setInterval(() => state.targetVolume = Math.min(1.5, state.targetVolume + 0.01), 35);
+        });
+        window.addEventListener('mouseup', () => clearInterval(addInterval));
+
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            state.targetVolume = 0.05;
+        });
+
+        const btnToggle = document.getElementById('btn-toggle-solid');
+        btnToggle.addEventListener('click', () => {
+            state.showSolid = !state.showSolid;
+            centerSolidMesh.visible = state.showSolid;
+            wireCenterSolid.visible = state.showSolid;
+            lightCenterSolid.intensity = state.showSolid ? 15 : 0;
+            btnToggle.classList.toggle('active');
+            const tag = document.getElementById('tag-solid-center');
+            tag.innerText = state.showSolid ? "CENTRO SÓLIDA (ON)" : "CENTRO SÓLIDA (OFF)";
+            tag.className = state.showSolid ? "tag-solid" : "tag-off";
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

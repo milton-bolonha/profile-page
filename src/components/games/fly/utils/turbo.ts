@@ -115,17 +115,30 @@ export const toggleTurboVisuals = (turboGroup: THREE.Group | undefined, speedEff
 export const updateTurboVisuals = (
   turboGroup: THREE.Group | undefined,
   turboTubes: THREE.Points[],
-  speedEffectGroup: THREE.Group | undefined
+  speedEffectGroup: THREE.Group | undefined,
+  player: THREE.Group | null
 ) => {
-  if (!turboGroup || !turboGroup.visible) return;
+  if (!turboGroup || !turboGroup.visible || !player) return;
+  
+  const playerZ = player.position.z;
+  const resetThreshold = playerZ + 50; // Behind
+  const spawnZ = playerZ - 300;      // Ahead
+  
   turboTubes.forEach((tube) => {
     tube.rotation.z -= 0.05;
-    tube.position.z += 4.0;
-    if (tube.position.z > 50) tube.position.z -= 400;
+    tube.position.z += 4.0; // Move towards camera (speed effect)
+    
+    // Relative reset
+    if (tube.position.z > resetThreshold) {
+        tube.position.z = spawnZ;
+    }
+    // Also if it's WAY too far forward (stuck in spawn), pull it closer?
+    // Nah, just simple loop
   });
+  
   if (speedEffectGroup) {
     const lines = speedEffectGroup.userData.lines;
     lines.position.z += 5.0;
-    if (lines.position.z > 100) lines.position.z = 0;
+    if (lines.position.z > resetThreshold) lines.position.z = spawnZ;
   }
 };

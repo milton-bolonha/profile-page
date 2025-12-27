@@ -191,16 +191,56 @@ export const updateSpaceLevel = (
   spaceGroup: THREE.Group | undefined,
   moveZ: number,
   starsSystem: THREE.Points | undefined,
+  tunnelSegments: THREE.LineSegments[],  // Add tunnel segments
   wormholeParticles: THREE.Points | undefined,
   planetaryBodies: PlanetaryBody[],
-  spaceDebris: SpaceDebris[]
+  spaceDebris: SpaceDebris[],
+  player: THREE.Group | null
 ) => {
-  if (!spaceGroup || !wormholeParticles) return;
+  if (!spaceGroup || !wormholeParticles || !player) return;
+
+  const playerZ = player.position.z;
+  const resetThreshold = playerZ + 100;
+  const spawnZBase = playerZ - 600;
+
+  // Update Tunnel Segments (Grid)
+  // Don't move them with speed (plane movement is enough), just recycle them
+  // Keep them strictly aligned
+  const segmentLength = 120;
+  const totalLength = tunnelSegments.length * segmentLength;
+  
+  tunnelSegments.forEach((segment) => {
+    // If segment is too far behind player
+    if (segment.position.z > playerZ + segmentLength) {
+        // Move it to the front of the chain
+        // Find the furthest forward segment
+        let minZ = segment.position.z;
+        tunnelSegments.forEach(s => minZ = Math.min(minZ, s.position.z));
+        
+        // Place this one one unit length ahead of the current furthest
+        segment.position.z = minZ - segmentLength;
+    }
+    // Also handling if plane moves SO fast it skips? 
+    // Just snapping to grid relative to player might be safer but circular buffer is okay for now
+    // Actually, simpler logic:
+    // If segment is > playerZ + 200, move it to (segment.position.z - totalLength)
+    // Wait, we are moving negative Z.
+    // If segment is > playerZ + 200 (BEHIND), shift it -720 units (FORWARD)
+  });
+  
+  // Re-implementing simplified grid logic
+  tunnelSegments.forEach((segment) => {
+     if (segment.position.z > playerZ + 200) {
+         segment.position.z -= totalLength;
+     }
+  });
 
   const positions = wormholeParticles.geometry.attributes.position.array as Float32Array;
   for (let i = 2; i < positions.length; i += 3) {
     positions[i] += moveZ * 2.5;
-    if (positions[i] > 20) positions[i] -= 600;
+    if (positions[i] > resetThreshold) {
+      positions[i] = spawnZBase - Math.random() * 200;
+    }
   }
   wormholeParticles.geometry.attributes.position.needsUpdate = true;
   wormholeParticles.rotation.z -= 0.001;
@@ -208,8 +248,8 @@ export const updateSpaceLevel = (
   planetaryBodies.forEach((body) => {
     body.mesh.position.z += moveZ * body.speed;
     body.mesh.rotation.y += 0.001;
-    if (body.mesh.position.z > 100) {
-      body.mesh.position.z = body.resetZ;
+    if (body.mesh.position.z > resetThreshold) {
+      body.mesh.position.z = spawnZBase - Math.random() * 200;
       body.mesh.position.x = (Math.random() - 0.5) * body.rangeX * 2;
       body.mesh.position.y = (Math.random() - 0.5) * body.rangeY * 2;
     }
@@ -220,8 +260,8 @@ export const updateSpaceLevel = (
     debris.mesh.position.z += moveZ * 3.0;
     debris.mesh.rotation.x += debris.rotVel.x;
     debris.mesh.rotation.y += debris.rotVel.y;
-    if (debris.mesh.position.z > 20) {
-      debris.mesh.position.z = -400 - Math.random() * 200;
+    if (debris.mesh.position.z > resetThreshold) {
+      debris.mesh.position.z = spawnZBase - Math.random() * 200;
       debris.mesh.position.x = (Math.random() - 0.5) * 100;
       debris.mesh.position.y = (Math.random() - 0.5) * 80;
     }

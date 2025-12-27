@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>DIMENSION RUNNER - MVP FINAL</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', 'Roboto', sans-serif; user-select: none; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        
+        /* --- UI PRINCIPAL --- */
+        #ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            display: flex; flex-direction: column; justify-content: space-between;
+            z-index: 10;
+        }
+
+        /* --- SIDEBAR (ABAS) --- */
+        .sidebar {
+            position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+            display: flex; flex-direction: column; gap: 15px;
+            background: rgba(10, 10, 15, 0.9);
+            padding: 15px 10px;
+            border-radius: 15px 0 0 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-right: none;
+            pointer-events: auto;
+            backdrop-filter: blur(10px);
+            box-shadow: -5px 0 20px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .tab-icon {
+            width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; cursor: pointer;
+            color: #888;
+            border-radius: 10px;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .tab-icon:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
+        .tab-icon.active { color: #ffaa00; background: rgba(255, 170, 0, 0.2); text-shadow: 0 0 10px #ffaa00; }
+        
+        /* --- PAINEL DE CONTEÚDO (SLIDE OUT) --- */
+        .panel-container {
+            position: absolute; right: 70px; top: 50%; transform: translateY(-50%) translateX(20px);
+            width: 300px;
+            background: rgba(15, 15, 20, 0.95);
+            border: 1px solid rgba(255, 170, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            pointer-events: auto;
+            opacity: 0; visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+        }
+
+        .panel-container.open {
+            opacity: 1; visibility: visible;
+            transform: translateY(-50%) translateX(0);
+        }
+
+        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- ESTILOS INTERNOS DOS PAINÉIS --- */
+        .lp-header { 
+            font-size: 14px; font-weight: 800; text-transform: uppercase; 
+            margin-bottom: 15px; color: #ffaa00; letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .lp-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+        .lp-info { display: flex; justify-content: space-between; font-size: 11px; color: #ccc; margin-bottom: 2px; }
+        .val-disp { color: #ffaa00; font-weight: bold; font-family: monospace; }
+        
+        input[type=range] { width: 100%; cursor: pointer; accent-color: #ffaa00; height: 4px; background: #333; border-radius: 2px; appearance: none; }
+        input[type=range]::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px; background: #ffaa00; border-radius: 50%; cursor: pointer; box-shadow: 0 0 5px #ffaa00; }
+        
+        select { background: #222; color: #fff; border: 1px solid #444; padding: 6px; border-radius: 4px; width: 100%; font-size: 11px; outline: none; }
+        input[type=color] { width: 100%; height: 30px; border: none; background: none; cursor: pointer; }
+
+        /* --- BOTTOM CONTROLS --- */
+        .controls-bar {
+            align-self: center; margin-bottom: 30px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            padding: 10px 25px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.7);
+            font-size: 11px; font-family: monospace; letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex; gap: 20px;
+            pointer-events: auto;
+        }
+        .controls-bar b { color: #ffaa00; font-weight: 900; margin-right: 4px; }
+        .key { display: inline-block; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; margin-right: 5px; color: #fff; font-weight: bold; }
+
+        /* --- LOADING & INTRO --- */
+        #loading { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; color: #ffaa00; display: flex; align-items: center; justify-content: center; font-weight: bold; letter-spacing: 4px; z-index: 100; transition: opacity 0.5s; }
+        .spinner { width: 40px; height: 40px; border: 3px solid #222; border-top: 3px solid #ffaa00; border-radius: 50%; animation: spin 1s infinite linear; margin-right: 15px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        #intro-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 50; pointer-events: none;
+            transition: opacity 1s;
+        }
+        .intro-title { font-size: 80px; font-weight: 900; color: #fff; text-shadow: 0 0 30px #ffaa00; letter-spacing: 10px; margin-bottom: 20px; text-transform: uppercase; transform: scale(0.9); animation: pulseTitle 2s infinite alternate; }
+        .intro-hint { font-size: 16px; color: #fff; letter-spacing: 4px; background: rgba(0,0,0,0.5); padding: 10px 30px; border-radius: 20px; border: 1px solid rgba(255,170,0,0.5); animation: blink 1s infinite alternate; cursor: pointer; pointer-events: auto; }
+        .intro-hint:hover { background: rgba(255,170,0,0.2); border-color: #ffaa00; }
+        
+        @keyframes pulseTitle { from { text-shadow: 0 0 20px #ffaa00; transform: scale(0.95); } to { text-shadow: 0 0 50px #ffaa00, 0 0 100px #ff4400; transform: scale(1.05); } }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+                "@dimforge/rapier3d-compat": "https://cdn.jsdelivr.net/npm/@dimforge/rapier3d-compat@0.11.2/+esm"
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="loading"><div class="spinner"></div>CARREGANDO...</div>
+    
+    <div id="intro-overlay" style="display:none;">
+        <div class="intro-title">READY?</div>
+        <div class="intro-hint" onclick="startGame()">CLIQUE PARA INICIAR</div>
+    </div>
+
+    <div id="ui-layer">
+        <!-- SIDEBAR DOCK -->
+        <div class="sidebar">
+            <div class="tab-icon" onclick="toggleTab('light', this)" title="Iluminação">💡</div>
+            <div class="tab-icon" onclick="toggleTab('char', this)" title="Personagem">👤</div>
+            <div class="tab-icon" onclick="toggleTab('fx', this)" title="Efeitos Visuais">✨</div>
+        </div>
+
+        <!-- PANEL CONTAINER -->
+        <div id="panel-container" class="panel-container">
+            <!-- TAB: LUZES -->
+            <div id="light-tab" class="tab-content">
+                <div class="lp-header">Luzes do Palco <span style="cursor:pointer" onclick="closeAllTabs()">✕</span></div>
+                <div class="lp-row"><div class="lp-info"><span>Foco Palco Int</span> <span class="val-disp" id="v-key-int">-</span></div></div>
+                <div class="lp-row"><div class="lp-info"><span>Foco Altura (Y)</span> <span class="val-disp" id="v-key-y">-</span></div></div>
+                <div class="lp-row"><div class="lp-info"><span>Lua (Céu) Int</span> <span class="val-disp" id="v-fill-int">-</span></div></div>
+                <div class="lp-row"><div class="lp-info"><span>Lateral Int</span> <span class="val-disp" id="v-side-int">-</span></div></div>
+                <div class="lp-row"><div class="lp-info"><span>Fill Dir Int</span> <span class="val-disp" id="v-amb-int">-</span></div></div>
+                <div style="font-size: 10px; color: #666; margin-top: 10px;">*Valores controlados pela câmera</div>
+            </div>
+
+            <!-- TAB: PERSONAGEM -->
+            <div id="char-tab" class="tab-content">
+                <div class="lp-header">Personagem <span style="cursor:pointer" onclick="closeAllTabs()">✕</span></div>
+                <div class="lp-row">
+                    <div class="lp-info"><span>Skin</span></div>
+                    <select id="char-tex-select">
+                        <option value="0" selected>Padrão (bee.png)</option>
+                        <option value="1">Variação 1 (bee1.png)</option>
+                        <option value="2">Variação 2 (bee2.png)</option>
+                        <option value="3">Variação 3 (bee3.png)</option>
+                    </select>
+                </div>
+                <div class="lp-row"><div class="lp-info"><span>Roughness</span> <span class="val-disp" id="v-rough">0.4</span></div><input type="range" min="0" max="1" step="0.1" value="0.4" id="in-rough"></div>
+                <div class="lp-row"><div class="lp-info"><span>Metalness</span> <span class="val-disp" id="v-metal">0.3</span></div><input type="range" min="0" max="1" step="0.1" value="0.3" id="in-metal"></div>
+                <div class="lp-row"><div class="lp-info"><span>Opacidade</span> <span class="val-disp" id="v-opacity">1.0</span></div><input type="range" min="0" max="1" step="0.1" value="1.0" id="in-opacity"></div>
+                <div class="lp-row"><div class="lp-info"><span>Tint Cor</span></div><input type="color" value="#d8c2b1" id="in-color"></div>
+            </div>
+
+            <!-- TAB: FX -->
+            <div id="fx-tab" class="tab-content">
+                <div class="lp-header">Efeitos Visuais <span style="cursor:pointer" onclick="closeAllTabs()">✕</span></div>
+                <div class="lp-row"><div class="lp-info"><span>Exposição</span> <span class="val-disp" id="v-exp">0.8</span></div><input type="range" min="0" max="2" step="0.05" value="0.8" id="in-exp"></div>
+                <div style="margin: 10px 0; border-top:1px solid #333"></div>
+                <div class="lp-row"><div class="lp-info"><span>Vignette (Normal)</span> <span class="val-disp" id="v-vig-base">1.0</span></div><input type="range" min="0" max="2" step="0.1" value="1.0" id="in-vig-base"></div>
+                <div class="lp-row"><div class="lp-info"><span>Vignette (Dash)</span> <span class="val-disp" id="v-vig-dash">1.1</span></div><input type="range" min="0" max="3" step="0.1" value="1.1" id="in-vig-dash"></div>
+                <div style="margin: 10px 0; border-top:1px solid #333"></div>
+                <div class="lp-row"><div class="lp-info"><span>RGB Shift (Normal)</span> <span class="val-disp" id="v-rgb-base">0.0</span></div><input type="range" min="0" max="0.01" step="0.0001" value="0.0" id="in-rgb-base"></div>
+                <div class="lp-row"><div class="lp-info"><span>RGB Shift (Dash)</span> <span class="val-disp" id="v-rgb-dash">0.01</span></div><input type="range" min="0" max="0.02" step="0.0001" value="0.01" id="in-rgb-dash"></div>
+                <div style="margin: 10px 0; border-top:1px solid #333"></div>
+                <div class="lp-row"><div class="lp-info"><span>Partículas (Op)</span> <span class="val-disp" id="v-part-op">1.0</span></div><input type="range" min="0" max="1" step="0.1" value="1.0" id="in-part-op"></div>
+            </div>
+        </div>
+
+        <div class="controls-bar">
+            <span><span class="key">WASD</span> MOVER</span>
+            <span><span class="key">SHIFT</span> TURBO</span>
+            <span><span class="key">SPACE</span> PULAR</span>
+            <span><span class="key">E</span> DASH</span>
+            <span><span class="key">C</span> LOOPING</span>
+            <span><span class="key">V</span> CAMERA</span>
+        </div>
+    </div>
+
+    <script>
+        // UI LOGIC
+        function toggleTab(id, iconElement) {
+            const container = document.getElementById('panel-container');
+            const contents = document.querySelectorAll('.tab-content');
+            const icons = document.querySelectorAll('.tab-icon');
+            
+            if (iconElement.classList.contains('active')) {
+                closeAllTabs();
+                return;
+            }
+
+            icons.forEach(i => i.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+
+            iconElement.classList.add('active');
+            document.getElementById(id + '-tab').classList.add('active');
+            container.classList.add('open');
+        }
+
+        function closeAllTabs() {
+            document.getElementById('panel-container').classList.remove('open');
+            document.querySelectorAll('.tab-icon').forEach(i => i.classList.remove('active'));
+        }
+
+        ['exp', 'vig-base', 'vig-dash', 'rgb-base', 'rgb-dash', 'part-op', 'rough', 'metal', 'opacity'].forEach(id => {
+            const el = document.getElementById('in-' + id);
+            const disp = document.getElementById('v-' + id);
+            if(el && disp) el.addEventListener('input', () => disp.innerText = el.value);
+        });
+
+        function startGame() {
+            const evt = new KeyboardEvent('keydown', {'code': 'Space'});
+            window.dispatchEvent(evt); 
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import RAPIER from '@dimforge/rapier3d-compat';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+        import { RGBShiftShader } from 'three/addons/shaders/RGBShiftShader.js';
+        import { VignetteShader } from 'three/addons/shaders/VignetteShader.js';
+        import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+        // --- UTILS ---
+        function damp(current, target, lambda, dt) {
+            return THREE.MathUtils.lerp(current, target, 1 - Math.exp(-lambda * dt));
+        }
+
+        const LIGHT_PRESETS = {
+            SIDE: { keyInt: 10, keyY: 15, fillInt: 1.0, sideInt: 0.8, ambInt: 1.2 },
+            TPS: { keyInt: 12, keyY: 38, fillInt: 1.2, sideInt: 0.8, ambInt: 0.0 }
+        };
+        const currentLights = { ...LIGHT_PRESETS.SIDE };
+
+        const GAME_CONFIG = {
+            SPEED_BASE: 12, SPEED_TURBO: 45, 
+            SPEED_DASH: 75, DASH_DURATION: 1.5, DASH_COST: 15,
+            ACCEL_RATE: 20, JUMP_FORCE: 46, GRAVITY: -115.0, 
+            CHUNK_LENGTH: 48, CHUNK_WIDTH: 24, RENDER_DISTANCE_FORWARD: 5, HISTORY_LIMIT: 15, 
+            TRACK_CENTER_Z: 12, MAX_JUMPS: 2, LOOP_RADIUS: 16,
+            CAM_DAMPING: 10.0
+        };
+
+        const state = { 
+            gamePhase: 'READY',
+            canJump: false, jumpCount: 0, 
+            isDashing: false, dashTimer: 0, camMode: 'SIDE',
+            isLooping: false, loopDir: 1, loopProgress: 0,
+            preLoopY: 0, preLoopX: 0, preLoopZ: 0, cameraRecoveryTimer: 0,
+            idleTimer: 0, stamina: 100, targetFov: 50,
+            smoothedLookAt: new THREE.Vector3(), smoothedCamPos: new THREE.Vector3(),
+            introTimer: 0, currentSpeed: 0, particleFlow: 0,
+            camSwitchIntensity: 0
+        };
+
+        const activeChunks = {};
+        const keys = {};
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x010103);
+        scene.fog = new THREE.FogExp2(0x010104, 0.005);
+
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 0.8; 
+        document.body.appendChild(renderer.domElement);
+
+        const composer = new EffectComposer(renderer);
+        const renderPass = new RenderPass(scene, camera);
+        composer.addPass(renderPass);
+        const rgbShiftPass = new ShaderPass(RGBShiftShader);
+        rgbShiftPass.uniforms['amount'].value = 0.0;
+        composer.addPass(rgbShiftPass);
+        const vignettePass = new ShaderPass(VignetteShader);
+        vignettePass.uniforms['offset'].value = 0.95;
+        vignettePass.uniforms['darkness'].value = 1.0; 
+        composer.addPass(vignettePass);
+        const outputPass = new OutputPass();
+        composer.addPass(outputPass);
+
+        // --- PARTICLES SYSTEM (CONTINUOUS TUNNEL) ---
+        const particlesCount = 800;
+        const particlesGeo = new THREE.BufferGeometry();
+        const particlesPos = new Float32Array(particlesCount * 3);
+        const particlesData = new Float32Array(particlesCount * 3); 
+        const tunelLen = 160; 
+
+        for(let i=0; i<particlesCount; i++) {
+            particlesData[i*3] = Math.random() * tunelLen; 
+            particlesData[i*3+1] = 20 + Math.random() * 30; 
+            particlesData[i*3+2] = Math.random() * Math.PI * 2;
+            particlesPos[i*3] = 0; particlesPos[i*3+1] = 0; particlesPos[i*3+2] = 0;
+        }
+        particlesGeo.setAttribute('position', new THREE.BufferAttribute(particlesPos, 3));
+        const particlesMat = new THREE.PointsMaterial({
+            color: 0xffaa00, size: 0.6, transparent: true, opacity: 0.0,
+            blending: THREE.AdditiveBlending, depthWrite: false
+        });
+        const speedLines = new THREE.Points(particlesGeo, particlesMat);
+        speedLines.frustumCulled = false; 
+        scene.add(speedLines);
+
+        const rightFillLight = new THREE.DirectionalLight(0xffffff, 0.0); scene.add(rightFillLight);
+        const stageLight = new THREE.SpotLight(0xffaa00, 4.0); 
+        stageLight.angle = 0.7; stageLight.penumbra = 0.4; stageLight.decay = 0;
+        stageLight.castShadow = true; stageLight.shadow.bias = -0.0002;
+        scene.add(stageLight);
+        const stageTarget = new THREE.Object3D(); scene.add(stageTarget); stageLight.target = stageTarget;
+        const moonLight = new THREE.DirectionalLight(0xf5f5ff, 2.8);
+        moonLight.position.set(-60, 120, -30); scene.add(moonLight);
+        const sideLight = new THREE.PointLight(0x00ccff, 1.8, 120);
+        sideLight.decay = 0; scene.add(sideLight);
+
+        let physicsWorld, playerBody, playerMesh, mixer;
+        let beeTextures = []; 
+        const actions = {};
+
+        async function init() {
+            try {
+                await RAPIER.init();
+                physicsWorld = new RAPIER.World({x:0, y:GAME_CONFIG.GRAVITY, z:0});
+                
+                const rbDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(2, 4, GAME_CONFIG.TRACK_CENTER_Z).lockRotations().setLinearDamping(0.12).setCcdEnabled(true);
+                playerBody = physicsWorld.createRigidBody(rbDesc);
+                const clDesc = RAPIER.ColliderDesc.capsule(0.6, 0.35).setFriction(0.6).setRestitution(0.0).setDensity(2.0);
+                physicsWorld.createCollider(clDesc, playerBody);
+                
+                state.smoothedCamPos.set(0, 4.9, 17.5); 
+                state.smoothedLookAt.set(2, 4, 12); 
+
+                animate();
+                
+                const texLoader = new THREE.TextureLoader();
+                const baseUrl = 'https://bolonhaportfolio.netlify.app/games/stranger-craft/models/';
+                const loadTex = (file) => { const t = texLoader.load(baseUrl + file); t.flipY = false; t.colorSpace = THREE.SRGBColorSpace; return t; };
+                beeTextures = [loadTex('bee.png'), loadTex('bee1.png'), loadTex('bee2.png'), loadTex('bee3.png')];
+
+                const loader = new GLTFLoader();
+                loader.load(baseUrl + 'bee-2.glb', (gltf) => {
+                    playerMesh = gltf.scene; playerMesh.scale.set(0.20, 0.20, 0.20); 
+                    updatePlayerMaterial(); scene.add(playerMesh);
+                    mixer = new THREE.AnimationMixer(playerMesh);
+                    const clips = gltf.animations;
+                    const findClip = (terms) => clips.find(c => terms.some(t => c.name.toLowerCase().includes(t)));
+                    let runClip = findClip(['hover', 'fly', 'take_off', 'move', 'run']);
+                    if (!runClip && clips.length > 1) runClip = clips[1]; 
+                    let idleClip = findClip(['idle', 'wait', 'stop']);
+                    if (!idleClip && clips.length > 0) idleClip = clips[0];
+                    if(runClip) { actions['run'] = mixer.clipAction(runClip); actions['run'].timeScale = 1.5; }
+                    if(idleClip) actions['idle'] = mixer.clipAction(idleClip);
+                    if(!actions['idle'] && actions['run']) actions['idle'] = actions['run'];
+                    if(!actions['run'] && actions['idle']) actions['run'] = actions['idle'];
+                    if(actions['idle']) actions['idle'].play();
+                    const l = document.getElementById('loading'); 
+                    if(l) { l.style.opacity = 0; setTimeout(() => { l.remove(); document.getElementById('intro-overlay').style.display = 'flex'; }, 500); }
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        function updatePlayerMaterial() {
+            if(!playerMesh) return;
+            const texIndex = parseInt(document.getElementById('char-tex-select').value);
+            const roughness = parseFloat(document.getElementById('in-rough').value);
+            const metalness = parseFloat(document.getElementById('in-metal').value);
+            const opacity = parseFloat(document.getElementById('in-opacity').value);
+            const colorHex = document.getElementById('in-color').value;
+            const selectedTex = beeTextures[texIndex] || beeTextures[0];
+            playerMesh.traverse(o => { 
+                if(o.isMesh) { 
+                    o.castShadow = true; o.receiveShadow = true;
+                    if(o.geometry.attributes.color) o.geometry.deleteAttribute('color');
+                    if (o.material && o.material.map === selectedTex) {
+                         o.material.roughness = roughness; o.material.metalness = metalness;
+                         o.material.opacity = opacity; o.material.transparent = true; o.material.color.set(colorHex);
+                    } else {
+                        o.material = new THREE.MeshStandardMaterial({
+                            map: selectedTex, color: new THREE.Color(colorHex),
+                            roughness: roughness, metalness: metalness,
+                            envMapIntensity: 0.0, emissive: 0x000000,
+                            side: THREE.DoubleSide, transparent: true, opacity: opacity, alphaTest: 0.5
+                        });
+                    }
+                } 
+            });
+        }
+
+        document.getElementById('char-tex-select').addEventListener('change', updatePlayerMaterial);
+        document.getElementById('in-rough').addEventListener('input', updatePlayerMaterial);
+        document.getElementById('in-metal').addEventListener('input', updatePlayerMaterial);
+        document.getElementById('in-opacity').addEventListener('input', updatePlayerMaterial);
+        document.getElementById('in-color').addEventListener('input', updatePlayerMaterial);
+
+        const workerCode = `
+            const CL=48; const CW=24; const CH=20;
+            self.onmessage = function(e) {
+                const { cx, seed } = e.data;
+                const data = new Uint8Array(CL*CW*CH);
+                const idx = (x,y,z) => x + (z*CL) + (y*CL*CW);
+                for(let x=0; x<CL; x++) { for(let z=1; z<CW-1; z++) { data[idx(x, 0, z)] = (x+z)%2===0 ? 1 : 2; } }
+                self.postMessage({cx, data}, [data.buffer]);
+            };
+        `;
+        const voxelWorker = new Worker(URL.createObjectURL(new Blob([workerCode], {type:'text/javascript'})));
+        const texAtlas = (() => {
+            const cvs = document.createElement('canvas'); cvs.width=128; cvs.height=128; const ctx=cvs.getContext('2d');
+            ctx.fillStyle='#050505'; ctx.fillRect(0,0,32,32); ctx.fillStyle='#000000'; ctx.fillRect(32,0,32,32);
+            const t=new THREE.CanvasTexture(cvs); t.magFilter=THREE.NearestFilter; t.colorSpace=THREE.SRGBColorSpace; return t;
+        })();
+        const chunkMat = new THREE.MeshStandardMaterial({ map: texAtlas, roughness: 1.0, metalness: 0.0 });
+
+        function buildChunk(cx, data) {
+            const pos=[], norm=[], uv=[]; const s=0.5;
+            const idx=(x,y,z)=>data[x+(z*GAME_CONFIG.CHUNK_LENGTH)+(y*GAME_CONFIG.CHUNK_LENGTH*GAME_CONFIG.CHUNK_WIDTH)];
+            for(let x=0; x<GAME_CONFIG.CHUNK_LENGTH; x++) {
+                for(let y=0; y<20; y++) {
+                    for(let z=0; z<GAME_CONFIG.CHUNK_WIDTH; z++) {
+                        const b=idx(x,y,z); if(b===0) continue;
+                        const px=(cx*GAME_CONFIG.CHUNK_LENGTH+x), py=y, pz=z;
+                        const dirs = [
+                            {n:[0,1,0], v:[px-s,py+s,pz-s, px-s,py+s,pz+s, px+s,py+s,pz-s, px+s,py+s,pz+s]},
+                            {n:[0,-1,0], v:[px-s,py-s,pz+s, px-s,py-s,pz-s, px+s,py-s,pz+s, px+s,py-s,pz-s]},
+                            {n:[1,0,0], v:[px+s,py+s,pz+s, px+s,py-s,pz+s, px+s,py+s,pz-s, px+s,py-s,pz-s]},
+                            {n:[-1,0,0], v:[px-s,py+s,pz-s, px-s,py-s,pz-s, px-s,py+s,pz+s, px-s,py-s,pz+s]},
+                            {n:[0,0,1], v:[px-s,py+s,pz+s, px-s,py-s,pz+s, px+s,py+s,pz+s, px+s,py-s,pz+s]},
+                            {n:[0,0,-1], v:[px+s,py+s,pz-s, px+s,py-s,pz-s, px+s,py+s,pz-s, px+s,py-s,pz-s]}
+                        ];
+                        dirs.forEach(d => {
+                            pos.push(d.v[0],d.v[1],d.v[2], d.v[3],d.v[4],d.v[5], d.v[6],d.v[7],d.v[8], d.v[6],d.v[7],d.v[8], d.v[3],d.v[4],d.v[5], d.v[9],d.v[10],d.v[11]);
+                            for(let k=0; k<6; k++) norm.push(d.n[0], d.n[1], d.n[2]);
+                            let u=0; if(b===2)u=0.25; uv.push(u,0.75, u,1, u+0.25,0.75, u+0.25,0.75, u,1, u+0.25,1);
+                        });
+                    }
+                }
+            }
+            if(pos.length===0) return null;
+            const geo=new THREE.BufferGeometry(); geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); geo.setAttribute('normal',new THREE.Float32BufferAttribute(norm,3)); geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+            const mesh=new THREE.Mesh(geo,chunkMat); mesh.castShadow=true; mesh.receiveShadow=true; scene.add(mesh);
+            const floorRB = physicsWorld.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation(cx * GAME_CONFIG.CHUNK_LENGTH + GAME_CONFIG.CHUNK_LENGTH/2, 0, GAME_CONFIG.CHUNK_WIDTH/2));
+            const floorCl = RAPIER.ColliderDesc.cuboid(GAME_CONFIG.CHUNK_LENGTH/2, 0.5, GAME_CONFIG.CHUNK_WIDTH/2);
+            physicsWorld.createCollider(floorCl, floorRB);
+            return { mesh, rb: floorRB };
+        }
+
+        voxelWorker.onmessage = e => { const {cx,data}=e.data; delete activeChunks[cx+"_pending"]; if(!activeChunks[cx]) activeChunks[cx]=buildChunk(cx,data); };
+
+        function updateWorld() {
+            if(!playerBody) return;
+            const pX = playerBody.translation().x;
+            const cur = Math.floor(pX/GAME_CONFIG.CHUNK_LENGTH);
+            for(let i = -2; i <= GAME_CONFIG.RENDER_DISTANCE_FORWARD; i++) {
+                const cx = cur + i;
+                if(!activeChunks[cx] && !activeChunks[cx+"_pending"]) { activeChunks[cx+"_pending"] = true; voxelWorker.postMessage({cx, seed: 12345}); }
+            }
+            for(let k in activeChunks) {
+                if(k.includes("pending")) continue; 
+                if(parseInt(k) < cur - GAME_CONFIG.HISTORY_LIMIT) { 
+                    const chunk = activeChunks[k];
+                    if(chunk.mesh) { scene.remove(chunk.mesh); chunk.mesh.geometry.dispose(); }
+                    if(chunk.rb) physicsWorld.removeRigidBody(chunk.rb);
+                    delete activeChunks[k]; 
+                }
+            }
+        }
+
+        function handleStartOrJump(e) {
+            if(e.target.id === 'menu-btn' || e.target.closest('.sidebar') || e.target.closest('.panel-container') || e.target.closest('.intro-hint')) {
+                 if(e.target.closest('.intro-hint')) {
+                    // Logic inside click
+                 } else {
+                     return;
+                 }
+            }
+
+            if (state.gamePhase === 'READY') {
+                state.gamePhase = 'TAKEOFF';
+                state.introTimer = 0;
+                document.getElementById('intro-overlay').style.opacity = 0;
+                setTimeout(() => document.getElementById('intro-overlay').style.display = 'none', 1000);
+                if(playerBody) playerBody.applyImpulse({x:0, y:20, z:0}, true);
+                if(actions['run']) actions['run'].play();
+                if(actions['idle']) actions['idle'].stop();
+                return;
+            }
+            if (state.gamePhase === 'PLAYING' && !state.isLooping) jump();
+        }
+
+        window.addEventListener('mousedown', handleStartOrJump);
+        window.addEventListener('touchstart', (e) => { e.preventDefault(); handleStartOrJump(e); }, {passive: false});
+
+        window.onkeydown = e => { 
+            keys[e.code] = true; 
+            if (e.code === 'Space' && state.gamePhase === 'PLAYING' && !state.isLooping) jump();
+            if(state.gamePhase === 'PLAYING') {
+                if(e.code==='KeyE' && !state.isLooping) doDash(); 
+                if(e.code==='KeyV') {
+                    state.camMode=state.camMode==='TPS'?'SIDE':'TPS'; 
+                    state.camSwitchIntensity = 1.0; // Trigger switch FX
+                }
+                if(e.code==='KeyC' && !state.isLooping && !state.isDashing) startLoop();
+            }
+        };
+        window.onkeyup = e => { keys[e.code] = false; };
+
+        function jump() {
+            if(state.canJump || state.jumpCount < GAME_CONFIG.MAX_JUMPS) {
+                if (!state.canJump) { const vel = playerBody.linvel(); playerBody.setLinvel({ x: vel.x, y: 0, z: vel.z }, true); }
+                playerBody.applyImpulse({x:0, y:GAME_CONFIG.JUMP_FORCE, z:0}, true); 
+                state.canJump = false; state.jumpCount++; 
+            }
+        }
+
+        function doDash() {
+            if(!state.isDashing && state.stamina > GAME_CONFIG.DASH_COST) {
+                state.isDashing = true; 
+                state.dashTimer = GAME_CONFIG.DASH_DURATION; 
+                state.stamina -= GAME_CONFIG.DASH_COST;
+                state.targetFov = 90; 
+                const vel = playerBody.linvel(); 
+                const dx = vel.x > 1 ? 1 : 0.8;
+                playerBody.applyImpulse({x: 20, y: 2, z: 0}, true); 
+            }
+        }
+
+        function startLoop() {
+            const pos = playerBody.translation(); const vel = playerBody.linvel();
+            state.isLooping = true; state.loopProgress = 0;
+            state.preLoopY = pos.y; state.preLoopX = pos.x; state.preLoopZ = pos.z; 
+            state.loopDir = vel.x < -0.5 ? -1 : 1;
+            state.stamina = Math.max(0, state.stamina - 10);
+            state.cameraRecoveryTimer = 1.0; 
+            playerBody.setLinvel({x:0, y:0, z:0}, true);
+        }
+
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const dt = Math.min(clock.getDelta(), 0.1); 
+            
+            if(mixer) mixer.update(dt);
+            if(physicsWorld) physicsWorld.step(); 
+            updateWorld();
+
+            const expVal = parseFloat(document.getElementById('in-exp').value);
+            const vigBase = parseFloat(document.getElementById('in-vig-base').value);
+            const vigDash = parseFloat(document.getElementById('in-vig-dash').value);
+            const rgbBase = parseFloat(document.getElementById('in-rgb-base').value);
+            const rgbDash = parseFloat(document.getElementById('in-rgb-dash').value);
+            const partOpMax = parseFloat(document.getElementById('in-part-op').value);
+
+            renderer.toneMappingExposure = expVal; 
+
+            if(playerBody) {
+                const pos = playerBody.translation(); const vel = playerBody.linvel();
+                
+                // --- UPDATE VISUAL EFFECTS ---
+                
+                // Decay Camera Switch Effect
+                state.camSwitchIntensity = damp(state.camSwitchIntensity, 0.0, 2.0, dt);
+
+                // Lógica de Prioridade para RGB Shift
+                let targetRGB = rgbBase;
+                if (state.isDashing) {
+                    targetRGB = rgbDash; // 0.01 (Dash full)
+                } else if (state.isLooping) {
+                    targetRGB = 0.005; // 0.005 (Looping suave)
+                } else {
+                    // Transição de Câmera
+                    targetRGB = THREE.MathUtils.lerp(rgbBase, rgbDash, state.camSwitchIntensity);
+                }
+                
+                rgbShiftPass.uniforms['amount'].value = damp(rgbShiftPass.uniforms['amount'].value, targetRGB, 10, dt);
+
+                // Lógica de Vinheta (Mantém forte para Dash, Loop e Switch)
+                const isAction = (state.isDashing || state.isLooping) ? 1.0 : 0.0;
+                const vigStrength = Math.max(isAction, state.camSwitchIntensity);
+                const targetVig = THREE.MathUtils.lerp(vigBase, vigDash, vigStrength);
+                
+                vignettePass.uniforms['darkness'].value = damp(vignettePass.uniforms['darkness'].value, targetVig, 10, dt);
+
+                // --- PARTICLES UPDATE ---
+                if (speedLines) {
+                    const targetOpacity = state.isDashing ? partOpMax : 0.0;
+                    
+                    speedLines.material.opacity = damp(speedLines.material.opacity, targetOpacity, 8, dt);
+                    speedLines.visible = speedLines.material.opacity > 0.01;
+                    
+                    if (speedLines.visible) {
+                        const positions = speedLines.geometry.attributes.position.array;
+                        const flowSpeed = (80 + Math.abs(vel.x)) * dt;
+                        state.particleFlow += flowSpeed;
+
+                        const camX = camera.position.x;
+                        const halfLen = tunelLen / 2;
+
+                        for(let i = 0; i < particlesCount; i++) {
+                            const initialX = particlesData[i*3];
+                            const radius = particlesData[i*3+1];
+                            const angle = particlesData[i*3+2];
+
+                            // Scroll Logic: Posição fixa no tunel - Fluxo
+                            let relX = (initialX - state.particleFlow) % tunelLen;
+                            
+                            // Ajuste para centralizar em 0 e fazer wrap correto
+                            if (relX < -halfLen) relX += tunelLen; 
+                            
+                            // Posição no mundo = PlayerX + Posição Relativa + Offset de avanço
+                            // +50 joga o túnel mais pra frente do player para parecer que vem de lá
+                            positions[i*3] = pos.x + relX + 50; 
+                            
+                            // Y e Z fixos no mundo (altura do player)
+                            positions[i*3+1] = 12 + Math.cos(angle) * radius;
+                            positions[i*3+2] = 12 + Math.sin(angle) * radius;
+                        }
+                        speedLines.geometry.attributes.position.needsUpdate = true;
+                    }
+                }
+
+                // IDLE DETECTION
+                if (Math.abs(vel.x) < 0.5 && Math.abs(vel.z) < 0.5 && state.gamePhase === 'PLAYING') {
+                    state.idleTimer += dt;
+                } else {
+                    state.idleTimer = 0;
+                }
+
+                if (state.gamePhase === 'READY') {
+                    if(playerMesh) { playerMesh.rotation.y = -0.8; playerMesh.position.set(pos.x, pos.y - 0.5, pos.z); }
+                    const targetReadyPos = new THREE.Vector3(pos.x - 2.0, pos.y + 0.9, pos.z + 5.5);
+                    camera.position.lerp(targetReadyPos, damp(0, 1, 2, dt)); 
+                    camera.lookAt(pos.x, pos.y + 0.5, pos.z);
+                    state.smoothedCamPos.copy(camera.position); 
+                } else if (state.gamePhase === 'TAKEOFF') {
+                    state.introTimer += dt;
+                    if(playerMesh) {
+                        let r = playerMesh.rotation.y; if(Math.abs(r) > Math.PI) r = r > 0 ? r - 2*Math.PI : r + 2*Math.PI;
+                        playerMesh.rotation.y = damp(r, 0, 6, dt);
+                        playerMesh.position.set(pos.x, pos.y - 0.5, pos.z);
+                    }
+                    const targetCamPos = new THREE.Vector3(pos.x, pos.y + 8, pos.z + 14);
+                    camera.position.lerp(targetCamPos, damp(0, 1, 3, dt)); 
+                    const lookTarget = new THREE.Vector3(pos.x + 5, pos.y, pos.z); 
+                    state.smoothedLookAt.lerp(lookTarget, damp(0, 1, 4, dt));
+                    camera.lookAt(state.smoothedLookAt);
+                    if(state.introTimer > 1.2) { state.gamePhase = 'PLAYING'; state.smoothedCamPos.copy(camera.position); }
+                } else if (state.isLooping) {
+                    state.loopProgress += dt * 4.0;
+                    const R = GAME_CONFIG.LOOP_RADIUS;
+                    const forwardStep = (state.loopProgress / (Math.PI*2)) * (R * 2.5);
+                    const nextX = state.preLoopX + (forwardStep * state.loopDir);
+                    const nextY = state.preLoopY + (R * (1 - Math.cos(state.loopProgress)));
+                    const nextZ = state.preLoopZ;
+                    playerBody.setTranslation({ x: nextX, y: nextY, z: nextZ }, true);
+                    playerBody.setLinvel({ x: 0, y: 0, z: 0 }, true);
+                    if(playerMesh) {
+                        playerMesh.position.set(pos.x, pos.y - 0.5, pos.z);
+                        const baseAngle = state.loopDir > 0 ? Math.PI/2 : -Math.PI/2;
+                        const qFace = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), baseAngle);
+                        const loopAngle = state.loopDir > 0 ? state.loopProgress : -state.loopProgress;
+                        const qLoop = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), loopAngle);
+                        const finalQ = qLoop.multiply(qFace);
+                        playerMesh.quaternion.copy(finalQ);
+                    }
+                    if(actions['run']) actions['run'].play();
+                    
+                    let loopCamOffset;
+                    if (state.camMode === 'TPS') {
+                        const offsetX = -25 * state.loopDir; loopCamOffset = new THREE.Vector3(offsetX, 10, 5); 
+                    } else { loopCamOffset = new THREE.Vector3(0, 15, 30); }
+                    const desiredCamPos = new THREE.Vector3(pos.x + loopCamOffset.x, pos.y + loopCamOffset.y, pos.z + loopCamOffset.z);
+                    camera.position.lerp(desiredCamPos, damp(0, 1, 3, dt));
+                    camera.lookAt(pos.x, pos.y + 2, pos.z);
+                    
+                    state.smoothedCamPos.copy(camera.position);
+                    state.smoothedLookAt.set(pos.x, pos.y + 2, pos.z);
+
+                    if (state.loopProgress >= Math.PI * 2) {
+                        state.isLooping = false;
+                        if(playerMesh) {
+                             playerMesh.quaternion.set(0,0,0,1); 
+                             const finalAngle = state.loopDir > 0 ? Math.PI/2 : -Math.PI/2;
+                             playerMesh.rotation.y = finalAngle; playerMesh.rotation.x = 0; playerMesh.rotation.z = 0;
+                        }
+                        playerBody.setLinvel({ x: state.currentSpeed * state.loopDir, y: 0, z: 0 }, true);
+                    }
+                } else {
+                    let inputX = 0, inputY = 0;
+                    if(keys['KeyW'] || keys['ArrowUp']) inputY = 1;
+                    if(keys['KeyS'] || keys['ArrowDown']) inputY = -1;
+                    if(keys['KeyA'] || keys['ArrowLeft']) inputX = -1;
+                    if(keys['KeyD'] || keys['ArrowRight']) inputX = 1;
+                    const isShiftRun = keys['ShiftLeft'] || keys['ShiftRight'];
+                    let targetSpeed = GAME_CONFIG.SPEED_BASE;
+                    if (state.isDashing) { targetSpeed = GAME_CONFIG.SPEED_DASH; state.dashTimer -= dt; if(state.dashTimer <= 0) state.isDashing = false; }
+                    else if (isShiftRun) { targetSpeed = GAME_CONFIG.SPEED_TURBO; }
+                    state.currentSpeed = damp(state.currentSpeed, targetSpeed, 2, dt); 
+                    if (!state.isDashing) state.stamina = Math.min(100, state.stamina + 20*dt);
+                    const moveVec = new THREE.Vector3();
+                    if(state.camMode === 'TPS') {
+                        const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion); forward.y = 0; forward.normalize();
+                        const right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion); right.y = 0; right.normalize();
+                        moveVec.add(forward.multiplyScalar(inputY)); moveVec.add(right.multiplyScalar(inputX));
+                    } else { moveVec.x = inputX; moveVec.z = -inputY; }
+                    if(moveVec.length() > 0) moveVec.normalize();
+                    const targetVelX = moveVec.x * state.currentSpeed;
+                    const targetVelZ = moveVec.z * state.currentSpeed;
+                    if(state.canJump) { playerBody.setLinvel({ x: targetVelX, y: vel.y, z: targetVelZ }, true); }
+                    else { const airAcc = 35; playerBody.applyImpulse({ x: (targetVelX - vel.x) * dt * airAcc, y: 0, z: (targetVelZ - vel.z) * dt * airAcc }, true); }
+                    
+                    if(moveVec.length() > 0.01) {
+                        const ang = Math.atan2(moveVec.x, moveVec.z);
+                        let r = playerMesh.rotation.y; if(ang-r > Math.PI) r+=Math.PI*2; if(ang-r < -Math.PI) r-=Math.PI*2;
+                        playerMesh.rotation.y = damp(r, ang, 15, dt);
+                        playerMesh.rotation.x = 0; playerMesh.rotation.z = 0;
+                        if(actions['run']) { actions['run'].play(); actions['run'].timeScale = state.currentSpeed / 4.0; }
+                        if(actions['idle']) actions['idle'].stop();
+                    } else { if(actions['run']) actions['run'].stop(); if(actions['idle']) actions['idle'].play(); }
+                    if(playerMesh) { playerMesh.position.set(pos.x, pos.y - 0.5, pos.z); }
+                    
+                    // --- CAMERA LOGIC SMOOTHED ---
+                    let baseFov = 75; let camOffset; let lookAtTarget;
+                    let smoothFactor = GAME_CONFIG.CAM_DAMPING; 
+                    if (state.cameraRecoveryTimer > 0) { state.cameraRecoveryTimer -= dt; smoothFactor = 1.0; }
+
+                    if (state.camMode === 'TPS') {
+                        baseFov = 32; 
+                        // IDLE CAMERA
+                        if (state.idleTimer > 0.2) {
+                            camOffset = new THREE.Vector3(-12, 6, 4);
+                            lookAtTarget = new THREE.Vector3(pos.x, pos.y + 1, pos.z);
+                            smoothFactor = 1.5; 
+                        } else {
+                            const leadDist = 10 + (state.currentSpeed / 5); 
+                            // TPS LookAt: Y+4 para olhar para o horizonte/fim da pista
+                            lookAtTarget = new THREE.Vector3(pos.x + leadDist, pos.y + 4, pos.z);
+                            if (state.isDashing || state.jumpCount === 2) { camOffset = new THREE.Vector3(-14, 5, 0); baseFov = 45; }
+                            else { camOffset = new THREE.Vector3(-7.5, 3.5, 0); }
+                        }
+                        state.smoothedLookAt.lerp(lookAtTarget, damp(0, 1, 2, dt));
+                        camera.rotation.z = damp(camera.rotation.z, 0, 5, dt);
+                    } else {
+                        baseFov = 75; if(state.isDashing) baseFov += 10;
+                        lookAtTarget = new THREE.Vector3(pos.x, pos.y + 1, pos.z);
+                        state.smoothedLookAt.lerp(lookAtTarget, damp(0, 1, 3, dt)); 
+                        camOffset = new THREE.Vector3(0, 8, 14);
+                        camera.rotation.z = damp(camera.rotation.z, 0, 5, dt);
+                    }
+                    state.targetFov = baseFov;
+                    camera.fov = damp(camera.fov, state.targetFov, 3, dt);
+                    camera.updateProjectionMatrix();
+                    const desiredCamPos = new THREE.Vector3(pos.x + camOffset.x, pos.y + camOffset.y, pos.z + camOffset.z);
+                    state.smoothedCamPos.x = damp(state.smoothedCamPos.x, desiredCamPos.x, smoothFactor, dt);
+                    state.smoothedCamPos.z = damp(state.smoothedCamPos.z, desiredCamPos.z, smoothFactor, dt);
+                    let yDamp = (Math.abs(desiredCamPos.y - state.smoothedCamPos.y) > 5) ? 3.0 : 1.0; 
+                    if(state.idleTimer > 0.5) yDamp = 1.0;
+                    state.smoothedCamPos.y = damp(state.smoothedCamPos.y, desiredCamPos.y, yDamp, dt);
+                    camera.position.copy(state.smoothedCamPos);
+                    camera.lookAt(state.smoothedLookAt);
+                    const ray = new RAPIER.Ray({x:pos.x, y:pos.y, z:pos.z}, {x:0, y:-1, z:0});
+                    const hit = physicsWorld.castRay(ray, 1.2, true); 
+                    if(hit && Math.abs(vel.y) < 0.2) { state.canJump = true; state.jumpCount = 0; }
+                }
+
+                const targetLights = state.camMode === 'TPS' ? LIGHT_PRESETS.TPS : LIGHT_PRESETS.SIDE;
+                currentLights.keyInt = damp(currentLights.keyInt, targetLights.keyInt, 2, dt);
+                currentLights.keyY = damp(currentLights.keyY, targetLights.keyY, 2, dt);
+                currentLights.fillInt = damp(currentLights.fillInt, targetLights.fillInt, 2, dt);
+                currentLights.sideInt = damp(currentLights.sideInt, targetLights.sideInt, 2, dt);
+                currentLights.ambInt = damp(currentLights.ambInt, targetLights.ambInt, 2, dt);
+                
+                // ADD THESE LINES TO UPDATE UI
+                document.getElementById('v-key-int').innerText = currentLights.keyInt.toFixed(1);
+                document.getElementById('v-key-y').innerText = currentLights.keyY.toFixed(1);
+                document.getElementById('v-fill-int').innerText = currentLights.fillInt.toFixed(1);
+                document.getElementById('v-side-int').innerText = currentLights.sideInt.toFixed(1);
+                document.getElementById('v-amb-int').innerText = currentLights.ambInt.toFixed(1);
+
+                stageLight.intensity = currentLights.keyInt;
+                stageLight.position.set(pos.x, currentLights.keyY, pos.z); 
+                stageTarget.position.set(pos.x, 0.5, pos.z);
+                moonLight.intensity = currentLights.fillInt;
+                sideLight.intensity = currentLights.sideInt;
+                sideLight.position.set(pos.x, 12, pos.z+25); 
+                rightFillLight.intensity = currentLights.ambInt;
+                rightFillLight.position.set(pos.x, 20, pos.z + 20);
+
+                if(pos.y < -10) {
+                    playerBody.setTranslation({x:pos.x, y:12, z:GAME_CONFIG.TRACK_CENTER_Z}, true); 
+                    playerBody.setLinvel({x:0,y:0,z:0}, true);
+                }
+            }
+            composer.render();
+        }
+        init();
+    </script>
+</body>
+</html>

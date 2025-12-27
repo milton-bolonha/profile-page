@@ -7,25 +7,34 @@ export const setupPhysicsSystem = (gameState: GameState, playerRef: RefObject<TH
   return {
     update() {
       const player = playerRef.current;
-      if (!gameState.gameActive || !player || gameState.isPaused) return;
+      if (!gameState.gameActive || !player || gameState.isPaused || gameState.isDebugPaused) return;
 
       // Mouse Follow Logic (Primary)
       
       // Horizontal Clamp (Stricter Limit per user request)
       const maxX = 30; 
-      const targetX = gameState.virtualMouseX * maxX;
+      const rawTargetX = gameState.virtualMouseX * maxX;
       
       // Vertical Movement (Restored - "Always above invisible floor")
-      // Map virtualMouseY (-1 to 1) to height range (e.g. 1.0 to 12.0)
+      // Map virtualMouseY (-1 to 1) to height range (reduced from 12.0 to 8.0 for better camera framing)
       const minY = 1.0; 
-      const maxY = 12.0;
+      const maxY = 8.0;
       const heightRange = maxY - minY;
       const normalizedY = (Math.max(-1, Math.min(1, gameState.virtualMouseY)) + 1) / 2;
-      const targetY = minY + normalizedY * heightRange;
+      const rawTargetY = minY + normalizedY * heightRange;
+
+      // Corridor center bias - gently pull airplane towards center path
+      const corridorCenterX = 0;  // Corridor center is at X=0
+      const corridorCenterY = 4.5;  // Updated to match new spawn height
+      const biasFactor = 0.1;  // 10% bias towards center
+
+      // Apply bias towards corridor center
+      const biasedTargetX = rawTargetX * (1 - biasFactor) + corridorCenterX * biasFactor;
+      const biasedTargetY = rawTargetY * (1 - biasFactor) + corridorCenterY * biasFactor;
 
       // Smooth Position Lerp
-      player.position.x = THREE.MathUtils.lerp(player.position.x, targetX, 0.1);
-      player.position.y = THREE.MathUtils.lerp(player.position.y, targetY, 0.1);
+      player.position.x = THREE.MathUtils.lerp(player.position.x, biasedTargetX, 0.1);
+      player.position.y = THREE.MathUtils.lerp(player.position.y, biasedTargetY, 0.1);
       
       // Forward Speed (Base + Turbo)
       player.position.z -= gameState.speed * 1.5;

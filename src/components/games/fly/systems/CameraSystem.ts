@@ -3,12 +3,31 @@ import * as THREE from "three";
 import { GameState } from "./InputSystem";
 import { RefObject } from "react";
 
+// Camera offsets that can be adjusted via debug controls
+export const cameraOffsets = {
+  x: 0,
+  y: 3.0,  // Optimal value found through testing
+  z: 9.0,  // Better field of view
+  manualControl: false // When true, ignore automatic camera movement
+};
+
 // Camera follow system
 export const setupCameraSystem = (gameState: GameState, playerRef: RefObject<THREE.Group | null>, camera: THREE.PerspectiveCamera) => {
   return {
     update() {
       const player = playerRef.current;
       if (!player) return;
+
+      // If manual control is enabled, don't update camera automatically
+      if (cameraOffsets.manualControl) {
+        camera.position.set(
+          player.position.x + cameraOffsets.x,
+          player.position.y + cameraOffsets.y,
+          player.position.z + cameraOffsets.z
+        );
+        camera.lookAt(player.position);
+        return;
+      }
 
       if (gameState.isStartingCinematic) {
         const now = Date.now();
@@ -56,33 +75,51 @@ export const setupCameraSystem = (gameState: GameState, playerRef: RefObject<THR
         );
         camera.lookAt(player.position);
       } else {
-        const targetZ = player.position.z + (gameState.isTurbo ? 8 : 6);
-        const targetY = player.position.y + 1.5;
-        // Force simple follow for debug
-        camera.position.set(0, 5, player.position.z + 10);
-        camera.lookAt(0, 0, player.position.z - 20); 
-        /*
-        camera.position.z = THREE.MathUtils.lerp(
-          camera.position.z,
-          targetZ,
-          0.1
-        );
-        camera.position.y = THREE.MathUtils.lerp(
-          camera.position.y,
-          targetY,
-          0.1
-        );
-        camera.position.x = THREE.MathUtils.lerp(
-          camera.position.x,
-          player.position.x * 0.5,
-          0.1
-        );
-        camera.lookAt(
-          player.position.x,
-          player.position.y,
-          player.position.z - 20
-        );
-        */
+        // Normal gameplay - smooth camera follow with deadzone
+        // Exception: During turbo, use faster lerp for responsiveness
+        if (gameState.isTurbo) {
+          // Faster smooth follow during turbo (not instant)
+          const targetCamX = player.position.x + cameraOffsets.x;
+          const targetCamY = player.position.y + cameraOffsets.y;
+          const targetCamZ = player.position.z + cameraOffsets.z;
+          
+          // Fast lerp (0.3 = very responsive but still smooth)
+          camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetCamX, 0.3);
+          camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetCamY, 0.3);
+          camera.position.z = targetCamZ;  // Z instant for forward movement
+          
+          // Apply shake effect
+          camera.position.x += (Math.random() - 0.5) * 0.1;
+          camera.position.y += (Math.random() - 0.5) * 0.1;
+          camera.lookAt(player.position);
+        } else {
+          // Smooth follow for normal gameplay
+          const deadzone = {
+            x: 5.0,  // Airplane can move ±5 units before camera reacts strongly
+            y: 2.0,  // Airplane can move ±2 units vertically
+          };
+
+          const targetCamX = player.position.x + cameraOffsets.x;
+          const targetCamY = player.position.y + cameraOffsets.y;
+          const targetCamZ = player.position.z + cameraOffsets.z;
+
+          // Calculate delta from current camera position
+          const deltaX = targetCamX - camera.position.x;
+          const deltaY = targetCamY - camera.position.y;
+
+          // Apply deadzone - only move camera significantly if airplane far from center
+          const smoothFactorX = Math.abs(deltaX) > deadzone.x ? 0.08 : 0.02;
+          const smoothFactorY = Math.abs(deltaY) > deadzone.y ? 0.08 : 0.02;
+
+          // Smooth lerp (0.08 = responsive, 0.02 = very smooth for small movements)
+          camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetCamX, smoothFactorX);
+          camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetCamY, smoothFactorY);
+          camera.position.z = targetCamZ;  // Z follows instantly (forward movement)
+
+          // Look slightly ahead of airplane for better feel
+          const lookAheadZ = player.position.z - 10;
+          camera.lookAt(player.position.x, player.position.y, lookAheadZ);
+        }
       }
     },
   };
