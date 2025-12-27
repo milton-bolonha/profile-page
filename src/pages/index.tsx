@@ -16,6 +16,7 @@ import { getSortedPostsData } from "@/lib/posts";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getBusinessSettings, getGeneralSettings } from "@/lib/settings";
 import NeonFlightGame from "@/components/games/fly/components/NeonFlightGame";
+import BoilerplateGame from "@/components/games/fly/components/BoilerplateGame";
 import { ClientOnly } from "@/components/commons/ClientOnly";
 import MagneticButton from "@/components/ui/MagneticButton";
 import Seo from "@/components/commons/Seo";
@@ -143,9 +144,20 @@ const HomeContent = ({
           </SectionWrapper>
 
   {/* Neon Flight Game */}
+  {/* <SectionWrapper id="game" vPadding="py-0" fullHeight>
+       <ClientOnly>
+         <NeonFlightGame />
+       </ClientOnly>
+     </SectionWrapper> */}
 
+  {/* TEMPORARY: Boilerplate Game */}
+  <SectionWrapper id="boilerplate" vPadding="py-0" fullHeight>
+    <ClientOnly>
+      <BoilerplateGame />
+    </ClientOnly>
+  </SectionWrapper>
 
-          {/* Experience / Showcase Section */}
+  {/* Experience / Showcase Section */}
           <SectionWrapper id="o-que-faco" vPadding="pb-14 pt-48" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
              
              {/* HEADER & TABS CONTAINER */}
