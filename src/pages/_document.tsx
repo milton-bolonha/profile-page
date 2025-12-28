@@ -18,13 +18,7 @@ export default function Document() {
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
       <body className="bg-white dark:bg-gray-900">
-        {/* Formulário estático oculto para Netlify Forms detectar durante o build */}
-        <form name="contato" method="POST" data-netlify="true" hidden>
-          <input type="hidden" name="form-name" value="contato" />
-          <input type="text" name="name" />
-          <input type="email" name="email" />
-          <textarea name="message"></textarea>
-        </form>
+
 
         <Main />
         <NextScript />

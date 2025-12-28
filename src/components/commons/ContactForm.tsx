@@ -88,7 +88,7 @@ export const ContactForm = () => {
 
     try {
       // 1. Enviar dados para Netlify Forms (notificação por email)
-      const netlifyResponse = await fetch('/', {
+      const netlifyResponse = await fetch('/__forms.html', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
@@ -165,7 +165,6 @@ export const ContactForm = () => {
       <form 
         name="contato"
         method="POST"
-        data-netlify="true"
         onSubmit={handleSubmit} 
         className="space-y-6"
       >
