@@ -17,7 +17,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { getBusinessSettings, getGeneralSettings } from "@/lib/settings";
 import NeonFlightGame from "@/components/games/fly/components/NeonFlightGame";
 import BoilerplateGame from "@/components/games/fly/components/BoilerplateGame";
-import TheBeeBoilerplate from "@/components/games/fly/components/TheBeeBoilerplate";
+import TheBeeBoilerplate from "@/components/games/TheBeeBoilerplate";
 import { ClientOnly } from "@/components/commons/ClientOnly";
 import MagneticButton from "@/components/ui/MagneticButton";
 import Seo from "@/components/commons/Seo";
