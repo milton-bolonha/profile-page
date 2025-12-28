@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quadro 3D Interativo</title>
+    <style>
+        /* Reset básico */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background-color: #171717; /* neutral-900 */
+            overflow: hidden; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* Container do Canvas 3D */
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+
+        /* UI: Overlay de Instruções */
+        #ui-overlay {
+            position: absolute;
+            top: 1rem;
+            left: 0;
+            width: 100%;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .pill {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            padding: 0.5rem 1.5rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 300;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* UI: Tela de Carregamento (Loader) */
+        #loader {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(4px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            transition: opacity 0.5s ease;
+        }
+
+        .spinner {
+            width: 3rem;
+            height: 3rem;
+            border: 4px solid #3b82f6; /* blue-500 */
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .loader-text {
+            color: white;
+            font-family: monospace;
+            font-size: 1.125rem;
+            font-weight: bold;
+        }
+
+        /* Animações */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Interface -->
+    <div id="ui-overlay">
+        <div class="pill">Arraste para girar • Scroll para zoom</div>
+    </div>
+
+    <!-- Tela de Carregamento -->
+    <div id="loader">
+        <div class="spinner"></div>
+        <div class="loader-text">A carregar imagem...</div>
+    </div>
+
+    <!-- Onde o Three.js vai desenhar -->
+    <div id="canvas-container"></div>
+
+    <!-- Importação do Three.js via Módulos ES -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // --- Configurações Gerais ---
+        const IMG_URL = "img/foto-perfil.jpg";
+        const container = document.getElementById('canvas-container');
+        const loaderEl = document.getElementById('loader');
+        
+        // Dimensões originais: 764x1146
+        // Escala para unidades 3D: ~3.82 x ~5.73
+        const FRAME_WIDTH = 3.82;
+        const FRAME_HEIGHT = 5.73;
+
+        // --- 1. Inicialização da Cena (Setup) ---
+        const scene = new THREE.Scene();
+        
+        // Câmera
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 0, 11);
+
+        // Renderizador
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Otimização
+        // Importante: Definir o espaço de cor correto para texturas modernas
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+        container.appendChild(renderer.domElement);
+
+        // Controles de Órbita
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.minDistance = 5;
+        controls.maxDistance = 25;
+
+        // --- 2. Iluminação ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const spotLight = new THREE.SpotLight(0xffffff, 1.2);
+        spotLight.position.set(15, 15, 15);
+        spotLight.angle = 0.2;
+        spotLight.penumbra = 1;
+        spotLight.castShadow = true;
+        scene.add(spotLight);
+
+        const pointLight = new THREE.PointLight(0x4444ff, 0.5);
+        pointLight.position.set(-10, -10, -10);
+        scene.add(pointLight);
+
+        // --- 3. Funções Auxiliares ---
+
+        // Função para criar textura de fallback (Resgate de Dados)
+        function createFallbackTexture() {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = 512;
+                canvas.height = 768;
+                const ctx = canvas.getContext('2d');
+
+                // Gradiente Sunset
+                const gradient = ctx.createLinearGradient(0, 0, 0, 768);
+                gradient.addColorStop(0, '#833ab4');
+                gradient.addColorStop(0.5, '#fd1d1d');
+                gradient.addColorStop(1, '#fcb045');
+
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 512, 768);
+
+                // Texto
+                ctx.fillStyle = 'rgba(255,255,255,0.9)';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                ctx.font = 'bold 40px Arial';
+                ctx.fillText('SEM SINAL', 256, 384 - 30);
+                
+                ctx.font = '20px Arial';
+                ctx.fillText('Modo de Segurança', 256, 384 + 30);
+
+                const texture = new THREE.CanvasTexture(canvas);
+                texture.colorSpace = THREE.SRGBColorSpace;
+                return texture;
+            } catch (e) {
+                console.error("Erro fatal ao criar fallback", e);
+                return new THREE.Texture(); // Retorna vazio para não quebrar
+            }
+        }
+
+        // Função para criar o Objeto 3D (Mesh)
+        let portraitGroup; // Referência global para animação
+
+        function createPortraitMesh(texture) {
+            portraitGroup = new THREE.Group();
+
+            // A. Geometria da Foto (Plano)
+            const photoGeo = new THREE.PlaneGeometry(FRAME_WIDTH, FRAME_HEIGHT);
+            const photoMat = new THREE.MeshBasicMaterial({ 
+                map: texture, 
+                side: THREE.DoubleSide,
+                toneMapped: false // Mantém as cores vivas
+            });
+            const photoMesh = new THREE.Mesh(photoGeo, photoMat);
+            photoMesh.position.z = 0.16; // Ligeiramente à frente
+            portraitGroup.add(photoMesh);
+
+            // B. Geometria da Moldura (Caixa)
+            const frameGeo = new THREE.BoxGeometry(FRAME_WIDTH + 0.2, FRAME_HEIGHT + 0.2, 0.3);
+            const frameMat = new THREE.MeshStandardMaterial({ 
+                color: 0x1a1a1a, 
+                roughness: 0.6, 
+                metalness: 0.4 
+            });
+            const frameMesh = new THREE.Mesh(frameGeo, frameMat);
+            frameMesh.position.set(0, 0, 0);
+            portraitGroup.add(frameMesh);
+
+            // C. Fundo Traseiro (Acabamento)
+            const backGeo = new THREE.BoxGeometry(FRAME_WIDTH + 0.22, FRAME_HEIGHT + 0.22, 0.28);
+            const backMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+            const backMesh = new THREE.Mesh(backGeo, backMat);
+            backMesh.position.z = -0.01;
+            portraitGroup.add(backMesh);
+
+            // Adicionar à cena
+            scene.add(portraitGroup);
+        }
+
+        // --- 4. Carregamento de Ativos ---
+        
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.setCrossOrigin('anonymous'); // Importante para imagens externas
+
+        textureLoader.load(
+            IMG_URL,
+            // Sucesso
+            (texture) => {
+                texture.colorSpace = THREE.SRGBColorSpace;
+                createPortraitMesh(texture);
+                finishLoading();
+            },
+            // Progresso (opcional)
+            undefined,
+            // Erro
+            (err) => {
+                console.warn("Falha ao carregar imagem. Ativando fallback.", err);
+                const fallbackTex = createFallbackTexture();
+                createPortraitMesh(fallbackTex);
+                finishLoading();
+            }
+        );
+
+        function finishLoading() {
+            // Remove o loader com fade-out
+            loaderEl.classList.add('fade-out');
+            setTimeout(() => {
+                loaderEl.style.display = 'none';
+            }, 500);
+        }
+
+        // --- 5. Loop de Animação e Eventos ---
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const elapsedTime = clock.getElapsedTime();
+
+            // Rotação suave automática se o objeto existir
+            if (portraitGroup) {
+                portraitGroup.rotation.y = Math.sin(elapsedTime * 0.15) * 0.15;
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Iniciar loop
+        animate();
+
+        // Responsividade (Resize)
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+    </script>
+</body>
+</html>

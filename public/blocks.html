@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voxel Engine 7.0 - Blocos Funcionais</title>
+    <style>
+        :root {
+            --accent: #ff0055;
+            --soft-green: #00ff88;
+            --ai-blue: #4285f4;
+            --bg-glass: rgba(12, 12, 12, 0.98);
+            --border-glass: rgba(255, 255, 255, 0.15);
+        }
+
+        body { margin: 0; overflow: hidden; background-color: #1a1a1a; font-family: 'Inter', monospace, sans-serif; color: white; }
+        #canvas-container { width: 100vw; height: 100vh; }
+        
+        #ui-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 320px;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .panel {
+            background: var(--bg-glass);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 15px;
+            pointer-events: auto;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tabs-header {
+            display: flex;
+            gap: 4px;
+            background: rgba(0,0,0,0.4);
+            padding: 4px;
+            border-radius: 12px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #666;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+
+        .tab-btn.active { background: rgba(255,255,255,0.1); color: white; }
+        .tab-content { display: none; flex-direction: column; gap: 10px; }
+        .tab-content.active { display: flex; }
+
+        h1 { font-size: 0.85rem; margin: 0; text-transform: uppercase; color: var(--accent); letter-spacing: 2px; }
+        h2 { font-size: 0.7rem; margin: 0; color: #aaa; }
+        
+        input[type="text"], input[type="range"] {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--border-glass);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            width: 100%;
+            outline: none;
+        }
+
+        button {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-glass);
+            color: #eee;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        button:hover { background: rgba(255,255,255,0.15); border-color: white; }
+        button.active { background: rgba(255,0,85,0.3); border-color: var(--accent); }
+
+        .row { display: flex; gap: 5px; flex-wrap: wrap; }
+
+        #stats-hud {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            text-align: right;
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: #ccc;
+            background: rgba(0,0,0,0.8);
+            padding: 12px;
+            border-radius: 16px;
+            pointer-events: none;
+            border: 1px solid var(--soft-green);
+        }
+
+        #loader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 2000; display: none; color: var(--ai-blue);
+            font-size: 1.2rem; letter-spacing: 10px;
+            text-align: center;
+        }
+
+        .hint { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-size: 0.7rem; color: #aaa; pointer-events: none; background: rgba(0,0,0,0.4); padding: 5px 15px; border-radius: 20px;}
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <div id="loader">VOXELIZANDO...</div>
+
+    <div id="stats-hud">
+        STATUS: <span id="debug-status" style="color:var(--soft-green)">IDLE</span><br>
+        CAM Z: <span id="debug-cam-z" style="color:var(--accent)">0</span><br>
+        VOXELS: <span id="count-img" style="color:white">0</span><br>
+        RES: <span id="resolution" style="color:white">32x32</span>
+    </div>
+
+    <div id="ui-container">
+        <div class="panel">
+            <h1>Voxel Studio 7.0</h1>
+            
+            <nav class="tabs-header">
+                <button class="tab-btn active" data-tab="tab-gal">Galeria</button>
+                <button class="tab-btn" data-tab="tab-geo">Geo</button>
+            </nav>
+
+            <div id="tab-gal" class="tab-content active">
+                <div class="control-group">
+                    <input type="text" id="img-url" value="/img/foto-perfil.jpg">
+                    <div class="row">
+                        <button id="btn-load-img" style="flex: 2;">Voxelizar URL</button>
+                    </div>
+                    <button id="btn-test-base64" style="background: rgba(0,255,136,0.1); border: 1px solid var(--soft-green); color: var(--soft-green);">Teste Base64 (Interno)</button>
+                </div>
+            </div>
+
+            <div id="tab-geo" class="tab-content">
+                <div class="control-group">
+                    <h2>Modo de Renderização</h2>
+                    <button id="btn-toggle-frame" style="background: rgba(66,133,244,0.1); border-color: var(--ai-blue); width: 100%;">
+                        🖼️ Modo Frame (Híbrido)
+                    </button>
+                </div>
+                <div class="control-group">
+                    <h2>Resolução Máxima</h2>
+                    <div class="row">
+                        <button class="res-btn" data-res="16">16</button>
+                        <button class="res-btn active" data-res="32">32</button>
+                        <button class="res-btn" data-res="48">48</button>
+                        <button class="res-btn" data-res="64">64</button>
+                        <button class="res-btn" data-res="96">96</button>
+                        <button class="res-btn" data-res="128">128</button>
+                        <button class="res-btn" data-res="original" style="background: rgba(66,133,244,0.2); border-color: var(--ai-blue);">Original</button>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <h2>Tamanho do Quadro</h2>
+                    <input type="range" id="range-size" min="10" max="150" value="60">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hint">MOUSE WHEEL: ZOOM | SHIFT: MOLDAR</div>
+
+    <div id="canvas-container"></div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        const BASE64_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAEklEQVR42mP8z8AARAww/w8AAgAB/yE3mVUAAAAASUVORK5CYII=";
+        
+        class VoxelImageBoard {
+            constructor(scene) {
+                this.scene = scene;
+                this.baseResolution = 32;
+                this.resX = 32;
+                this.resY = 32;
+                this.baseSize = 60;
+                this.width = 60;
+                this.height = 60;
+                this.group = null;
+                this.voxels = []; // Array de objetos {mesh, offset, velocity}
+                this.pixelData = null;
+                this.cachedTexture = null;
+                this.originalWidth = 0;
+                this.originalHeight = 0;
+                this.active = false;
+                this.frameMode = false; // Modo híbrido: imagem plana + bordas em blocos
+                
+                this.texLoader = new THREE.TextureLoader();
+                this.texLoader.setCrossOrigin('anonymous');
+                this.geometry = new THREE.BoxGeometry(1, 1, 1);
+            }
+
+            log(tag, msg, type = "info") {
+                const colors = { info: "#4285f4", success: "#00ff88", error: "#ff0055", warn: "#ffcc00" };
+                console.log(`%c[${tag}] %c${msg}`, `color: ${colors[type]}; font-weight: bold;`, "color: #fff;");
+                const statusEl = document.getElementById('debug-status');
+                if (statusEl) statusEl.innerText = msg.substring(0, 15).toUpperCase();
+            }
+
+            toggleFrameMode() {
+                this.frameMode = !this.frameMode;
+                this.log("MODE", this.frameMode ? "Frame Mode ON" : "Voxel Mode ON", "info");
+                if (this.cachedTexture) {
+                    this.process();
+                }
+                return this.frameMode;
+            }
+
+            async load(urlOrData) {
+                const loader = document.getElementById('loader');
+                if(loader) loader.style.display = 'flex';
+                this.log("LOAD", "Carregando textura...", "info");
+
+                let finalUrl = urlOrData;
+                const isBase64 = urlOrData.startsWith('data:');
+
+                if (!isBase64) {
+                    finalUrl = urlOrData;
+                }
+
+                return new Promise((resolve, reject) => {
+                    this.texLoader.load(
+                        finalUrl,
+                        (texture) => {
+                            texture.colorSpace = THREE.SRGBColorSpace;
+                            this.cachedTexture = texture;
+                            this.originalWidth = texture.image.width;
+                            this.originalHeight = texture.image.height;
+                            
+                            this.log("TEXTURE", `Sucesso! ${this.originalWidth}x${this.originalHeight}`, "success");
+                            this.calculateResolution(this.baseResolution);
+                            this.process();
+                            this.active = true;
+                            if(loader) loader.style.display = 'none';
+                            resolve();
+                        },
+                        undefined,
+                        (err) => {
+                            this.log("ERROR", "Falha ao carregar", "error");
+                            if(loader) loader.style.display = 'none';
+                            reject(err);
+                        }
+                    );
+                });
+            }
+
+            calculateResolution(targetRes) {
+                if (targetRes === 'original') {
+                    const maxDim = 256;
+                    const aspect = this.originalWidth / this.originalHeight;
+                    
+                    if (this.originalWidth > this.originalHeight) {
+                        this.resX = Math.min(this.originalWidth, maxDim);
+                        this.resY = Math.round(this.resX / aspect);
+                    } else {
+                        this.resY = Math.min(this.originalHeight, maxDim);
+                        this.resX = Math.round(this.resY * aspect);
+                    }
+                } else {
+                    const aspect = this.originalWidth / this.originalHeight;
+                    
+                    if (aspect > 1) {
+                        this.resX = targetRes;
+                        this.resY = Math.round(targetRes / aspect);
+                    } else {
+                        this.resY = targetRes;
+                        this.resX = Math.round(targetRes * aspect);
+                    }
+                }
+                
+                // Calcular dimensões do quadro preservando aspect ratio
+                const aspect = this.resX / this.resY;
+                if (aspect > 1) {
+                    this.width = this.baseSize;
+                    this.height = this.baseSize / aspect;
+                } else {
+                    this.height = this.baseSize;
+                    this.width = this.baseSize * aspect;
+                }
+                
+                this.log("RESOLUTION", `${this.resX}x${this.resY}`, "info");
+            }
+
+            process() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                canvas.width = this.resX;
+                canvas.height = this.resY;
+                ctx.drawImage(this.cachedTexture.image, 0, 0, this.resX, this.resY);
+                
+                try {
+                    this.pixelData = ctx.getImageData(0, 0, this.resX, this.resY).data;
+                    const r = this.pixelData[0], g = this.pixelData[1], b = this.pixelData[2];
+                    this.log("PIXELS", `Extraídos: RGB(${r},${g},${b})`, "success");
+                } catch(e) {
+                    this.log("SECURITY", "Canvas Tainted!", "error");
+                    throw e;
+                }
+                
+                // Escolher modo de renderização
+                if (this.frameMode) {
+                    this.buildFrame();
+                } else {
+                    this.build();
+                }
+            }
+
+            build() {
+                if (this.group) this.scene.remove(this.group);
+                
+                this.group = new THREE.Group();
+                this.voxels = [];
+                
+                const count = this.resX * this.resY;
+                const stepX = this.width / this.resX;
+                const stepY = this.height / this.resY;
+                const offX = this.width / 2;
+                const offY = this.height / 2;
+                const voxelSize = Math.min(stepX, stepY) * 0.95;
+
+                this.log("BUILD", `Criando membrana 3D com ${count} pixels...`, "info");
+
+                // Configuração de profundidade (layers em Z)
+                const depthLayers = 3; // Quantas camadas de profundidade
+                const layerSpacing = voxelSize * 1.0; // Espaçamento entre camadas
+
+                let renderedCount = 0;
+
+                for (let i = 0; i < count; i++) {
+                    const x = i % this.resX;
+                    const y = Math.floor(i / this.resX);
+                    
+                    const idx = i * 4;
+                    const r = this.pixelData[idx];
+                    const g = this.pixelData[idx+1];
+                    const b = this.pixelData[idx+2];
+                    const a = this.pixelData[idx+3];
+                    
+                    // Pular pixels completamente transparentes
+                    if (a < 10) continue;
+                    
+                    // Determinar quantas camadas renderizar
+                    const isBorder = (x === 0 || x === this.resX - 1 || y === 0 || y === this.resY - 1);
+                    const layers = isBorder ? depthLayers : 1; // Bordas têm profundidade, centro é plano
+                    
+                    // Criar voxels em camadas (frente para trás)
+                    for (let layer = 0; layer < layers; layer++) {
+                        const color = new THREE.Color(`rgb(${r}, ${g}, ${b})`);
+                        
+                        // Escurecer camadas traseiras para efeito de profundidade
+                        const darkenFactor = 1.0 - (layer * 0.15);
+                        color.multiplyScalar(darkenFactor);
+                        
+                        const material = new THREE.MeshStandardMaterial({
+                            color: color,
+                            roughness: 0.3,
+                            metalness: 0.1,
+                            emissive: color,
+                            emissiveIntensity: 0.05,
+                            transparent: a < 255,
+                            opacity: a / 255
+                        });
+                        
+                        const mesh = new THREE.Mesh(this.geometry, material);
+                        
+                        // Posição base
+                        const baseX = x * stepX - offX + stepX/2;
+                        const baseY = (this.resY - y - 1) * stepY - offY + stepY/2;
+                        const baseZ = -layer * layerSpacing; // Camadas para trás
+                        
+                        mesh.position.set(baseX, baseY, baseZ);
+                        mesh.scale.set(voxelSize, voxelSize, voxelSize);
+                        
+                        this.group.add(mesh);
+                        
+                        // Armazenar apenas a camada frontal para física
+                        if (layer === 0) {
+                            this.voxels.push({
+                                mesh: mesh,
+                                baseX: baseX,
+                                baseY: baseY,
+                                offsetX: 0,
+                                offsetY: 0,
+                                offsetZ: 0,
+                                velocityX: 0,
+                                velocityY: 0,
+                                velocityZ: 0
+                            });
+                        }
+
+                        renderedCount++;
+                    }
+                }
+                
+                this.scene.add(this.group);
+                this.log("BUILD", `Membrana 3D completa! ${renderedCount} voxels`, "success");
+                
+                const countEl = document.getElementById('count-img');
+                if(countEl) countEl.innerText = `${renderedCount.toLocaleString()}`;
+                
+                const resEl = document.getElementById('resolution');
+                if(resEl) resEl.innerText = `${this.resX}x${this.resY}`;
+            }
+
+
+            buildFrame() {
+                if (this.group) this.scene.remove(this.group);
+                
+                this.group = new THREE.Group();
+                this.voxels = [];
+
+                // 1. CENTRO: Imagem plana (leve e de alta qualidade)
+                const planeGeo = new THREE.PlaneGeometry(this.width * 0.9, this.height * 0.9);
+                const planeMat = new THREE.MeshBasicMaterial({
+                    map: this.cachedTexture,
+                    side: THREE.DoubleSide,
+                    toneMapped: false
+                });
+                const planeMesh = new THREE.Mesh(planeGeo, planeMat);
+                planeMesh.position.z = 0.1; // Ligeiramente à frente
+                this.group.add(planeMesh);
+
+                // 2. BORDAS: Blocos voxelizados (efeito decorativo) - HOLLOW
+                const borderThickness = 3; // Quantos blocos de espessura na borda
+                const voxelSize = Math.min(this.width, this.height) / Math.max(this.resX, this.resY) * 0.95;
+
+                this.log("FRAME", `Criando moldura oca com ${borderThickness} blocos...`, "info");
+
+                // Helper: Get pixel color at position
+                const getPixel = (x, y) => {
+                    if (x < 0 || x >= this.resX || y < 0 || y >= this.resY) return null;
+                    const idx = (y * this.resX + x) * 4;
+                    return {
+                        r: this.pixelData[idx],
+                        g: this.pixelData[idx + 1],
+                        b: this.pixelData[idx + 2],
+                        a: this.pixelData[idx + 3]
+                    };
+                };
+
+                // Helper: Check if pixel is an edge
+                const isEdge = (x, y) => {
+                    if (x === 0 || x === this.resX - 1 || y === 0 || y === this.resY - 1) {
+                        return true;
+                    }
+
+                    const current = getPixel(x, y);
+                    if (!current || current.a < 128) return false;
+
+                    const threshold = 30;
+                    const neighbors = [
+                        getPixel(x - 1, y),
+                        getPixel(x + 1, y),
+                        getPixel(x, y - 1),
+                        getPixel(x, y + 1)
+                    ];
+
+                    for (const neighbor of neighbors) {
+                        if (!neighbor || neighbor.a < 128) return true;
+                        const dr = Math.abs(current.r - neighbor.r);
+                        const dg = Math.abs(current.g - neighbor.g);
+                        const db = Math.abs(current.b - neighbor.b);
+                        if (dr + dg + db > threshold) return true;
+                    }
+                    return false;
+                };
+
+                let voxelCount = 0;
+                for (let y = 0; y < this.resY; y++) {
+                    for (let x = 0; x < this.resX; x++) {
+                        // Apenas bordas (top, bottom, left, right)
+                        const isTopBorder = y < borderThickness;
+                        const isBottomBorder = y >= this.resY - borderThickness;
+                        const isLeftBorder = x < borderThickness;
+                        const isRightBorder = x >= this.resX - borderThickness;
+
+                        if (!(isTopBorder || isBottomBorder || isLeftBorder || isRightBorder)) {
+                            continue; // Pular centro
+                        }
+
+                        // HOLLOW OPTIMIZATION: Only render edges within border area
+                        if (!isEdge(x, y)) {
+                            continue;
+                        }
+
+                        const i = y * this.resX + x;
+                        const idx = i * 4;
+                        const r = this.pixelData[idx];
+                        const g = this.pixelData[idx + 1];
+                        const b = this.pixelData[idx + 2];
+
+                        const color = new THREE.Color(`rgb(${r}, ${g}, ${b})`);
+                        const material = new THREE.MeshStandardMaterial({
+                            color: color,
+                            roughness: 0.3,
+                            metalness: 0.1,
+                            emissive: color,
+                            emissiveIntensity: 0.05
+                        });
+
+                        const mesh = new THREE.Mesh(this.geometry, material);
+
+                        const stepX = this.width / this.resX;
+                        const stepY = this.height / this.resY;
+                        const baseX = x * stepX - this.width / 2 + stepX / 2;
+                        const baseY = (this.resY - y - 1) * stepY - this.height / 2 + stepY / 2;
+
+                        mesh.position.set(baseX, baseY, 0);
+                        mesh.scale.set(voxelSize, voxelSize, voxelSize);
+
+                        this.group.add(mesh);
+
+                        this.voxels.push({
+                            mesh: mesh,
+                            baseX: baseX,
+                            baseY: baseY,
+                            offsetX: 0,
+                            offsetY: 0,
+                            offsetZ: 0,
+                            velocityX: 0,
+                            velocityY: 0,
+                            velocityZ: 0
+                        });
+
+                        voxelCount++;
+                    }
+                }
+
+                this.scene.add(this.group);
+                this.log("FRAME", `Moldura oca! ${voxelCount} blocos`, "success");
+
+                const countEl = document.getElementById('count-img');
+                if (countEl) countEl.innerText = `${voxelCount.toLocaleString()} (frame oco)`;
+
+                const resEl = document.getElementById('resolution');
+                if (resEl) resEl.innerText = `${this.resX}x${this.resY} (frame)`;
+            }
+
+            update(probe, probeInv, probeHalfSize) {
+                if (!this.active || !this.group) return;
+                
+                const worldMatrix = this.group.matrixWorld;
+
+                for (let i = 0; i < this.voxels.length; i++) {
+                    const voxel = this.voxels[i];
+                    
+                    // Posição atual no mundo
+                    const currentPos = new THREE.Vector3(
+                        voxel.baseX + voxel.offsetX,
+                        voxel.baseY + voxel.offsetY,
+                        voxel.offsetZ
+                    );
+                    const worldPos = currentPos.clone().applyMatrix4(worldMatrix);
+                    const posInProbe = worldPos.applyMatrix4(probeInv);
+
+                    // Detecção de colisão com probe
+                    if (Math.abs(posInProbe.x) < probeHalfSize && 
+                        Math.abs(posInProbe.y) < probeHalfSize && 
+                        Math.abs(posInProbe.z) < probeHalfSize) {
+                        
+                        const dx = probeHalfSize - Math.abs(posInProbe.x);
+                        const dy = probeHalfSize - Math.abs(posInProbe.y);
+                        const dz = probeHalfSize - Math.abs(posInProbe.z);
+                        
+                        let pDir = new THREE.Vector3();
+                        let pen = 0;
+                        
+                        if (dx < dy && dx < dz) { 
+                            pDir.set(Math.sign(posInProbe.x), 0, 0); 
+                            pen = dx; 
+                        } else if (dy < dz) { 
+                            pDir.set(0, Math.sign(posInProbe.y), 0); 
+                            pen = dy; 
+                        } else { 
+                            pDir.set(0, 0, Math.sign(posInProbe.z)); 
+                            pen = dz; 
+                        }
+                        
+                        const pushWorld = pDir.transformDirection(probe.matrixWorld);
+                        voxel.offsetX += pushWorld.x * pen;
+                        voxel.offsetY += pushWorld.y * pen;
+                        voxel.offsetZ += pushWorld.z * pen;
+                        voxel.velocityX += pushWorld.x * pen * 0.45;
+                        voxel.velocityY += pushWorld.y * pen * 0.45;
+                        voxel.velocityZ += pushWorld.z * pen * 0.45;
+                    }
+
+                    // Física: damping e spring
+                    voxel.velocityX *= 0.88;
+                    voxel.velocityY *= 0.88;
+                    voxel.velocityZ *= 0.88;
+                    voxel.velocityX -= voxel.offsetX * 0.18;
+                    voxel.velocityY -= voxel.offsetY * 0.18;
+                    voxel.velocityZ -= voxel.offsetZ * 0.18;
+                    voxel.offsetX += voxel.velocityX;
+                    voxel.offsetY += voxel.velocityY;
+                    voxel.offsetZ += voxel.velocityZ;
+
+                    // Atualizar posição do mesh
+                    voxel.mesh.position.set(
+                        voxel.baseX + voxel.offsetX,
+                        voxel.baseY + voxel.offsetY,
+                        voxel.offsetZ
+                    );
+                }
+            }
+
+            setResolution(res) {
+                this.baseResolution = res;
+                if (this.cachedTexture) {
+                    this.calculateResolution(res);
+                    this.process();
+                }
+            }
+        }
+
+        // --- SETUP SCENE ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a1a); 
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 5000);
+        camera.position.set(0, 0, 120); 
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const orbit = new OrbitControls(camera, renderer.domElement);
+        orbit.enableDamping = true;
+        orbit.dampingFactor = 0.12;
+        orbit.zoomSpeed = 0.02;
+        orbit.minDistance = 5;
+        orbit.maxDistance = 1800;
+
+        orbit.addEventListener('change', () => {
+            const zEl = document.getElementById('debug-cam-z');
+            if(zEl) zEl.innerText = camera.position.z.toFixed(0);
+        });
+
+        // LUZES
+        const ambLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambLight);
+        
+        const dirLight = new THREE.DirectionalLight(0xffffff, 2.0);
+        dirLight.position.set(10, 20, 30);
+        scene.add(dirLight);
+
+        const camLight = new THREE.PointLight(0xffffff, 150, 100);
+        scene.add(camLight);
+
+        // PROBE
+        const probeSize = 12.0; 
+        const probeGroup = new THREE.Group();
+        const probeMesh = new THREE.Mesh(
+            new THREE.BoxGeometry(probeSize, probeSize, probeSize),
+            new THREE.MeshStandardMaterial({ color: 0xff0022, transparent: true, opacity: 0.2, emissive: 0xff0000 })
+        );
+        probeGroup.add(probeMesh);
+        const line = new THREE.LineSegments(new THREE.EdgesGeometry(probeMesh.geometry), new THREE.LineBasicMaterial({ color: 0xff3344 }));
+        probeGroup.add(line);
+        scene.add(probeGroup);
+
+        const imageBoard = new VoxelImageBoard(scene);
+        const probeInv = new THREE.Matrix4();
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let isShiftDown = false;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            camLight.position.copy(camera.position);
+            
+            probeGroup.rotation.y += 0.015;
+            probeGroup.rotation.x += 0.01;
+            probeGroup.updateMatrixWorld();
+            probeInv.copy(probeGroup.matrixWorld).invert();
+            
+            if(imageBoard.active) imageBoard.update(probeGroup, probeInv, probeSize / 2);
+            orbit.update();
+            renderer.render(scene, camera);
+        }
+
+        // --- HANDLERS ---
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn, .tab-content').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+            const target = document.getElementById(btn.dataset.tab);
+            if(target) target.classList.add('active');
+        }));
+
+        const safeLoad = (url) => { 
+            imageBoard.load(url).catch(e => console.error("Falha silenciosa no carregamento:", e));
+        };
+
+        document.getElementById('btn-load-img').onclick = () => safeLoad(document.getElementById('img-url').value);
+        document.getElementById('btn-test-base64').onclick = () => safeLoad(BASE64_IMAGE);
+        
+        document.getElementById('btn-toggle-frame').onclick = function() {
+            const isFrameMode = imageBoard.toggleFrameMode();
+            this.style.background = isFrameMode ? 'rgba(66,133,244,0.3)' : 'rgba(66,133,244,0.1)';
+            this.textContent = isFrameMode ? '🖼️ Modo Frame (ATIVO)' : '🖼️ Modo Frame (Híbrido)';
+        };
+        
+        document.getElementById('range-size').oninput = (e) => {
+            imageBoard.baseSize = parseFloat(e.target.value);
+            if(imageBoard.cachedTexture) {
+                imageBoard.calculateResolution(imageBoard.baseResolution);
+                imageBoard.process();
+            }
+        };
+
+        document.querySelectorAll('.res-btn').forEach(btn => btn.addEventListener('click', () => {
+            document.querySelectorAll('.res-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const res = btn.dataset.res === 'original' ? 'original' : parseInt(btn.dataset.res);
+            imageBoard.setResolution(res);
+        }));
+
+        window.addEventListener('keydown', (e) => { if(e.key === 'Shift') { isShiftDown = true; orbit.enabled = false; document.body.style.cursor = 'crosshair'; }});
+        window.addEventListener('keyup', (e) => { if(e.key === 'Shift') { isShiftDown = false; orbit.enabled = true; document.body.style.cursor = 'default'; }});
+        
+        window.addEventListener('mousemove', (e) => {
+            if(!isShiftDown) return;
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            const target = new THREE.Vector3();
+            raycaster.ray.at(120, target);
+            probeGroup.position.lerp(target, 0.2); 
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // START
+        safeLoad("/img/foto-perfil.jpg");
+        animate();
+    </script>
+</body>
+</html>

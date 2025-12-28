@@ -1,6 +1,6 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
-import Image from 'next/image';
+import { OptimizedImage } from '@/components/commons/OptimizedImage';
 import { trackEvent } from '@/lib/analytics';
 import { TextMotion } from '@/components/ui/TextMotion';
 import aboutData from '../../../content/home/about.json';
@@ -10,24 +10,23 @@ export const AboutSection = () => {
 
   return (
     <section id="about" className="relative bg-black overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white/3 rounded-full blur-[150px]" />
-      </div>
+      {/* Pure black background - no gradients or effects */}
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           
           {/* Left: Image */}
           <div className="order-2 lg:order-1">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-white/5 rounded-3xl blur-2xl group-hover:bg-white/10 transition-all duration-500" />
-              <div className="relative aspect-square rounded-3xl overflow-hidden border border-white/10">
-                <Image
+            <div className="relative max-w-sm mx-auto lg:mx-0">
+              {/* Removed glow and blur effects */}
+              <div className="relative aspect-[3/4] overflow-hidden">
+                <OptimizedImage
                   src={aboutData.about.photo.url}
                   alt={aboutData.about.photo.alt}
                   fill
-                  className="object-cover transform group-hover:scale-105 transition-transform duration-700"
+                  className="object-contain"
+                  cubeFrame={true}
+                  enableFlip={true}
                 />
               </div>
             </div>

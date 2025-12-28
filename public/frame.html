@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quadro 3D Voxel - Minecraft Style</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background-color: #0a0a0a;
+            overflow: hidden; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+
+        #ui-overlay {
+            position: absolute;
+            top: 1rem;
+            left: 0;
+            width: 100%;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .pill {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            padding: 0.5rem 1.5rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 300;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        button {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        button.active {
+            background: rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.6);
+        }
+
+        #loader {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(4px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            transition: opacity 0.5s ease;
+        }
+
+        .spinner {
+            width: 3rem;
+            height: 3rem;
+            border: 4px solid #3b82f6;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .loader-text {
+            color: white;
+            font-family: monospace;
+            font-size: 1.125rem;
+            font-weight: bold;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #stats {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            pointer-events: none;
+        }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <div id="ui-overlay">
+        <div class="pill">Arraste para girar • Scroll para zoom</div>
+    </div>
+
+    <div id="controls">
+        <button class="res-btn" data-res="16">16px</button>
+        <button class="res-btn active" data-res="32">32px</button>
+        <button class="res-btn" data-res="48">48px</button>
+        <button class="res-btn" data-res="64">64px</button>
+        <button class="res-btn" data-res="96">96px</button>
+        <button class="res-btn" data-res="128">128px</button>
+        <button class="res-btn" data-res="original" style="border-color: rgba(59, 130, 246, 0.6);">Original</button>
+    </div>
+
+    <div id="stats">
+        VOXELS: <span id="voxel-count">0</span><br>
+        RES: <span id="resolution">32x32</span><br>
+        RATIO: <span id="aspect-ratio">1:1</span>
+    </div>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <div class="loader-text">Voxelizando imagem...</div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // --- CONFIG ---
+        const IMG_URL = "/img/foto-perfil.jpg";
+        const container = document.getElementById('canvas-container');
+        const loaderEl = document.getElementById('loader');
+        
+        let currentResolution = 32;
+        const FRAME_SIZE = 20; // Tamanho do quadro em unidades 3D
+
+        // --- SCENE SETUP ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a0a0a);
+        
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 5, 45);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+        container.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.minDistance = 15;
+        controls.maxDistance = 80;
+
+        // --- LIGHTING (Studio Setup) ---
+        const ambLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambLight);
+        
+        const dirLight = new THREE.DirectionalLight(0xffffff, 2.0);
+        dirLight.position.set(10, 20, 30);
+        scene.add(dirLight);
+
+        const camLight = new THREE.PointLight(0xffffff, 150, 100);
+        scene.add(camLight);
+
+        console.log('%c[SCENE] %cSetup completo com iluminação tipo estúdio', 'color: #00ff88; font-weight: bold;', 'color: #fff;');
+
+        // --- VOXEL CLASS ---
+        class VoxelPortrait {
+            constructor(scene) {
+                this.scene = scene;
+                this.baseResolution = 32;
+                this.resolutionX = 32;
+                this.resolutionY = 32;
+                this.size = FRAME_SIZE;
+                this.group = null;
+                this.cachedTexture = null;
+                this.originalWidth = 0;
+                this.originalHeight = 0;
+                this.geometry = new THREE.BoxGeometry(1, 1, 1);
+                
+                console.log('%c[VOXEL] %cClasse inicializada', 'color: #4285f4; font-weight: bold;', 'color: #fff;');
+            }
+
+            async load(url) {
+                console.log('%c[LOAD] %cCarregando textura...', 'color: #4285f4; font-weight: bold;', 'color: #fff;');
+                
+                return new Promise((resolve, reject) => {
+                    const loader = new THREE.TextureLoader();
+                    loader.setCrossOrigin('anonymous');
+                    
+                    loader.load(
+                        url,
+                        (texture) => {
+                            texture.colorSpace = THREE.SRGBColorSpace;
+                            this.cachedTexture = texture;
+                            this.originalWidth = texture.image.width;
+                            this.originalHeight = texture.image.height;
+                            
+                            console.log('%c[TEXTURE] %cSucesso!', 'color: #00ff88; font-weight: bold;', 'color: #fff;', {
+                                width: this.originalWidth,
+                                height: this.originalHeight,
+                                aspectRatio: (this.originalWidth / this.originalHeight).toFixed(3)
+                            });
+                            
+                            this.calculateResolution(this.baseResolution);
+                            this.voxelize();
+                            resolve();
+                        },
+                        undefined,
+                        (err) => {
+                            console.error('%c[ERROR] %cFalha ao carregar', 'color: #ff0055; font-weight: bold;', 'color: #fff;', err);
+                            reject(err);
+                        }
+                    );
+                });
+            }
+
+            calculateResolution(targetRes) {
+                if (targetRes === 'original') {
+                    // Modo original: usar dimensões reais mas limitadas a 256px max
+                    const maxDim = 256;
+                    const aspect = this.originalWidth / this.originalHeight;
+                    
+                    if (this.originalWidth > this.originalHeight) {
+                        this.resolutionX = Math.min(this.originalWidth, maxDim);
+                        this.resolutionY = Math.round(this.resolutionX / aspect);
+                    } else {
+                        this.resolutionY = Math.min(this.originalHeight, maxDim);
+                        this.resolutionX = Math.round(this.resolutionY * aspect);
+                    }
+                } else {
+                    // Preservar aspect ratio baseado na resolução alvo
+                    const aspect = this.originalWidth / this.originalHeight;
+                    
+                    if (aspect > 1) {
+                        // Landscape
+                        this.resolutionX = targetRes;
+                        this.resolutionY = Math.round(targetRes / aspect);
+                    } else {
+                        // Portrait
+                        this.resolutionY = targetRes;
+                        this.resolutionX = Math.round(targetRes * aspect);
+                    }
+                }
+                
+                console.log('%c[RESOLUTION] %cCalculada:', 'color: #4285f4; font-weight: bold;', 'color: #fff;', {
+                    x: this.resolutionX,
+                    y: this.resolutionY,
+                    total: this.resolutionX * this.resolutionY
+                });
+            }
+
+            voxelize() {
+                // Extrair pixels da textura
+                const img = this.cachedTexture.image;
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                
+                canvas.width = this.resolutionX;
+                canvas.height = this.resolutionY;
+                ctx.drawImage(img, 0, 0, this.resolutionX, this.resolutionY);
+                
+                const imageData = ctx.getImageData(0, 0, this.resolutionX, this.resolutionY);
+                const pixels = imageData.data;
+                
+                console.log('%c[PIXELS] %cExtraídos:', 'color: #4285f4; font-weight: bold;', 'color: #fff;', {
+                    resolution: `${this.resolutionX}x${this.resolutionY}`,
+                    totalPixels: this.resolutionX * this.resolutionY,
+                    firstPixel: `RGB(${pixels[0]},${pixels[1]},${pixels[2]})`
+                });
+                
+                this.buildVoxels(pixels);
+            }
+
+            buildVoxels(pixels) {
+                if (this.group) this.scene.remove(this.group);
+
+                this.group = new THREE.Group();
+                const count = this.resolutionX * this.resolutionY;
+                
+                // Calcular tamanho dos voxels preservando aspect ratio
+                const aspect = this.resolutionX / this.resolutionY;
+                let width, height;
+                
+                if (aspect > 1) {
+                    width = this.size;
+                    height = this.size / aspect;
+                } else {
+                    height = this.size;
+                    width = this.size * aspect;
+                }
+                
+                const stepX = width / this.resolutionX;
+                const stepY = height / this.resolutionY;
+                const offsetX = width / 2;
+                const offsetY = height / 2;
+                const voxelSize = Math.min(stepX, stepY) * 0.95;
+
+                console.log('%c[BUILD] %cCriando voxels individuais...', 'color: #ffaa00; font-weight: bold;', 'color: #fff;', {
+                    count,
+                    width: width.toFixed(2),
+                    height: height.toFixed(2),
+                    voxelSize: voxelSize.toFixed(3)
+                });
+
+                for (let i = 0; i < count; i++) {
+                    const x = i % this.resolutionX;
+                    const y = Math.floor(i / this.resolutionX);
+                    
+                    // Cor do pixel
+                    const idx = i * 4;
+                    const r = pixels[idx];
+                    const g = pixels[idx + 1];
+                    const b = pixels[idx + 2];
+                    
+                    // Criar material com cor sólida para este voxel
+                    const color = new THREE.Color(`rgb(${r}, ${g}, ${b})`);
+                    const material = new THREE.MeshStandardMaterial({
+                        color: color,
+                        roughness: 0.3,
+                        metalness: 0.1,
+                        emissive: color,
+                        emissiveIntensity: 0.05
+                    });
+                    
+                    // Criar mesh individual
+                    const mesh = new THREE.Mesh(this.geometry, material);
+                    
+                    // Posição
+                    mesh.position.set(
+                        x * stepX - offsetX + stepX/2,
+                        (this.resolutionY - y - 1) * stepY - offsetY + stepY/2,
+                        0
+                    );
+                    
+                    // Escala
+                    mesh.scale.set(voxelSize, voxelSize, voxelSize);
+                    
+                    this.group.add(mesh);
+                }
+
+                this.scene.add(this.group);
+                
+                console.log('%c[BUILD] %cVoxels criados!', 'color: #00ff88; font-weight: bold;', 'color: #fff;');
+                
+                // Atualizar UI
+                document.getElementById('voxel-count').innerText = count.toLocaleString();
+                document.getElementById('resolution').innerText = `${this.resolutionX}x${this.resolutionY}`;
+                document.getElementById('aspect-ratio').innerText = `${this.originalWidth}:${this.originalHeight}`;
+            }
+
+            setResolution(res) {
+                this.baseResolution = res;
+                if (this.cachedTexture) {
+                    this.calculateResolution(res);
+                    this.voxelize();
+                }
+            }
+        }
+
+        // --- INIT ---
+        const voxelPortrait = new VoxelPortrait(scene);
+
+        voxelPortrait.load(IMG_URL).then(() => {
+            loaderEl.classList.add('fade-out');
+            setTimeout(() => {
+                loaderEl.style.display = 'none';
+            }, 500);
+        }).catch((err) => {
+            console.error('Erro fatal:', err);
+            loaderEl.querySelector('.loader-text').innerText = 'Erro ao carregar imagem';
+        });
+
+        // --- CONTROLS ---
+        document.querySelectorAll('.res-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.res-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const res = btn.dataset.res === 'original' ? 'original' : parseInt(btn.dataset.res);
+                currentResolution = res;
+                voxelPortrait.setResolution(res);
+            });
+        });
+
+        // --- ANIMATION LOOP ---
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const elapsedTime = clock.getElapsedTime();
+            
+            // Atualizar luz da câmera
+            camLight.position.copy(camera.position);
+            
+            // Rotação suave automática
+            if (voxelPortrait.group) {
+                voxelPortrait.group.rotation.y = Math.sin(elapsedTime * 0.15) * 0.15;
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // --- RESIZE ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+    </script>
+</body>
+</html>

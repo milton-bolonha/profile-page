@@ -11,15 +11,16 @@ export const Inicio = () => {
   const { badge, photo } = heroData.hero;
 
   return (
-    <section id="hero" className="relative bg-black overflow-hidden min-h-screen w-full flex items-center">
+    <section id="hero" className="relative bg-black min-h-screen w-full flex items-center">
       {/* Background Ambience */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/3 w-[600px] h-[600px] bg-white/3 rounded-full blur-[150px]" />
         <div className="absolute bottom-1/4 right-1/3 w-[500px] h-[500px] bg-white/3 rounded-full blur-[120px]" />
-      </div>
+      </div> */}
 
       {/* Grid Pattern Sutil */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]" />
+      {/* <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]" /> */}
+      <div className="absolute inset-0" />
 
       <div className="max-w-7xl mx-auto px-6 w-full z-10">
         <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-20 items-center">
@@ -94,17 +95,19 @@ export const Inicio = () => {
           <div className="flex justify-center lg:justify-end order-1 lg:order-2">
             <div className="relative group w-full max-w-md">
               {/* Glow effect */}
-              <div className="absolute -inset-4 bg-white/5 rounded-2xl blur-3xl group-hover:bg-white/10 transition-all duration-500" />
+              {/* <div className="absolute -inset-4 bg-white/5 rounded-2xl blur-3xl group-hover:bg-white/10 transition-all duration-500" /> */}
+              <div className="absolute -inset-4" />
               
               {/* Image container - RETANGULAR */}
-              <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-white/10">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
+              <div className="relative aspect-[3/4]">
+                <div className="absolute inset-0" />
                 <OptimizedImage
                   src={photo.url}
                   alt={photo.alt}
                   fill
-                  className="object-cover transform group-hover:scale-105 transition-transform duration-700"
+                  className="object-cover"
                   priority
+                  cubeFrame={true}
                 />
               </div>
             </div>

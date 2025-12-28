@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISS Soft Cell - Ultra Late Physics</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #050505; font-family: 'Courier New', Courier, monospace; }
+        #canvas-container { width: 100vw; height: 100vh; }
+        
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            pointer-events: none;
+            max-width: 450px;
+            background: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+            padding: 20px;
+            border-left: 2px solid #00ff88;
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fff;
+        }
+
+        .tag-hollow { display: inline-block; background: rgba(0, 255, 136, 0.2); padding: 2px 6px; border-radius: 3px; color: #00ff88; font-size: 0.7rem; }
+        .tag-solid { display: inline-block; background: rgba(0, 255, 255, 0.2); padding: 2px 6px; border-radius: 3px; color: #00ffff; font-size: 0.7rem; }
+        .tag-off { display: inline-block; background: #333; padding: 2px 6px; border-radius: 3px; color: #888; font-size: 0.7rem; margin-right: 5px;}
+
+        #controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        button {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 12px 24px;
+            border-radius: 0;
+            cursor: pointer;
+            font-family: inherit;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: #00ff88;
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+        }
+        
+        button.secondary {
+            border-color: #555;
+            color: #aaa;
+        }
+        button.secondary.active {
+            border-color: #00ffff;
+            color: #00ffff;
+            background: rgba(0, 255, 255, 0.1);
+        }
+
+        #stats-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            text-align: right;
+            font-size: 0.8rem;
+            color: #aaa;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 4px;
+        }
+        
+        .stat-val { font-weight: bold; }
+        .col-hollow { color: #00ff88; }
+        .col-solid { color: #00ffff; }
+
+        .hint {
+            position: absolute;
+            bottom: 100px;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            font-size: 0.9rem;
+            pointer-events: none;
+            text-shadow: 0 2px 4px black;
+        }
+        
+        kbd {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #555;
+            font-family: monospace;
+        }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <div id="ui">
+        <h1>Soft Cell: Ultra Late</h1>
+        <p>Transição Ultra-Tardia e Amortecida.</p>
+        <div>
+            <span class="tag-off" id="tag-solid">SÓLIDA (OFF)</span>
+            <span class="tag-hollow">OCA (Ativa)</span>
+        </div>
+        <div style="margin-top:10px; font-size: 0.8em; color: #ccc;">
+            - Ativação de tensão em 98% (Transição extrema).<br>
+            - Conservação de massa via compensação centrípeta.<br>
+            - Bug de zoom desativado via frustumCulled.
+        </div>
+    </div>
+
+    <div id="stats-panel">
+        VOXELS ATIVOS<br>
+        -----------------<br>
+        OCA: <span id="count-hollow" class="stat-val col-hollow">0</span><br>
+        SÓLIDA: <span id="count-solid" class="stat-val col-solid">0</span><br>
+        -----------------<br>
+    </div>
+    
+    <div class="hint">Segure <kbd>SHIFT</kbd> para mover o Cubo Vermelho | Zoom liberado</div>
+
+    <div id="controls">
+        <button id="btn-add">Encher (+)</button>
+        <button id="btn-reset">Resetar</button>
+        <button id="btn-toggle-solid" class="secondary">👁️ Ver Sólido</button>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // --- Configuration ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x050505);
+        scene.fog = new THREE.FogExp2(0x050505, 0.015);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.05, 100);
+        camera.position.set(0, 8, 20);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.minDistance = 0.1; // Allow very close zoom
+        controls.maxDistance = 50;
+
+        // --- Lighting ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
+        scene.add(ambientLight);
+
+        const light = new THREE.DirectionalLight(0xffffff, 1.5);
+        light.position.set(0, 10, 5);
+        scene.add(light);
+
+        const lightHollow = new THREE.PointLight(0x00ff88, 3, 15);
+        lightHollow.position.set(4, 3, 3);
+        scene.add(lightHollow);
+        
+        const lightSolid = new THREE.PointLight(0x00ffff, 0, 15);
+        lightSolid.position.set(-4, 3, 3);
+        scene.add(lightSolid);
+
+        // --- Skeletons ---
+        const wireframeSize = 2.4; 
+        const edgesGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(wireframeSize, wireframeSize, wireframeSize));
+        const wireframeMat = new THREE.LineBasicMaterial({ color: 0x444444 });
+        
+        const wireHollow = new THREE.LineSegments(edgesGeo, wireframeMat);
+        wireHollow.position.x = 3.5;
+        scene.add(wireHollow);
+
+        const wireSolid = new THREE.LineSegments(edgesGeo, wireframeMat);
+        wireSolid.position.x = -3.5;
+        wireSolid.visible = false;
+        scene.add(wireSolid);
+
+        const nodeGeo = new THREE.BoxGeometry(0.15, 0.15, 0.15);
+        const nodeMat = new THREE.MeshStandardMaterial({ color: 0x666666 });
+        
+        function createNodes(offsetX, parent) {
+            [
+                [1,1,1], [1,1,-1], [1,-1,1], [1,-1,-1],
+                [-1,1,1], [-1,1,-1], [-1,-1,1], [-1,-1,-1]
+            ].forEach(v => {
+                const m = new THREE.Mesh(nodeGeo, nodeMat);
+                m.position.set(v[0]*wireframeSize/2 + offsetX, v[1]*wireframeSize/2, v[2]*wireframeSize/2);
+                parent.add(m);
+            });
+        }
+        const nodesHollow = new THREE.Group();
+        const nodesSolid = new THREE.Group();
+        createNodes(3.5, nodesHollow);
+        createNodes(-3.5, nodesSolid);
+        nodesSolid.visible = false;
+        scene.add(nodesHollow);
+        scene.add(nodesSolid);
+
+        // --- PROBE ---
+        const probeSize = 0.8; 
+        const probeGeo = new THREE.BoxGeometry(probeSize, probeSize, probeSize);
+        const probeMat = new THREE.MeshStandardMaterial({ 
+            color: 0xff0055, roughness: 0.4, transparent: true, opacity: 0.6 
+        });
+        const probe = new THREE.Mesh(probeGeo, probeMat);
+        probe.add(new THREE.LineSegments(new THREE.EdgesGeometry(probeGeo), new THREE.LineBasicMaterial({ color: 0xffaaaa })));
+        probe.position.x = 3.5;
+        scene.add(probe);
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0); 
+        const planeIntersect = new THREE.Vector3();
+        let isShiftDown = false;
+
+        // --- VOXEL SYSTEM ---
+        const SIM_SIZE = 3.8;
+        const GRID_RES = 32; 
+        const TOTAL_VOXELS_PER_CELL = GRID_RES * GRID_RES * GRID_RES;
+        const VOXEL_SIZE = SIM_SIZE / GRID_RES; 
+        const BLOCK_RENDER_SIZE = VOXEL_SIZE * 0.94; 
+
+        const geometry = new THREE.BoxGeometry(BLOCK_RENDER_SIZE, BLOCK_RENDER_SIZE, BLOCK_RENDER_SIZE);
+        
+        const meshSolid = new THREE.InstancedMesh(geometry, new THREE.MeshStandardMaterial({ color: 0x00ffff, roughness: 0.1, metalness: 0.2, transparent: true, opacity: 0.5 }), TOTAL_VOXELS_PER_CELL);
+        meshSolid.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        meshSolid.visible = false; 
+        meshSolid.frustumCulled = false; // Zoom bug fix
+        scene.add(meshSolid);
+
+        const meshHollow = new THREE.InstancedMesh(geometry, new THREE.MeshStandardMaterial({ color: 0x00ff88, roughness: 0.1, metalness: 0.2, transparent: true, opacity: 0.9 }), TOTAL_VOXELS_PER_CELL);
+        meshHollow.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        meshHollow.frustumCulled = false; // Zoom bug fix
+        scene.add(meshHollow);
+
+        const gridLocalPositions = [];
+        const voxelVelocities = new Float32Array(TOTAL_VOXELS_PER_CELL * 3 * 2); 
+        const offset = SIM_SIZE / 2;
+        
+        for(let x=0; x<GRID_RES; x++) {
+            for(let y=0; y<GRID_RES; y++) {
+                for(let z=0; z<GRID_RES; z++) {
+                    const px = (x / GRID_RES) * SIM_SIZE - offset + VOXEL_SIZE/2;
+                    const py = (y / GRID_RES) * SIM_SIZE - offset + VOXEL_SIZE/2;
+                    const pz = (z / GRID_RES) * SIM_SIZE - offset + VOXEL_SIZE/2;
+                    gridLocalPositions.push(new THREE.Vector3(px, py, pz));
+                }
+            }
+        }
+
+        const state = {
+            volume: 0.05,
+            targetVolume: 0.05,
+            time: 0,
+            showSolid: false
+        };
+
+        const dummy = new THREE.Object3D();
+        const tempVec = new THREE.Vector3();
+        const probeInvMatrix = new THREE.Matrix4();
+        const probeHalfSize = (probeSize / 2) + 0.05; 
+
+        // --- SDF PHYSICS: ULTRA LATE TRANSITION ---
+        function evaluateField(pos, vol, time) {
+            const halfSize = wireframeSize / 2;
+            const ax = Math.abs(pos.x);
+            const ay = Math.abs(pos.y);
+            const az = Math.abs(pos.z);
+            
+            // 1. Core Sphere
+            const theoreticalRadius = vol * (halfSize * 1.45); 
+            const reach = theoreticalRadius / halfSize;
+            
+            // 2. ULTRA LATE ACTIVATION (ANTI-SPLASH)
+            // Activation threshold pushed to 0.98
+            let tension = 0;
+            const activationStart = 0.98;
+            const activationRange = 0.3; 
+            
+            if (reach > activationStart) {
+                // Higher order curve (x^5) for an even gentler onset
+                let t = (reach - activationStart) / activationRange;
+                t = Math.min(1, Math.max(0, t));
+                tension = Math.pow(t, 5); 
+            }
+            
+            const overflow = Math.max(0, vol - 1.1);
+            const tensionDecay = Math.max(0, 1.0 - overflow * 0.7);
+            const effectiveTension = tension * tensionDecay;
+
+            // 3. SYNCHRONIZED MASS CONSERVATION
+            // Centripetal reduction only triggers when expansion starts
+            const massCorrection = effectiveTension * 0.12;
+            const baseRadius = theoreticalRadius * (1.0 - massCorrection);
+
+            let d = baseRadius - pos.length();
+
+            // Edge proximity calculation
+            const nx = Math.min(1, ax / halfSize);
+            const ny = Math.min(1, ay / halfSize);
+            const nz = Math.min(1, az / halfSize);
+            const edgeProx = (nx * ny) + (nx * nz) + (ny * nz);
+            
+            // Subtle force attenuator
+            const forceAttenuator = 0.12;
+
+            if (effectiveTension > 0) {
+                // Add volume only where adhesion acts
+                d += edgeProx * forceAttenuator * effectiveTension;
+            }
+
+            // 4. Elastic Membrane Logic
+            const boxDist = Math.max(ax, ay, az) - halfSize;
+            
+            if (boxDist > 0) {
+                // Elastic resistance for overflow
+                const membraneStiffness = Math.max(0.1, 10.0 / (vol * vol * 2.0 + 0.1));
+                d -= boxDist * membraneStiffness;
+            } else {
+                // Negative suction (Active only when tension is high)
+                if (effectiveTension > 0.1 && vol < 1.08) {
+                    const faceSuck = (1.0 - edgeProx * 0.6) * (1.08 - vol); 
+                    d -= faceSuck * 0.3 * effectiveTension;
+                    
+                    // Topology surface protection (Smart Shell)
+                    if (d < 0.12 && vol > 0.2) {
+                        if (edgeProx < 0.5) d = Math.max(0.08, d); 
+                    }
+                }
+            }
+
+            // Subtle surface jitter
+            const noise = Math.sin(pos.x * 3 + time) * Math.cos(pos.y * 3 + time) * Math.sin(pos.z * 3);
+            if (d > -0.15 && d < 0.15) {
+                d += noise * 0.08;
+            }
+            
+            return d;
+        }
+
+        function updateSimulation() {
+            state.volume += (state.targetVolume - state.volume) * 0.02; 
+            state.time += 0.02;
+            
+            probe.updateMatrixWorld();
+            probeInvMatrix.copy(probe.matrixWorld).invert();
+
+            const vol = state.volume;
+            let countSolid = 0;
+            let countHollow = 0;
+
+            const centerHollow = new THREE.Vector3(3.5, 0, 0);
+            const centerSolid = new THREE.Vector3(-3.5, 0, 0); 
+            const shellThickness = 0.7; 
+
+            const total = GRID_RES * GRID_RES * GRID_RES;
+            const resSq = GRID_RES * GRID_RES;
+
+            for (let i = 0; i < total; i++) {
+                const ix = Math.floor(i / resSq);
+                const rem = i % resSq;
+                const iy = Math.floor(rem / GRID_RES);
+                const iz = rem % GRID_RES;
+
+                const localPosOrigin = gridLocalPositions[i];
+                const density = evaluateField(localPosOrigin, vol, state.time);
+                
+                if (density > 0) {
+                    if (state.showSolid) {
+                        const idxS = i * 3;
+                        processVoxel(centerSolid, localPosOrigin, idxS, density, meshSolid, countSolid++, false);
+                    }
+
+                    const isGridBorder = (ix === 0 || ix === GRID_RES-1 || 
+                                          iy === 0 || iy === GRID_RES-1 || 
+                                          iz === 0 || iz === GRID_RES-1);
+
+                    if (density < shellThickness || isGridBorder || density <= 0.14) {
+                        const idxH = (total + i) * 3;
+                        processVoxel(centerHollow, localPosOrigin, idxH, density, meshHollow, countHollow++, true);
+                    } else {
+                        const idxH = (total + i) * 3;
+                        voxelVelocities[idxH] = 0; voxelVelocities[idxH+1] = 0; voxelVelocities[idxH+2] = 0;
+                    }
+                } else {
+                    const idxS = i * 3;
+                    voxelVelocities[idxS] = 0; voxelVelocities[idxS+1] = 0; voxelVelocities[idxS+2] = 0;
+                    const idxH = (total + i) * 3;
+                    voxelVelocities[idxH] = 0; voxelVelocities[idxH+1] = 0; voxelVelocities[idxH+2] = 0;
+                }
+            }
+
+            if (state.showSolid) {
+                meshSolid.count = countSolid;
+                meshSolid.instanceMatrix.needsUpdate = true;
+            }
+            meshHollow.count = countHollow;
+            meshHollow.instanceMatrix.needsUpdate = true;
+
+            document.getElementById('count-hollow').innerText = countHollow;
+            document.getElementById('count-solid').innerText = state.showSolid ? countSolid : 0;
+        }
+
+        function processVoxel(centerPos, localPosOrigin, velocityIdx, density, mesh, instanceIndex, isHollow) {
+            tempVec.copy(centerPos).add(localPosOrigin);
+
+            tempVec.x += voxelVelocities[velocityIdx];
+            tempVec.y += voxelVelocities[velocityIdx+1];
+            tempVec.z += voxelVelocities[velocityIdx+2];
+
+            const posInProbe = tempVec.clone().applyMatrix4(probeInvMatrix);
+            if (Math.abs(posInProbe.x) < probeHalfSize && 
+                Math.abs(posInProbe.y) < probeHalfSize && 
+                Math.abs(posInProbe.z) < probeHalfSize) {
+                
+                const dx = probeHalfSize - Math.abs(posInProbe.x);
+                const dy = probeHalfSize - Math.abs(posInProbe.y);
+                const dz = probeHalfSize - Math.abs(posInProbe.z);
+                
+                let pushDirLocal = new THREE.Vector3();
+                let penetration = 0;
+                
+                if (dx < dy && dx < dz) {
+                    pushDirLocal.set(Math.sign(posInProbe.x), 0, 0); penetration = dx;
+                } else if (dy < dz) {
+                    pushDirLocal.set(0, Math.sign(posInProbe.y), 0); penetration = dy;
+                } else {
+                    pushDirLocal.set(0, 0, Math.sign(posInProbe.z)); penetration = dz;
+                }
+                
+                const pushDirWorld = pushDirLocal.transformDirection(probe.matrixWorld);
+                const force = penetration * 0.45;
+                
+                voxelVelocities[velocityIdx] += pushDirWorld.x * force;
+                voxelVelocities[velocityIdx+1] += pushDirWorld.y * force;
+                voxelVelocities[velocityIdx+2] += pushDirWorld.z * force;
+                
+                tempVec.addScaledVector(pushDirWorld, penetration);
+            }
+
+            // Damping and spring back
+            voxelVelocities[velocityIdx] *= 0.88;
+            voxelVelocities[velocityIdx+1] *= 0.88;
+            voxelVelocities[velocityIdx+2] *= 0.88;
+            
+            voxelVelocities[velocityIdx] -= voxelVelocities[velocityIdx] * 0.18;
+            voxelVelocities[velocityIdx+1] -= voxelVelocities[velocityIdx+1] * 0.18;
+            voxelVelocities[velocityIdx+2] -= voxelVelocities[velocityIdx+2] * 0.18;
+
+            dummy.position.copy(tempVec);
+            
+            let scale = 1.0;
+            if (density < 0.2) scale = density * 5.0;
+            if (scale > 1) scale = 1;
+            if (scale < 0.1) scale = 0.1;
+
+            dummy.scale.setScalar(scale);
+            dummy.updateMatrix();
+            mesh.setMatrixAt(instanceIndex, dummy.matrix);
+        }
+
+        // --- Interaction Handlers ---
+        window.addEventListener('keydown', (e) => {
+            if(e.key === 'Shift') {
+                isShiftDown = true;
+                controls.enabled = false; 
+                document.body.style.cursor = 'crosshair';
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if(e.key === 'Shift') {
+                isShiftDown = false;
+                controls.enabled = true; 
+                document.body.style.cursor = 'default';
+            }
+        });
+
+        window.addEventListener('mousemove', (event) => {
+            if (!isShiftDown) return; 
+
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            raycaster.setFromCamera(mouse, camera);
+            camera.getWorldDirection(plane.normal); 
+            raycaster.ray.intersectPlane(plane, planeIntersect);
+            
+            if (planeIntersect) {
+                probe.position.lerp(planeIntersect, 0.25);
+            }
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            updateSimulation();
+            controls.update();
+            probe.rotation.x += 0.01;
+            probe.rotation.y += 0.015;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        const btnAdd = document.getElementById('btn-add');
+        let addInterval;
+        const startAdd = () => { addInterval = setInterval(() => state.targetVolume += 0.008, 40); };
+        const stopAdd = () => clearInterval(addInterval);
+        
+        btnAdd.addEventListener('mousedown', startAdd);
+        btnAdd.addEventListener('mouseup', stopAdd);
+        btnAdd.addEventListener('mouseleave', stopAdd);
+        btnAdd.addEventListener('touchstart', (e) => { e.preventDefault(); startAdd(); });
+        btnAdd.addEventListener('touchend', stopAdd);
+
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            state.targetVolume = 0.05;
+        });
+
+        const btnToggle = document.getElementById('btn-toggle-solid');
+        btnToggle.addEventListener('click', () => {
+            state.showSolid = !state.showSolid;
+            meshSolid.visible = state.showSolid;
+            wireSolid.visible = state.showSolid;
+            nodesSolid.visible = state.showSolid;
+            lightSolid.intensity = state.showSolid ? 3 : 0;
+            btnToggle.classList.toggle('active');
+            const tagSolid = document.getElementById('tag-solid');
+            tagSolid.innerText = state.showSolid ? "SÓLIDA (ON)" : "SÓLIDA (OFF)";
+            tagSolid.className = state.showSolid ? "tag-solid" : "tag-off";
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

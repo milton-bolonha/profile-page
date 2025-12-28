@@ -2,6 +2,7 @@ import { GetStaticProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
+import { OptimizedImage } from "@/components/commons/OptimizedImage";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getBusinessSettings, getGeneralSettings } from "@/lib/settings";
 import { PageSection } from "@/components/commons/PageSection";
@@ -58,13 +59,16 @@ const Sobre = ({ businessSettings, generalSettings }: SobreProps) => {
 
               <div className="flex flex-col lg:flex-row gap-12 items-start">
                 <div className="flex-shrink-0 flex flex-row sm:flex-col gap-4 sm:gap-8 justify-center lg:justify-start">
-                  <Image
-                    src="/img/perfil2.jpg"
-                    alt="Milton Bolonha"
-                    width={256}
-                    height={256}
-                    className="w-24 h-24 sm:w-48 sm:h-48 lg:w-64 lg:h-64 rounded-full object-cover shadow-2xl"
-                  />
+                  <div className="relative w-24 h-24 sm:w-48 sm:h-48 lg:w-64 lg:h-64 aspect-square">
+                    <OptimizedImage
+                      src="/img/perfil2.jpg"
+                      alt="Milton Bolonha"
+                      fill
+                      className="rounded-full object-cover shadow-2xl"
+                      cubeFrame={true}
+                      enableFlip={false}
+                    />
+                  </div>
                   <Image
                     src="/img/perfil3.jpg"
                     alt="Milton Bolonha working"
