@@ -6,7 +6,7 @@ export const TechStack = () => {
   const { t } = useLanguage();
 
   return (
-    <section id="tech" className="relative bg-black overflow-hidden">
+    <div className="relative bg-black w-full h-full">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-white/3 rounded-full blur-[120px]" />
       </div>
@@ -41,6 +41,6 @@ export const TechStack = () => {
           ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 };

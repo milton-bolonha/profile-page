@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaGamepad, FaCode, FaChalkboardTeacher, FaExpand } from "react-icons/fa";
+import { FaGamepad, FaCode, FaChalkboardTeacher, FaExpand, FaBriefcase } from "react-icons/fa";
 import { Inicio } from "@/components/Home/Inicio";
 import { AboutSection } from "@/components/Home/AboutSection";
 import { ServicesSection } from "@/components/Home/ServicesSection";
@@ -10,22 +10,28 @@ import NewTimelineSection from "@/components/Home/NewTimelineSection";
 import { NewStatsSection } from "@/components/Home/NewStatsSection";
 import { FAQSection } from "@/components/Home/FAQSection";
 import { CTASection } from "@/components/Home/CTASection";
+import ContactSection from "@/components/Home/ContactSection";
+import ExperienceShowcase from "@/components/Home/ExperienceShowcase";
+import TestimonialsSection from "@/components/Home/TestimonialsSection";
 import { AboutMe as TAboutMe } from "@/types/Home";
 import { GetStaticProps } from "next";
 import { getSortedPostsData } from "@/lib/posts";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getBusinessSettings, getGeneralSettings } from "@/lib/settings";
+import { getBusinessSettings, getGeneralSettings, getNavigatorSettings, getThemeSettings } from "@/lib/settings";
 import NeonFlightGame from "@/components/games/fly/components/NeonFlightGame";
 import BoilerplateGame from "@/components/games/fly/components/BoilerplateGame";
 import TheBeeBoilerplate from "@/components/games/TheBeeBoilerplate";
 import { ClientOnly } from "@/components/commons/ClientOnly";
 import MagneticButton from "@/components/ui/MagneticButton";
 import Seo from "@/components/commons/Seo";
+import FloatingNavigator from "@/components/commons/FloatingNavigator";
 // import FloatingBadge from "@/components/Home/FloatingBadge";
 import {
   ScrollContainer,
   SectionWrapper,
 } from "@/components/commons/SectionWrapper";
+import { SlideshowLayout } from "@/components/layouts/SlideshowLayout";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 import homeData from "../../public/home.json";
 
@@ -42,6 +48,8 @@ interface HomeProps {
   }>;
   businessSettings: any;
   generalSettings: any;
+  navigatorSettings: any;
+  themeSettings: any;
 }
 
 const HomeContent = ({
@@ -49,10 +57,34 @@ const HomeContent = ({
   allPostsData,
   businessSettings,
   generalSettings,
+  navigatorSettings,
+  themeSettings
 }: HomeProps) => {
   const { t } = useLanguage();
+  const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // Detecção de Mobile para forçar layout vertical
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const themeLayout = themeSettings?.generalThemeSettings?.layoutMode || 'vertical';
+  
+  // Se for mobile, força vertical. Se não, respeita o tema.
+  const layoutMode = isMobile ? 'vertical' : themeLayout;
 
-  // Loading state for elegant entrance
+  // Section IDs in order for slideshow mapping
+  const sections = [
+    'inicio',
+    'stats',
+    'o-que-faco',
+    'sobre',
+    'projetos',
+    'tecnologias',
+    'historia',
+    'showcase-demo',
+    'testimonials',
+    'faq',
+    'contato',
+    'cta'
+  ];
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -80,43 +112,6 @@ const HomeContent = ({
     topology: "page" as const,
   };
 
-  // Game & Slideshow Logic
-  const [activeTab, setActiveTab] = useState<'game' | 'web' | 'mentor'>('game');
-  const [isGameActive, setIsGameActive] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [isPageVisible, setIsPageVisible] = useState(true);
-
-  const slides = [
-    { bg: "/img/fly-1-a.jpg", fg: "/img/fly-1-b.jpg" },
-    { bg: "/img/fly-2-a.jpg", fg: "/img/fly-2-b.jpg" },
-    { bg: "/img/fly-3-a.jpg", fg: "/img/fly-3-b.jpg" },
-  ];
-
-  // Handle Page Visibility to prevent animation stacking
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      setIsPageVisible(document.visibilityState === 'visible');
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, []);
-
-  // Slideshow Interval (Pauses if game active or page hidden or tab not game)
-  useEffect(() => {
-    if (isGameActive || !isPageVisible || activeTab !== 'game') return;
-    
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [isGameActive, isPageVisible, activeTab]);
-
-  const tabs = [
-    { id: 'game', label: 'Game Dev', icon: FaGamepad },
-    { id: 'web', label: 'Web Dev', icon: FaCode },
-    { id: 'mentor', label: 'Mentor', icon: FaChalkboardTeacher },
-  ];
-
   return (
     <>
       <Seo data={seoData} />
@@ -133,228 +128,244 @@ const HomeContent = ({
           </div>
         )}
 
+        {/* Floating Navigator */}
+        <FloatingNavigator 
+          config={navigatorSettings} 
+          mode={layoutMode}
+          currentSlide={currentSlide}
+          onNavigate={(index) => setCurrentSlide(index)}
+          sections={sections}
+        />
+        
         <div
           className={`transition-opacity duration-1000 ${
             isLoaded ? "opacity-100" : "opacity-0"
           }`}
         >
+          <SlideshowLayout
+            mode={layoutMode}
+            currentSlide={currentSlide}
+            onSlideChange={setCurrentSlide}
+          >
+            {/* Hero Section */}
+            <SectionWrapper id="inicio" vPadding="py-0" fullHeight>
+              <Inicio />
+            </SectionWrapper>
+
+    {/* Neon Flight Game */}
+    {/* <SectionWrapper id="game" vPadding="py-0" fullHeight>
+         <ClientOnly>
+           <NeonFlightGame />
+         </ClientOnly>
+       </SectionWrapper> */}
+  
+    {/* TEMPORARY: Boilerplate Game */}
+    {/* <SectionWrapper id="boilerplate" vPadding="py-0" fullHeight>
+      <ClientOnly>
+        <BoilerplateGame />
+      </ClientOnly>
+    </SectionWrapper> */}
+  
+    {/* TEMPORARY: The Bee Boilerplate */}
+    {/* <SectionWrapper id="bee-boilerplate" vPadding="py-0" fullHeight>
+      <ClientOnly>
+        <TheBeeBoilerplate />
+      </ClientOnly>
+    </SectionWrapper> */}
+  
+            {/* New Stats Section */}
+            <SectionWrapper id="stats" vPadding="py-4">
+              <NewStatsSection />
+            </SectionWrapper>
+  
+    {/* Experience / Showcase Section */}
+            <SectionWrapper id="o-que-faco" vPadding="py-4" className="relative flex flex-col items-center justify-center overflow-hidden w-full">
+              <ClientOnly>
+                <ExperienceShowcase
+                  badge="+20 Anos de Experiência"
+                  title="Transformando Sonhos em Realidade"
+                  description="Explorei as minhas diferentes facetas profissionais ao longo de mais de 20 anos de carreira. Dos mundos dos jogos à aplicações web integrada com I.A. e mentoria especializada."
+                  tabs={[
+                    {
+                      id: 'game',
+                      label: '3D & Game Dev',
+                      icon: FaGamepad,
+                      content: {
+                        type: 'slideshow',
+                        slides: [
+                          { bg: "/img/fly-1-a.jpg", fg: "/img/fly-1-b.jpg" },
+                          { bg: "/img/fly-2-a.jpg", fg: "/img/fly-2-b.jpg" },
+                          { bg: "/img/fly-3-a.jpg", fg: "/img/fly-3-b.jpg" },
+                        ],
+  
+                        buttons: [
+                          {
+                            text: 'JOGAR DEMO',
+                            variant: 'primary',
+                            onClick: () => {
+                              const gameSection = document.querySelector('[data-game-active]');
+                              if (gameSection) {
+                                gameSection.setAttribute('data-game-active', 'true');
+                              }
+                            },
+                          },
+                          {
+                            text: 'VER TODOS JOGOS',
+                            link: '/games/airplane',
+                            variant: 'secondary',
+                            icon: FaExpand,
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      id: 'web',
+                      label: 'Web Dev',
+                      icon: FaCode,
+                      content: {
+                        type: 'placeholder',
+                        placeholderIcon: FaCode,
+                        placeholderTitle: 'Web Development Mastery',
+                        placeholderDescription: 'Em breve: Showcase de aplicações Next.js, Dashboards SaaS e Arquitetura Escalável.',
+                      },
+                    },
+                    {
+                      id: 'mentor',
+                      label: 'Mentor',
+                      icon: FaChalkboardTeacher,
+                      content: {
+                        type: 'placeholder',
+                        placeholderIcon: FaChalkboardTeacher,
+                        placeholderTitle: 'Mentoria Tech & Carreira',
+                        placeholderDescription: 'Em breve: Detalhes sobre programas de mentoria, code reviews e workshops.',
+                      },
+                    },
+                  ]}
+                  defaultTab="game"
+                />
+              </ClientOnly>
+            </SectionWrapper>
+  
           
-          {/* Hero Section */}
-          <SectionWrapper id="inicio" vPadding="py-0" fullHeight>
-            <Inicio />
-          </SectionWrapper>
-
-  {/* Neon Flight Game */}
-  {/* <SectionWrapper id="game" vPadding="py-0" fullHeight>
-       <ClientOnly>
-         <NeonFlightGame />
-       </ClientOnly>
-     </SectionWrapper> */}
-
-  {/* TEMPORARY: Boilerplate Game */}
-  <SectionWrapper id="boilerplate" vPadding="py-0" fullHeight>
-    <ClientOnly>
-      <BoilerplateGame />
-    </ClientOnly>
-  </SectionWrapper>
-
-  {/* TEMPORARY: The Bee Boilerplate */}
-  <SectionWrapper id="bee-boilerplate" vPadding="py-0" fullHeight>
-    <ClientOnly>
-      <TheBeeBoilerplate />
-    </ClientOnly>
-  </SectionWrapper>
-
-  {/* Experience / Showcase Section */}
-          <SectionWrapper id="o-que-faco" vPadding="pb-14 pt-48" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
-             
-             {/* HEADER & TABS CONTAINER */}
-             <div className="relative z-30 max-w-7xl mx-auto px-6 w-full flex flex-col items-center text-center">
-                
-                {/* Badge */}
-                <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/5 backdrop-blur-sm rounded-full border border-white/10 mb-6">
-                  <span className="text-sm font-medium text-white/80 tracking-wide uppercase">
-                    Experiência Imersiva
-                  </span>
-                </div>
-
-                {/* Title */}
-                <h2 className="text-4xl md:text-5xl text-white font-semibold mb-4" style={{ fontFamily: 'Noto Serif Variable, serif' }}>
-                  Escolha sua Dimensão
-                </h2>
-                
-                {/* Paragraph */}
-                <p className="text-lg text-white/60 font-normal max-w-2xl mx-auto leading-relaxed mb-10">
-                  Explore minhas diferentes facetas profissionais. De mundos virtuais a aplicações web robustas e mentoria especializada.
-                </p>
-
-                {/* Tabs / Selectors */}
-                <div className="flex flex-wrap justify-center gap-4 mb-8">
-                  {tabs.map((tab) => {
-                    const Icon = tab.icon;
-                    return (
-                        <button
-                        key={tab.id}
-                        onClick={() => {
-                            setActiveTab(tab.id as 'game' | 'web' | 'mentor');
-                            setIsGameActive(false); 
-                        }}
-                        className={`
-                            px-8 py-3 rounded-full font-medium transition-all duration-300 flex items-center gap-3 cursor-pointer border
-                            ${activeTab === tab.id 
-                            ? 'bg-white text-black border-white scale-105 shadow-[0_0_20px_rgba(255,255,255,0.3)]' 
-                            : 'bg-white/5 text-white/70 border-white/10 hover:bg-white/10 hover:text-white hover:border-white/30'}
-                        `}
-                        >
-                        <Icon className="text-lg" />
-                        <span className="tracking-wide uppercase text-sm font-semibold pt-[2px]">{tab.label}</span>
-                        </button>
-                    )
-                  })}
-                </div>
-             </div>
-
-             {/* CONTENT AREA */}
-             <div className="relative w-full flex-1 flex flex-col items-center justify-center min-h-[600px] -mt-[100px]">
-                
-                {/* GAME DEV CONTENT */}
-                {activeTab === 'game' && (
-                  <div className="w-full h-full absolute inset-0">
-                    {!isGameActive ? (
-                        /* Full Width Container - No Border, No Rounding */
-                        <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden">
-                            {/* SLIDESHOW LAYER */}
-                            {slides.map((slide, index) => (
-                                <div 
-                                key={index} 
-                                className={`absolute w-full h-full transition-opacity duration-[2000ms] ease-in-out ${currentSlide === index ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
-                                style={{ pointerEvents: 'none' }}
-                                >
-                                    {/* Background Image (Blurred & Darkened) */}
-                                    <div 
-                                        className="absolute inset-0 bg-cover bg-center transition-transform duration-[10000ms] ease-linear"
-                                        style={{ 
-                                            backgroundImage: `url(${slide.bg})`, 
-                                            filter: 'brightness(0.3) blur(8px)',
-                                        }}
-                                    />
-                                    
-                                    {/* Central Box Image (Sharp & Glowing) */}
-                                    <div className="absolute inset-20 flex items-center justify-center">
-                                        {/* Reduced Height for Central Image as requested */}
-                                        <div className="w-[85%] h-[200px] relative border border-white/10 shadow-[0_0_50px_rgba(0,255,255,0.15)] overflow-hidden rounded-xl">
-                                            <div 
-                                                className="absolute inset-0 bg-cover bg-center"
-                                                style={{ 
-                                                    backgroundImage: `url(${slide.fg})`,
-                                                    transition: 'transform 6s ease-out',
-                                                    transform: currentSlide === index ? 'scale(1.05)' : 'scale(1.0)' 
-                                                }}
-                                            ></div>
-                                            {/* Vignette */}
-                                            <div className="absolute inset-0 bg-radial-gradient from-transparent to-black/60 opacity-60"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-
-                            {/* CONTENT LAYER */}
-                            <div className="relative z-20 mt-32 md:mt-48 flex flex-col sm:flex-row gap-6">
-                                <MagneticButton
-                                    onClick={() => setIsGameActive(true)}
-                                    className="group relative inline-flex items-center gap-3 bg-white text-black hover:bg-white/90 font-medium py-4 px-8 rounded-full transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] cursor-pointer"
-                                >
-                                    <span className="relative z-10 tracking-widest text-sm font-bold">PREVIEW MISSION</span>
-                                    <svg className="w-4 h-4 relative z-10 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </MagneticButton>
-
-                                <MagneticButton
-                                    onClick={() => window.open('/games/airplane', '_blank')}
-                                    className="inline-flex items-center  gap-3 bg-black/10 backdrop-blur-md text-white font-medium py-4 px-8 rounded-full border border-white transition-all duration-300 shadow-[0_0_20px_rgba(0,0,0,0.6)] hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] cursor-pointer"
-                                >
-                                    <span className="tracking-widest text-sm font-bold">PLAY FULLSCREEN</span>
-                                    <FaExpand className="w-4 h-4 text-white" />
-                                </MagneticButton>
-                            </div>
-                        </div>
-                    ) : (
-                        <NeonFlightGame onExit={() => setIsGameActive(false)} />
-                    )}
-                  </div>
-                )}
-
-                {/* WEB DEV PLACEHOLDER */}
-                {activeTab === 'web' && (
-                  <div className="w-full h-full flex items-center justify-center p-8 min-h-[500px]">
-                     <div className="text-center p-12 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-sm max-w-2xl w-full">
-                        <FaCode className="text-6xl mb-6 mx-auto opacity-50 block" />
-                        <h3 className="text-3xl font-bold text-white mb-4">Web Development Mastery</h3>
-                        <p className="text-white/60">Em breve: Showcase de aplicações Next.js, Dashboards SaaS e Arquitetura Escalável.</p>
-                     </div>
-                  </div>
-                )}
-
-                {/* MENTOR PLACEHOLDER */}
-                {activeTab === 'mentor' && (
-                  <div className="w-full h-full flex items-center justify-center p-8 min-h-[500px]">
-                     <div className="text-center p-12 border border-white/10 rounded-2xl bg-white/5 backdrop-blur-sm max-w-2xl w-full">
-                        <FaChalkboardTeacher className="text-6xl mb-6 mx-auto opacity-50 block" />
-                        <h3 className="text-3xl font-bold text-white mb-4">Mentoria Tech & Carreira</h3>
-                        <p className="text-white/60">Em breve: Detalhes sobre programas de mentoria, code reviews e workshops.</p>
-                     </div>
-                  </div>
-                )}
-
-             </div>
-
-          </SectionWrapper>
-
-          {/* About Section */}
-          <SectionWrapper id="sobre" vPadding="py-24 lg:py-32">
-            <AboutSection />
-          </SectionWrapper>
-
-          {/* Services Section */}
-          <SectionWrapper id="servicos" vPadding="py-24 lg:py-32">
-            <ServicesSection />
-          </SectionWrapper>
-
-          {/* Featured Projects */}
-          <SectionWrapper id="projetos" vPadding="py-24 lg:py-32">
-            <FeaturedProjects />
-          </SectionWrapper>
-
-          {/* Tech Stack */}
-          <SectionWrapper id="tecnologias" vPadding="py-24 lg:py-32">
-            <TechStack />
-          </SectionWrapper>
-
-          {/* Timeline Section */}
-          <SectionWrapper id="historia" vPadding="py-24 lg:py-32">
-            <NewTimelineSection />
-          </SectionWrapper>
-
-          {/* New Stats Section */}
-          <SectionWrapper id="stats" vPadding="py-24 lg:py-32">
-            <NewStatsSection />
-          </SectionWrapper>
-
-          {/* FAQ Section */}
-          <SectionWrapper id="faq" vPadding="py-24 lg:py-32">
-            <FAQSection />
-          </SectionWrapper>
-
-          {/* CTA Final */}
-          <SectionWrapper id="contato" vPadding="py-24 lg:py-32">
-            <CTASection />
-          </SectionWrapper>
-
-          {/* Badge flutuante */}
-          {/* <FloatingBadge />  */}
-        </div>
+  
+            {/* About Section */}
+            <SectionWrapper id="sobre" vPadding="py-4">
+              <AboutSection />
+            </SectionWrapper>
+  
+            {/* Services Section */}
+            {/* <SectionWrapper id="servicos" vPadding="py-12 lg:py-20">
+              <ServicesSection />
+            </SectionWrapper> */}
+  
+            {/* Featured Projects */}
+            <SectionWrapper id="projetos" vPadding="py-4">
+              <FeaturedProjects />
+            </SectionWrapper>
+  
+            {/* Tech Stack */}
+            <SectionWrapper id="tecnologias" vPadding="py-4">
+              <TechStack />
+            </SectionWrapper>
+  
+            {/* Timeline Section */}
+            <SectionWrapper id="historia" vPadding="py-4">
+              <NewTimelineSection />
+            </SectionWrapper>
+    {/* Second Experience Showcase Instance - Demo */}
+            <SectionWrapper id="showcase-demo" vPadding="py-4" className="relative flex flex-col items-center justify-center overflow-hidden">
+              <ClientOnly>
+                <ExperienceShowcase
+                  badge="Demonstração de Reutilização"
+                  title="Componente Totalmente Configurável"
+                  description="Esta é uma segunda instância do mesmo componente, demonstrando sua total reutilização com conteúdo, imagens e configurações completamente diferentes."
+                  tabs={[
+                    {
+                      id: 'portfolio',
+                      label: 'Portfolio',
+                      icon: FaBriefcase,
+                      content: {
+                        type: 'slideshow',
+                        slides: [
+                          { bg: "/img/fly-2-a.jpg", fg: "/img/fly-3-b.jpg" },
+                          { bg: "/img/fly-3-a.jpg", fg: "/img/fly-1-b.jpg" },
+                        ],
+  
+                        buttons: [
+                          {
+                            text: 'VER PROJETOS',
+                            link: '/projetos',
+                            variant: 'primary',
+                          },
+                        ],
+                      },
+                    },
+                    {
+                      id: 'blog',
+                      label: 'Blog',
+                      icon: FaCode,
+                      content: {
+                        type: 'placeholder',
+                        placeholderIcon: FaCode,
+                        placeholderTitle: 'Blog Técnico',
+                        placeholderDescription: 'Artigos sobre desenvolvimento, arquitetura de software e boas práticas.',
+                      },
+                    },
+                  ]}
+                  defaultTab="portfolio"
+                />
+              </ClientOnly>
+            </SectionWrapper>
+            
+            {/* Testimonials Section */}
+            <SectionWrapper id="testimonials" vPadding="py-4">
+               <TestimonialsSection />
+            </SectionWrapper>
+            {/* FAQ Section */}
+            <SectionWrapper id="faq" vPadding="py-4">
+              <FAQSection />
+            </SectionWrapper>
+  
+            {/* Contact Section */}
+            <SectionWrapper id="contato" vPadding="py-4">
+              <ContactSection 
+                contacts={[
+                  {
+                    name: "LinkedIn",
+                    link: "https://www.linkedin.com/in/miltonbolonha/",
+                  },
+                  {
+                    name: "GitHub",
+                    link: "https://github.com/miltonbolonha",
+                  },
+                  {
+                    name: "Email",
+                    link: "contato@miltonbolonha.com.br",
+                    isMail: true,
+                  },
+                  {
+                    name: "Baixar Currículo",
+                    link: "/files/Curriculo 02072025.pdf",
+                    isDownload: true,
+                  },
+                ]}
+                title="Entre em Contato"
+                formTitle="Envie uma Mensagem"
+              />
+            </SectionWrapper>
+  
+            {/* CTA Final */}
+            <SectionWrapper id="cta" vPadding="py-4">
+              <CTASection />
+            </SectionWrapper>
+          </SlideshowLayout>
+  
+            {/* Badge flutuante */}
+            {/* <FloatingBadge />  */}
+          </div>
+  
+          {/* Floating Navigator 
+          <FloatingNavigator /> Moved up */}
       </ScrollContainer>
     </>
   );
@@ -377,6 +388,8 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   const allPostsData = getSortedPostsData();
   const businessSettings = getBusinessSettings();
   const generalSettings = getGeneralSettings();
+  const navigatorSettings = getNavigatorSettings();
+  const themeSettings = getThemeSettings();
 
   return {
     props: {
@@ -384,6 +397,8 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
       allPostsData,
       businessSettings,
       generalSettings,
+      navigatorSettings,
+      themeSettings,
     },
   };
 };

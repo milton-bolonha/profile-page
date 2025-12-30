@@ -9,8 +9,8 @@ export const AboutSection = () => {
   const { t } = useLanguage();
 
   return (
-    <section id="about" className="relative bg-black overflow-hidden">
-      {/* Pure black background - no gradients or effects */}
+    <div className="relative bg-black w-full h-full">
+      {/* Pure black background with subtle left-side grid */}
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
@@ -69,6 +69,6 @@ export const AboutSection = () => {
 
         </div>
       </div>
-    </section>
+    </div>
   );
 };

@@ -1,9 +1,8 @@
 import { ReactNode } from 'react';
-import { Header } from './Header';
-import { Footer } from './Footer';
 import { FloatingContactButton } from './FloatingContactButton';
 import { GlobalClickFeedback } from '../ui/Animocon';
-import { SectionNavigator } from './SectionNavigator';
+import { FloatingLanguageSelector } from './FloatingLanguageSelector';
+// import { SectionNavigator } from './SectionNavigator';
 
 interface LayoutProps {
   children: ReactNode;
@@ -12,14 +11,19 @@ interface LayoutProps {
 export const Layout = ({ children }: LayoutProps) => {
   return (
     <div className="min-h-screen bg-black flex flex-col">
-      <Header />
       <main className="flex-1">
         {children}
       </main>
-      <Footer />
+      {/* <Footer /> Moved to Contact Section */}
+      <FloatingLanguageSelector />
       <FloatingContactButton />
-      <SectionNavigator />
+      {/* <SectionNavigator /> */}
       <GlobalClickFeedback />
+      <style jsx global>{`
+        body {
+          background-color: #000000;
+        }
+      `}</style>
     </div>
   );
 };

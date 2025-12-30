@@ -55,9 +55,9 @@ const FAQItem = ({ faq, index, isOpen, onToggle }: FAQItemProps) => {
       
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between p-6 text-left group relative z-10"
+        className="w-full flex items-center justify-between p-6 text-left group relative z-10 cursor-pointer"
       >
-        <h3 className="text-lg text-white pr-8 group-hover:text-white/80 transition-colors">
+        <h3 className="text-xl text-white pr-8 group-hover:text-white/80 transition-colors text-left font-medium">
           {faq.question}
         </h3>
         <svg 
@@ -91,7 +91,7 @@ export const FAQSection = () => {
   };
 
   return (
-    <section className="relative bg-black overflow-hidden" id="faq">
+    <div className="relative bg-black w-full h-full">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/3 rounded-full blur-[150px]" />
       </div>
@@ -147,6 +147,6 @@ export const FAQSection = () => {
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };

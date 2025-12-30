@@ -1,6 +1,6 @@
 import React from "react";
 import { Layout } from "@/components/commons/Layout";
-import { SmoothScroll } from "@/components/commons/SmoothScroll";
+// import { SmoothScroll } from "@/components/commons/SmoothScroll";
 import { ThemeProvider } from "@/components/commons/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GoogleAnalytics } from "@/components/commons/GoogleAnalytics";
@@ -31,7 +31,7 @@ function App({ Component, pageProps }: AppProps) {
       <LanguageProvider>
         <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
           <Layout>
-            <SmoothScroll />
+            {/* <SmoothScroll /> */}
             <Component {...pageProps} />
           </Layout>
         </ThemeProvider>
@@ -66,7 +66,7 @@ function App({ Component, pageProps }: AppProps) {
           }}
         >
           <Layout>
-            <SmoothScroll />
+            {/* <SmoothScroll /> */}
             <Component {...pageProps} />
           </Layout>
         </ClerkProvider>

@@ -47,6 +47,11 @@ if (isServer) {
         const fullPath = path.join(settingsDirectory, 'logos.json');
         const fileContents = fs.readFileSync(fullPath, 'utf8');
         return JSON.parse(fileContents);
+      },
+      getNavigatorSettings: () => {
+        const fullPath = path.join(settingsDirectory, 'navegador.json');
+        const fileContents = fs.readFileSync(fullPath, 'utf8');
+        return JSON.parse(fileContents);
       }
     };
   } catch (error) {
@@ -114,3 +119,4 @@ export const getMainMenu = settings.getMainMenuData;
 export const getThemeSettings = settings.getThemeSettings;
 export const getLogosData = settings.getLogosData;
 export const getLogos = settings.getLogosData;
+export const getNavigatorSettings = settings.getNavigatorSettings;

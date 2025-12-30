@@ -29,6 +29,7 @@
     "darkBackgroundColor": "#000000"
   },
   "generalThemeSettings": {
-    "themeStyle": "modern"
+    "themeStyle": "modern",
+    "layoutMode": "horizontal"
   }
 }

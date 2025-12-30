@@ -1,0 +1,24 @@
+Experience / Showcase Section faz ser um componente reutilizável para que eu possa escolher o que vai nas abas, o  conteúdo, as imagens o link e texto dos btoões, os componentes q vão dentro como childreen eu coloco tipo jogo <>React.fragment children Component</>
+
+e o conteudo da primeira segundo qntde de abas 'abas' são a qntidade de objetivos q tiverem ali.. ai escolhe até o icone e o conteúdo e imagem btn txt links, antes da imagem principal adicione um parágrafo tbm..
+
+ai vc pode manter os btns atuais, atualmente ta um pra jogar e chamr o jogo na vdd e jogar o outro tá pra levar pra um link X, o jogo chamado tem q estar no children ali no if isGameActive true
+
+
+ai para saber que deu certo quero já logo abaixo dele colocar um cópia de componente com valores diferentes..
+
+
+
+
+navegador flutuante a direita no site
+eu quero um controlador json dele em content/ x / navegador.json
+
+
+
+Toda a seção de contatos na page de contatos deve ser transportada para antes do rodapé da nossa index....
+
+
+
+temos na seção de new timeline o componente q qndo fazemos scroll down para em um lugar, e qndo fazemos o scroll up em outro, precisamos acha no scroll down um elemento mais pra baixo pq o scroll deixa num posicionamento estranho e aleatório, mas se pararmos em um eelemento mais abaixo e fazer com q ele seja nosso limite isso vai acionar melhor o pause do scroll ali
+
+ai na hora de subir garanta que seja algo tipo o ano ou acima deles tipo acima da barra de anos ai a seção anterior eu não sei, faça uma investigação de como está ambos especialmente scroll up, estou mais certo do scroll down.

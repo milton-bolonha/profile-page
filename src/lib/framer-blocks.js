@@ -24,7 +24,7 @@ class VoxelImageRenderer {
     this.isVoxelized = false;
     this.gravityEnabled = false;
     this.gravityTransition = 0; // 0 to 1 for smooth transition
-    this.groundY = -this.height / 2 - 5; // Ground just below the image
+    this.groundY = -this.height / 2 + 2; // Ground slightly lowered to CLOSE gap but leave breathing room
     this.group = null;
     this.voxels = [];
     this.pixelData = null;
@@ -156,8 +156,8 @@ class VoxelImageRenderer {
       }
     } else {
       // Only show pointer if outside the center image area (90% of mesh)
-      const imageWidthRatio = (this.width * 0.9) / this.baseSize;
-      const imageHeightRatio = (this.height * 0.9) / this.baseSize;
+      const imageWidthRatio = (this.width * 0.98) / this.baseSize;
+      const imageHeightRatio = (this.height * 0.98) / this.baseSize;
       
       const absX = Math.abs(this.mouse.x);
       const absY = Math.abs(this.mouse.y);
@@ -195,7 +195,7 @@ class VoxelImageRenderer {
     }
     
     // Subtle tilt effect based on mouse position
-    this.tiltX = this.mouse.y * 0.08; // Increased tilt strength
+    this.tiltX = -this.mouse.y * 0.08; // Inverted for "press" feel
     this.tiltY = this.mouse.x * 0.08;
   }
 
@@ -656,10 +656,11 @@ class VoxelImageRenderer {
           voxel.velocityY -= 0.8 * gravityStrength; // Faster gravity (was 0.5)
           voxel.offsetY += voxel.velocityY;
           
-          // Check ground collision - no bounce, just stop
-          const voxelBottomY = voxel.baseY + voxel.offsetY;
+          // Check ground collision - calculate bottom of voxel
+          const voxelBottomY = voxel.baseY + voxel.offsetY - voxel.mesh.scale.y / 2;
           if (voxelBottomY <= this.groundY) {
-            voxel.offsetY = this.groundY - voxel.baseY;
+            // Adjust offsetY so voxel sits exactly on ground
+            voxel.offsetY = this.groundY - voxel.baseY + voxel.mesh.scale.y / 2;
             voxel.velocityY = 0;
             voxel.onGround = true;
           }

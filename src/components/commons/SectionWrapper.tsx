@@ -1,7 +1,6 @@
 "use client";
 
 import { ReactNode, useEffect, useRef } from "react";
-import { useLenis } from "@/lib/scroll";
 
 interface SectionWrapperProps {
   children: ReactNode;
@@ -17,31 +16,15 @@ export const SectionWrapper = ({
   className = "",
   id,
   bgImage,
-  vPadding = "py-20",
+  vPadding = "py-4",
   fullHeight = false,
 }: SectionWrapperProps) => {
   const sectionRef = useRef<HTMLElement>(null);
-  const { lenis } = useLenis();
 
-  useEffect(() => {
-    if (!lenis || !sectionRef.current) return;
-
-    // Configurar snap points para seções
-    const element = sectionRef.current;
-    const rect = element.getBoundingClientRect();
-
-    // Adicionar classe para snap
-    element.style.scrollSnapAlign = "start";
-
-    return () => {
-      element.style.scrollSnapAlign = "";
-    };
-  }, [lenis]);
 
   const sectionClasses = `
     w-full
     ${vPadding}
-    min-h-screen flex flex-col justify-center
     ${bgImage ? `bg-cover bg-center bg-no-repeat` : ""}
     ${className}
   `.trim();
@@ -58,7 +41,7 @@ export const SectionWrapper = ({
 // Componente para container principal com scroll snap
 export const ScrollContainer = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="scroll-smooth">
+    <div className="">
       <style jsx global>{`
         /* Custom scrollbar */
         ::-webkit-scrollbar {
@@ -70,7 +53,7 @@ export const ScrollContainer = ({ children }: { children: ReactNode }) => {
         }
 
         ::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.2);
+          background: rgba(255, 255, 255, 0.36);
           border-radius: 3px;
         }
 

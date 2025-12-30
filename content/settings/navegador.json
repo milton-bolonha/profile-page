@@ -1,0 +1,78 @@
+{
+  "enabled": true,
+  "position": "right",
+  "items": [
+    {
+      "id": "inicio",
+      "label": "Início",
+      "icon": "FaHome",
+      "href": "#inicio"
+    },
+    {
+      "id": "stats",
+      "label": "Stats",
+      "icon": "FaChartBar",
+      "href": "#stats"
+    },
+    {
+      "id": "o-que-faco",
+      "label": "O Que Faço",
+      "icon": "FaGamepad",
+      "href": "#o-que-faco"
+    },
+    {
+      "id": "sobre",
+      "label": "Sobre",
+      "icon": "FaUser",
+      "href": "#sobre"
+    },
+    {
+      "id": "projetos",
+      "label": "Projetos",
+      "icon": "FaCode",
+      "href": "#projetos"
+    },
+    {
+      "id": "tecnologias",
+      "label": "Tech Stack",
+      "icon": "FaLaptopCode",
+      "href": "#tecnologias"
+    },
+    {
+      "id": "historia",
+      "label": "História",
+      "icon": "FaClock",
+      "href": "#historia"
+    },
+    {
+      "id": "showcase-demo",
+      "label": "Demo",
+      "icon": "FaFlask",
+      "href": "#showcase-demo"
+    },
+    {
+      "id": "testimonials",
+      "label": "Depoimentos",
+      "icon": "FaCommentDots",
+      "href": "#testimonials"
+    },
+    {
+      "id": "faq",
+      "label": "FAQ",
+      "icon": "FaQuestionCircle",
+      "href": "#faq"
+    },
+    {
+      "id": "contato",
+      "label": "Contato",
+      "icon": "FaEnvelope",
+      "href": "#contato"
+    }
+  ],
+  "style": {
+    "backgroundColor": "rgba(0, 0, 0, 0.7)",
+    "activeColor": "#ffffff",
+    "inactiveColor": "rgba(255, 255, 255, 0.5)",
+    "hoverColor": "rgba(255, 255, 255, 0.8)"
+  }
+}

@@ -98,7 +98,7 @@ export default function NewTimelineSection() {
   const currentIndex = uniqueYears.indexOf(selectedYear);
 
   useEffect(() => {
-    if (!yearNavRef.current) return; // Watch year nav instead of section
+    if (!yearNavRef.current || !sectionRef.current) return;
 
     let wheelTimeout: NodeJS.Timeout;
 
@@ -111,8 +111,20 @@ export default function NewTimelineSection() {
       const scrollingUp = e.deltaY < 0;
       const scrollingDown = e.deltaY > 0;
 
+      console.log('[Timeline Scroll]', {
+        isScrollLocked,
+        selectedYear,
+        currentIdx,
+        isAtFirstYear,
+        isAtLastYear,
+        scrollingUp,
+        scrollingDown,
+        deltaY: e.deltaY,
+      });
+
       // Allow natural scroll at boundaries
       if ((isAtFirstYear && scrollingUp) || (isAtLastYear && scrollingDown)) {
+        console.log('[Timeline Scroll] Unlocking at boundary');
         setIsScrollLocked(false);
         return; // Let the scroll pass through
       }
@@ -124,8 +136,10 @@ export default function NewTimelineSection() {
       clearTimeout(wheelTimeout);
       wheelTimeout = setTimeout(() => {
         if (scrollingDown && currentIdx < uniqueYears.length - 1) {
+          console.log('[Timeline Scroll] Moving to next year:', uniqueYears[currentIdx + 1]);
           setSelectedYear(uniqueYears[currentIdx + 1]);
         } else if (scrollingUp && currentIdx > 0) {
+          console.log('[Timeline Scroll] Moving to previous year:', uniqueYears[currentIdx - 1]);
           setSelectedYear(uniqueYears[currentIdx - 1]);
         }
       }, 50);
@@ -134,17 +148,32 @@ export default function NewTimelineSection() {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio > 0.7) {
+          console.log('[Timeline Observer]', {
+            isIntersecting: entry.isIntersecting,
+            intersectionRatio: entry.intersectionRatio,
+            boundingClientRect: entry.boundingClientRect,
+            target: entry.target.className,
+          });
+
+          // Lock when year navigation is well-positioned in viewport
+          // For scroll down: activate when year nav is in upper-middle area (ratio > 0.6)
+          // For scroll up: activate when year nav enters from top (ratio > 0.5)
+          if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
+            console.log('[Timeline Observer] Locking scroll');
             setIsScrollLocked(true);
-          } else if (!entry.isIntersecting) {
+          } else if (!entry.isIntersecting || entry.intersectionRatio < 0.3) {
+            console.log('[Timeline Observer] Unlocking scroll');
             setIsScrollLocked(false);
           }
         });
       },
-      { threshold: [0.5, 0.6, 0.7, 0.8] }
+      { 
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+        rootMargin: '-20% 0px -20% 0px' // More forgiving margins
+      }
     );
 
-    const yearNav = yearNavRef.current; // Observe year nav element
+    const yearNav = yearNavRef.current;
     observer.observe(yearNav);
     
     // Add to window to bypass ScrollContainer
@@ -159,7 +188,7 @@ export default function NewTimelineSection() {
 
   const skipToPrevSection = () => {
     setIsScrollLocked(false);
-    const techSection = document.getElementById('tech');
+    const techSection = document.getElementById('tecnologias');
     if (techSection) {
       window.scrollTo({ top: techSection.offsetTop, behavior: 'smooth' });
     }
@@ -167,14 +196,14 @@ export default function NewTimelineSection() {
 
   const skipToNextSection = () => {
     setIsScrollLocked(false);
-    const statsSection = document.getElementById('stats');
-    if (statsSection) {
-      window.scrollTo({ top: statsSection.offsetTop, behavior: 'smooth' });
+    const demoSection = document.getElementById('showcase-demo');
+    if (demoSection) {
+      window.scrollTo({ top: demoSection.offsetTop, behavior: 'smooth' });
     }
   };
 
   return (
-    <section ref={sectionRef} className="min-h-screen flex flex-col justify-center py-20 bg-background relative overflow-hidden" id="timeline">
+    <div ref={sectionRef} className="w-full h-full flex flex-col justify-center bg-background relative overflow-hidden">
       {/* Skip buttons when locked */}
       <AnimatePresence>
         {isScrollLocked && (
@@ -182,7 +211,7 @@ export default function NewTimelineSection() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
-            className="fixed bottom-24 right-6 z-50 flex flex-col gap-2"
+            className="fixed bottom-24 left-6 z-50 flex flex-col gap-2"
           >
             <button
               onClick={skipToPrevSection}
@@ -270,7 +299,7 @@ export default function NewTimelineSection() {
                 <div className="h-px flex-1 bg-white/10" />
               </div>
 
-              <h3 className="text-3xl md:text-5xl font-display font-medium text-white leading-tight">
+              <h3 className="text-2xl md:text-4xl font-display font-medium text-white leading-tight">
                 {selectedItem.title}
               </h3>
               
@@ -308,6 +337,6 @@ export default function NewTimelineSection() {
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
