@@ -106,7 +106,7 @@ export function SlideshowLayout({
       <motion.div
         className="flex flex-row h-full w-full"
         animate={{ x: `-${currentSlide * 100}vw` }}
-        transition={{ type: "spring", stiffness: 100, damping: 40 }}
+        transition={{ type: "tween", ease: [0.645, 0.045, 0.355, 1.000], duration: 0.8 }}
         style={{ width: `${totalSlides * 100}vw` }}
       >
         {childrenArray.map((child, index) => (

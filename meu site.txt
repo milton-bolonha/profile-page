@@ -1,24 +1,70 @@
-Experience / Showcase Section faz ser um componente reutilizável para que eu possa escolher o que vai nas abas, o  conteúdo, as imagens o link e texto dos btoões, os componentes q vão dentro como childreen eu coloco tipo jogo <>React.fragment children Component</>
+slider better transitions smooth
 
-e o conteudo da primeira segundo qntde de abas 'abas' são a qntidade de objetivos q tiverem ali.. ai escolhe até o icone e o conteúdo e imagem btn txt links, antes da imagem principal adicione um parágrafo tbm..
-
-ai vc pode manter os btns atuais, atualmente ta um pra jogar e chamr o jogo na vdd e jogar o outro tá pra levar pra um link X, o jogo chamado tem q estar no children ali no if isGameActive true
-
-
-ai para saber que deu certo quero já logo abaixo dele colocar um cópia de componente com valores diferentes..
+transition 3d ads like type
+a transição entre slides ficará entre stats e quem sou
 
 
-
-
-navegador flutuante a direita no site
-eu quero um controlador json dele em content/ x / navegador.json
+lazy load para 3d
+- kill mesh whe tab and sibling neiboirs arnt active.. identify w intelligence
 
 
 
-Toda a seção de contatos na page de contatos deve ser transportada para antes do rodapé da nossa index....
+algumas seções estão com margem e ou espaçamento vertical ruim que precisa ajustar, outras estão no padrão--- section padding:
+
+top de mais:
+Stack
+contato (não tem a tag)
+
+top de menos (tá muito encostado no topo):
++20 Anos de Experiência
+projetos / Portfólio
+demo / Demonstração de Reutilização
+depoimento
+faq
+
+
+bottom sobrando:
+stats
+o q faço.. +20 Anos de Experiência
+sobre
+projetos / portifolio
+Stack
+Nossa História
+demo / Demonstração de Reutilização
+depoimento
+faq
+contato 
 
 
 
-temos na seção de new timeline o componente q qndo fazemos scroll down para em um lugar, e qndo fazemos o scroll up em outro, precisamos acha no scroll down um elemento mais pra baixo pq o scroll deixa num posicionamento estranho e aleatório, mas se pararmos em um eelemento mais abaixo e fazer com q ele seja nosso limite isso vai acionar melhor o pause do scroll ali
+analise a seção stats, ela tá com efeti hover q dá u pulinho, não gosto de nenhum efeito hover de pulinho nem scale nnem coisa parecida
 
-ai na hora de subir garanta que seja algo tipo o ano ou acima deles tipo acima da barra de anos ai a seção anterior eu não sei, faça uma investigação de como está ambos especialmente scroll up, estou mais certo do scroll down.
+
+componente das imagens
+
+lazy load para imagens
+
+
+seção incial
+
+a bolinha verde esmaecendo, tire o efeito de esmaecimento e deixe um tom diferente esse tom de verde aí, ainda verda mas diferente, achei meio perto demais do azul.
+
+
+no mobile quero a view horizontal do site com o navigator o bottome ali só q com uma digferença, para telas pequenas o navigator ele diminui tbm e fica umas setas pra esq e pra dir e no meio o slide atual e um outro botão ao lado do slde atual talvez seta q indique um chooser tipo selector q vai abrir expandindo pra cima com as demais abas/slides do navigator floating. ai a  pessoa pode navegar
+
+faq erradão
+dimensão do w-full está talvez algum min-w grande não sei. tem q verificar os aninhamentos
+fonte da pergunta tá gigante, não sei se é aninhamento pai ou o mesmo elemento q tá com font quse 30px, quero bem menor, verifique se estamos usando nossas fontes padroes
+
+
+
+
+botão chooser language tá expandindo o tamanho qndo abre as languages ai ele pula de lugar pq a div fica maior e os btns de language naão tem hover pointer cursor
+
+isso não ta  sendo visto, não ta visivel absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:linear-gradient(to_right,black_0%,black_40%,transparent_100%)] pointer-events-none
+
+
+seção oq que faço
+botão jogar demo
+tem q carregar nosso jogo
+NeonFlightGame

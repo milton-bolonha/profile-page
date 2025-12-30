@@ -30,7 +30,7 @@ export const Inicio = () => {
 
       {/* Grid Pattern Sutil */}
       {/* Grid Pattern Sutil (Left Side Only) */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:linear-gradient(to_right,black_0%,black_40%,transparent_100%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:linear-gradient(to_right,black_0%,black_40%,transparent_100%)] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 w-full z-10">
         <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-20 items-center">
@@ -39,7 +39,7 @@ export const Inicio = () => {
           <div className="space-y-10 text-center lg:text-left order-2 lg:order-1">
             {/* Badge */}
             <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/5 backdrop-blur-sm rounded-full border border-white/10">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
+              <span className="w-2 h-2 rounded-full bg-[#1db954] shadow-[0_0_10px_rgba(29,185,84,0.5)]" />
               {badge.icon && <span className="text-xl">{badge.icon}</span>}
               <span className="text-sm font-medium text-white/80 tracking-wide">
                 {t(badge.textKey)}

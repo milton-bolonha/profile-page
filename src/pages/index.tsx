@@ -18,9 +18,14 @@ import { GetStaticProps } from "next";
 import { getSortedPostsData } from "@/lib/posts";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getBusinessSettings, getGeneralSettings, getNavigatorSettings, getThemeSettings } from "@/lib/settings";
-import NeonFlightGame from "@/components/games/fly/components/NeonFlightGame";
-import BoilerplateGame from "@/components/games/fly/components/BoilerplateGame";
-import TheBeeBoilerplate from "@/components/games/TheBeeBoilerplate";
+import dynamic from "next/dynamic";
+
+const NeonFlightGame = dynamic(
+  () => import("@/components/games/fly/components/NeonFlightGame"),
+  { ssr: false }
+);
+// import BoilerplateGame from "@/components/games/fly/components/BoilerplateGame";
+// import TheBeeBoilerplate from "@/components/games/TheBeeBoilerplate";
 import { ClientOnly } from "@/components/commons/ClientOnly";
 import MagneticButton from "@/components/ui/MagneticButton";
 import Seo from "@/components/commons/Seo";
@@ -67,8 +72,8 @@ const HomeContent = ({
   const isMobile = useMediaQuery("(max-width: 768px)");
   const themeLayout = themeSettings?.generalThemeSettings?.layoutMode || 'vertical';
   
-  // Se for mobile, força vertical. Se não, respeita o tema.
-  const layoutMode = isMobile ? 'vertical' : themeLayout;
+  // Se for mobile, ainda podemos querer o fluxo horizontal se o usuario preferir
+  const layoutMode = themeLayout;
 
   // Section IDs in order for slideshow mapping
   const sections = [
@@ -135,6 +140,7 @@ const HomeContent = ({
           currentSlide={currentSlide}
           onNavigate={(index) => setCurrentSlide(index)}
           sections={sections}
+          isMobile={isMobile}
         />
         
         <div
@@ -174,12 +180,12 @@ const HomeContent = ({
     </SectionWrapper> */}
   
             {/* New Stats Section */}
-            <SectionWrapper id="stats" vPadding="py-4">
+            <SectionWrapper id="stats" vPadding="pt-12 pb-0">
               <NewStatsSection />
             </SectionWrapper>
   
     {/* Experience / Showcase Section */}
-            <SectionWrapper id="o-que-faco" vPadding="py-4" className="relative flex flex-col items-center justify-center overflow-hidden w-full">
+            <SectionWrapper id="o-que-faco" vPadding="pt-24 pb-0" className="relative flex flex-col items-center justify-center overflow-hidden w-full">
               <ClientOnly>
                 <ExperienceShowcase
                   badge="+20 Anos de Experiência"
@@ -197,17 +203,12 @@ const HomeContent = ({
                           { bg: "/img/fly-2-a.jpg", fg: "/img/fly-2-b.jpg" },
                           { bg: "/img/fly-3-a.jpg", fg: "/img/fly-3-b.jpg" },
                         ],
-  
+                        gameComponent: <NeonFlightGame onExit={() => {}} />,
                         buttons: [
                           {
                             text: 'JOGAR DEMO',
                             variant: 'primary',
-                            onClick: () => {
-                              const gameSection = document.querySelector('[data-game-active]');
-                              if (gameSection) {
-                                gameSection.setAttribute('data-game-active', 'true');
-                              }
-                            },
+                            action: 'startGame',
                           },
                           {
                             text: 'VER TODOS JOGOS',
@@ -249,7 +250,7 @@ const HomeContent = ({
           
   
             {/* About Section */}
-            <SectionWrapper id="sobre" vPadding="py-4">
+            <SectionWrapper id="sobre" vPadding="pt-12 pb-0">
               <AboutSection />
             </SectionWrapper>
   
@@ -259,21 +260,21 @@ const HomeContent = ({
             </SectionWrapper> */}
   
             {/* Featured Projects */}
-            <SectionWrapper id="projetos" vPadding="py-4">
+            <SectionWrapper id="projetos" vPadding="pt-24 pb-0">
               <FeaturedProjects />
             </SectionWrapper>
   
             {/* Tech Stack */}
-            <SectionWrapper id="tecnologias" vPadding="py-4">
+            <SectionWrapper id="tecnologias" vPadding="pt-0 pb-0">
               <TechStack />
             </SectionWrapper>
   
             {/* Timeline Section */}
-            <SectionWrapper id="historia" vPadding="py-4">
+            <SectionWrapper id="historia" vPadding="pt-12 pb-0">
               <NewTimelineSection />
             </SectionWrapper>
     {/* Second Experience Showcase Instance - Demo */}
-            <SectionWrapper id="showcase-demo" vPadding="py-4" className="relative flex flex-col items-center justify-center overflow-hidden">
+            <SectionWrapper id="showcase-demo" vPadding="pt-24 pb-0" className="relative flex flex-col items-center justify-center overflow-hidden">
               <ClientOnly>
                 <ExperienceShowcase
                   badge="Demonstração de Reutilização"
@@ -318,16 +319,16 @@ const HomeContent = ({
             </SectionWrapper>
             
             {/* Testimonials Section */}
-            <SectionWrapper id="testimonials" vPadding="py-4">
+            <SectionWrapper id="testimonials" vPadding="pt-24 pb-0">
                <TestimonialsSection />
             </SectionWrapper>
             {/* FAQ Section */}
-            <SectionWrapper id="faq" vPadding="py-4">
+            <SectionWrapper id="faq" vPadding="pt-24 pb-0">
               <FAQSection />
             </SectionWrapper>
   
             {/* Contact Section */}
-            <SectionWrapper id="contato" vPadding="py-4">
+            <SectionWrapper id="contato" vPadding="pt-0 pb-0">
               <ContactSection 
                 contacts={[
                   {
@@ -355,7 +356,7 @@ const HomeContent = ({
             </SectionWrapper>
   
             {/* CTA Final */}
-            <SectionWrapper id="cta" vPadding="py-4">
+            <SectionWrapper id="cta" vPadding="pt-12 pb-0">
               <CTASection />
             </SectionWrapper>
           </SlideshowLayout>

@@ -54,7 +54,7 @@ export const NewStatsSection = () => {
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="text-center p-8 rounded-2xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20 transition-all duration-500 hover:-translate-y-1"
+              className="text-center p-8 rounded-2xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20 transition-all duration-500"
             >
               <div className="text-5xl md:text-6xl font-light text-white mb-3">
                 <NumberCounter 

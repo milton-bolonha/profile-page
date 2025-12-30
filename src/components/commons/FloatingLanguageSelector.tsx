@@ -20,30 +20,32 @@ export const FloatingLanguageSelector = () => {
     <div className="fixed bottom-6 right-24 z-50 flex flex-col items-center gap-4">
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.8 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.8 }}
-            className="flex flex-col gap-3 mb-2"
-          >
-            {languages.map((lang) => (
-              <button
-                key={lang.code}
-                onClick={() => {
-                  setLanguage(lang.code as 'pt' | 'en');
-                  setIsOpen(false);
-                }}
-                className={`flex items-center gap-3 px-4 py-2 rounded-full backdrop-blur-md border transition-all duration-300 w-full min-w-[140px]
-                  ${language === lang.code 
-                    ? 'bg-white text-black border-white' 
-                    : 'bg-black/80 text-white border-white/20 hover:bg-white/10'
-                  }`}
-              >
-                <span className="text-xl">{lang.flag}</span>
-                <span className="font-medium">{lang.label}</span>
-              </button>
-            ))}
-          </motion.div>
+          <div className="absolute bottom-16 right-0 flex flex-col items-center gap-3 mb-2">
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.8 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.8 }}
+              className="flex flex-col gap-3"
+            >
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => {
+                    setLanguage(lang.code as 'pt' | 'en');
+                    setIsOpen(false);
+                  }}
+                  className={`flex items-center gap-3 px-4 py-2 rounded-full backdrop-blur-md border transition-all duration-300 w-full min-w-[140px] cursor-pointer
+                    ${language === lang.code 
+                      ? 'bg-white text-black border-white' 
+                      : 'bg-black/80 text-white border-white/20 hover:bg-white/10'
+                    }`}
+                >
+                  <span className="text-xl">{lang.flag}</span>
+                  <span className="font-medium">{lang.label}</span>
+                </button>
+              ))}
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 

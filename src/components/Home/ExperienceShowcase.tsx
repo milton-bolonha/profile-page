@@ -13,6 +13,7 @@ export interface TabButton {
   onClick?: () => void;
   variant: 'primary' | 'secondary';
   icon?: React.ComponentType<any>;
+  action?: 'startGame';
 }
 
 export interface TabContent {
@@ -53,14 +54,17 @@ export interface ExperienceShowcaseProps {
 
 interface ActionButtonProps {
   button: TabButton;
+  onAction?: (action: string) => void;
 }
 
-function ActionButton({ button }: ActionButtonProps) {
+function ActionButton({ button, onAction }: ActionButtonProps) {
   const Icon = button.icon;
   const isPrimary = button.variant === 'primary';
 
   const handleClick = () => {
-    if (button.onClick) {
+    if (button.action && onAction) {
+      onAction(button.action);
+    } else if (button.onClick) {
       button.onClick();
     } else if (button.link) {
       window.open(button.link, '_blank');
@@ -87,14 +91,17 @@ function ActionButton({ button }: ActionButtonProps) {
   );
 }
 
+import Image from "next/image";
+
 interface SlideshowContentProps {
   slides: Array<{ bg: string; fg: string }>;
   currentSlide: number;
 
   buttons?: TabButton[];
+  onAction?: (action: string) => void;
 }
 
-function SlideshowContent({ slides, currentSlide, buttons }: SlideshowContentProps) {
+function SlideshowContent({ slides, currentSlide, buttons, onAction }: SlideshowContentProps) {
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden">
       {/* SLIDESHOW LAYER */}
@@ -105,27 +112,31 @@ function SlideshowContent({ slides, currentSlide, buttons }: SlideshowContentPro
           style={{ pointerEvents: 'none' }}
         >
           {/* Background Image (Blurred & Darkened) */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-[10000ms] ease-linear"
-            style={{ 
-              backgroundImage: `url(${slide.bg})`, 
-              filter: 'brightness(0.3) blur(8px)',
-            }}
-          />
+          <div className="absolute inset-0">
+             <Image
+                src={slide.bg}
+                alt="Background"
+                fill
+                className="object-cover filter brightness-[0.3] blur-[8px]"
+                loading="lazy"
+             />
+          </div>
           
           {/* Central Box Image (Sharp & Glowing) */}
           <div className="absolute inset-x-20 top-20 bottom-0 flex items-center justify-center">
             <div className="w-[85%] h-[200px] relative border border-white/10 shadow-[0_0_50px_rgba(0,255,255,0.15)] overflow-hidden rounded-xl">
-              <div 
-                className="absolute inset-0 bg-cover bg-center"
-                style={{ 
-                  backgroundImage: `url(${slide.fg})`,
-                  transition: 'transform 6s ease-out',
-                  transform: currentSlide === index ? 'scale(1.05)' : 'scale(1.0)' 
-                }}
-              />
+               <Image
+                 src={slide.fg}
+                 alt="Foreground"
+                 fill
+                 className="object-cover transition-transform duration-[6000ms] ease-out"
+                 style={{ 
+                   transform: currentSlide === index ? 'scale(1.05)' : 'scale(1.0)' 
+                 }}
+                 loading="lazy"
+               />
               {/* Vignette */}
-              <div className="absolute inset-0 bg-radial-gradient from-transparent to-black/60 opacity-60" />
+              <div className="absolute inset-0 bg-radial-gradient from-transparent to-black/60 opacity-60 pointer-events-none" />
             </div>
           </div>
         </div>
@@ -139,7 +150,7 @@ function SlideshowContent({ slides, currentSlide, buttons }: SlideshowContentPro
         {buttons && buttons.length > 0 && (
           <div className="flex flex-col sm:flex-row gap-6">
             {buttons.map((button, idx) => (
-              <ActionButton key={idx} button={button} />
+              <ActionButton key={idx} button={button} onAction={onAction} />
             ))}
           </div>
         )}
@@ -275,14 +286,22 @@ export default function ExperienceShowcase({
               <SlideshowContent 
                 slides={slides}
                 currentSlide={currentSlide}
-
                 buttons={activeTabData.content.buttons}
+                onAction={(action) => {
+                  if (action === 'startGame') setIsGameActive(true);
+                }}
               />
             )}
 
             {/* GAME CONTENT */}
-            {activeTabData.content.type === 'game' && isGameActive && activeTabData.content.gameComponent && (
-              <GameContent gameComponent={activeTabData.content.gameComponent} />
+            {isGameActive && activeTabData.content.gameComponent && (
+              <GameContent gameComponent={
+                React.isValidElement(activeTabData.content.gameComponent) 
+                  ? React.cloneElement(activeTabData.content.gameComponent as React.ReactElement<any>, { 
+                      onExit: () => setIsGameActive(false) 
+                    })
+                  : activeTabData.content.gameComponent
+              } />
             )}
 
             {/* PLACEHOLDER CONTENT */}

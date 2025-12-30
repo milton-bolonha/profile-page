@@ -62,9 +62,11 @@ export default function FloatingNavigator({
   mode, 
   currentSlide,
   onNavigate,
-  sections = []
-}: FloatingNavigatorProps) {
+  sections = [],
+  isMobile = false
+}: FloatingNavigatorProps & { isMobile?: boolean }) {
   const [activeSection, setActiveSection] = useState<string>('inicio');
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Sync active section with current slide (horizontal) OR scroll spy (vertical)
   useEffect(() => {
@@ -76,7 +78,7 @@ export default function FloatingNavigator({
     }
   }, [mode, currentSlide, sections]);
 
-  // Scroll spy for Vertical Mode
+  // Scroll spy for Vertical Mode (and Mobile if vertical?)
   useEffect(() => {
     if (mode === 'horizontal' || !config?.enabled) return;
 
@@ -109,10 +111,7 @@ export default function FloatingNavigator({
     e.preventDefault();
     
     if (mode === 'horizontal') {
-      // In slideshow, we just tell the parent to switch slide
-      // Use the index of this item in the items list, 
-      // BUT we need the index of the SECTION in the page structure.
-      // Assuming sections[] matches the order of config.items (or we search for ID)
+      // Horizontal behavior
       const targetId = href.replace('#', '');
       const slideIndex = sections.indexOf(targetId);
       if (slideIndex !== -1) {
@@ -126,21 +125,92 @@ export default function FloatingNavigator({
         element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
+    setIsExpanded(false);
+  };
+
+  const handlePrev = () => {
+    if (currentSlide > 0) onNavigate(currentSlide - 1);
+  };
+
+  const handleNext = () => {
+    if (currentSlide < sections.length - 1) onNavigate(currentSlide + 1);
   };
 
   if (!config?.enabled) return null;
 
-  // Vertical placement
-  const verticalClass = config.position === 'right' ? 'right-6 top-1/2 -translate-y-1/2 flex-col' : 'left-6 top-1/2 -translate-y-1/2 flex-col';
-  
-  // Horizontal placement
-  const horizontalClass = 'bottom-6 left-1/2 -translate-x-1/2 flex-row';
+  // Mobile Horizontal Mode (Special UI)
+  if (isMobile && mode === 'horizontal') {
+    const currentItem = config.items.find(item => item.id === activeSection) || config.items[0];
+    const CurrentIcon = iconMap[currentItem.icon] || FaHome;
 
+    return (
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] flex flex-col items-center gap-4">
+        
+        {/* Expanded Menu (popup) */}
+        {isExpanded && (
+          <div className="bg-black/80 backdrop-blur-md rounded-2xl border border-white/10 p-4 mb-2 animate-in slide-in-from-bottom-5 fade-in duration-300">
+             <ul className="grid grid-cols-4 gap-4">
+              {config.items.map((item, index) => {
+                const Icon = iconMap[item.icon] || FaHome;
+                const isActive = activeSection === item.id;
+                return (
+                  <li key={item.id}>
+                     <a
+                      href={item.href}
+                      onClick={(e) => handleClick(e, item.href, index)}
+                      className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all ${isActive ? 'text-white bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+                    >
+                      <Icon className="text-xl mb-1" />
+                      <span className="text-[10px]">{item.label}</span>
+                    </a>
+                  </li>
+                )
+              })}
+             </ul>
+          </div>
+        )}
+
+        {/* Control Bar */}
+        <div 
+          className="bg-black/80 backdrop-blur-md rounded-full border border-white/10 p-2 flex items-center gap-4 shadow-lg"
+        >
+           {/* Prev */}
+           <button onClick={handlePrev} className="w-10 h-10 flex items-center justify-center rounded-full text-white/70 hover:text-white hover:bg-white/10">
+             <svg className="w-5 h-5 rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+           </button>
+
+           {/* Current Indicator */}
+           <div className="w-12 h-12 flex items-center justify-center rounded-full bg-white text-black font-bold">
+              <CurrentIcon className="text-xl" />
+           </div>
+
+           {/* Next */}
+           <button onClick={handleNext} className="w-10 h-10 flex items-center justify-center rounded-full text-white/70 hover:text-white hover:bg-white/10">
+             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+           </button>
+
+           {/* Expand Trigger */}
+           <button 
+            onClick={() => setIsExpanded(!isExpanded)}
+            className={`w-10 h-10 flex items-center justify-center rounded-full border border-white/20 transition-all ${isExpanded ? 'bg-white text-black' : 'text-white/70 hover:text-white'}`}
+           >
+             <svg className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+             </svg>
+           </button>
+        </div>
+      </nav>
+    );
+  }
+
+  // Desktop / Vertical Logic (Original)
+  const verticalClass = config.position === 'right' ? 'right-6 top-1/2 -translate-y-1/2 flex-col' : 'left-6 top-1/2 -translate-y-1/2 flex-col';
+  const horizontalClass = 'bottom-6 left-1/2 -translate-x-1/2 flex-row';
   const containerClass = mode === 'horizontal' ? horizontalClass : verticalClass;
 
   return (
     <nav
-      className={`fixed ${containerClass} z-[200]`} // Z-200 to be above everything
+      className={`fixed ${containerClass} z-[200]`}
     >
       <div 
         className={`backdrop-blur-md rounded-full border border-white/5 shadow-md py-2 px-2 transition-all duration-300`}
@@ -153,9 +223,6 @@ export default function FloatingNavigator({
             const Icon = iconMap[item.icon] || FaHome;
             const isActive = activeSection === item.id;
             
-            // In horizontal mode, we need to map item.id to sections order
-            // If item isn't in sections prop, it might be an external link? Assuming internal anchors.
-
             return (
               <li key={item.id}>
                 <a
