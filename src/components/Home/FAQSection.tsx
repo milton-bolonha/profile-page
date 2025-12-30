@@ -57,7 +57,7 @@ const FAQItem = ({ faq, index, isOpen, onToggle }: FAQItemProps) => {
         onClick={onToggle}
         className="w-full flex items-center justify-between p-6 text-left group relative z-10 cursor-pointer"
       >
-        <h3 className="text-base text-white pr-8 group-hover:text-white/80 transition-colors text-left font-medium">
+        <h3 className="text-white pr-8 group-hover:text-white/80 transition-colors text-left font-medium" style={{ fontSize: '18px' }}>
           {faq.question}
         </h3>
         <svg 

@@ -66,5 +66,5 @@ isso não ta  sendo visto, não ta visivel absolute inset-0 bg-[linear-gradient(
 
 seção oq que faço
 botão jogar demo
-tem q carregar nosso jogo
+tem q carregar nosso jogo, mas não carrega até clicar, pq ele é pesado.. eu não quero dar load no q não precisa ainda..
 NeonFlightGame

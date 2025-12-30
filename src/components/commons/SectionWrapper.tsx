@@ -9,6 +9,7 @@ interface SectionWrapperProps {
   bgImage?: string;
   vPadding?: string;
   fullHeight?: boolean;
+  isActive?: boolean;
 }
 
 export const SectionWrapper = ({
@@ -18,6 +19,7 @@ export const SectionWrapper = ({
   bgImage,
   vPadding = "py-4",
   fullHeight = false,
+  isActive = true,
 }: SectionWrapperProps) => {
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -27,6 +29,7 @@ export const SectionWrapper = ({
     ${vPadding}
     ${bgImage ? `bg-cover bg-center bg-no-repeat` : ""}
     ${className}
+    transition-opacity duration-500 ease-in-out
   `.trim();
 
   const style = bgImage ? { backgroundImage: `url(${bgImage})` } : {};

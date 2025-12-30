@@ -152,6 +152,7 @@ const HomeContent = ({
             mode={layoutMode}
             currentSlide={currentSlide}
             onSlideChange={setCurrentSlide}
+            sections={sections}
           >
             {/* Hero Section */}
             <SectionWrapper id="inicio" vPadding="py-0" fullHeight>
@@ -250,7 +251,7 @@ const HomeContent = ({
           
   
             {/* About Section */}
-            <SectionWrapper id="sobre" vPadding="pt-12 pb-0">
+            <SectionWrapper id="sobre" vPadding="pt-0 pb-0">
               <AboutSection />
             </SectionWrapper>
   

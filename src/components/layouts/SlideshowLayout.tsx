@@ -8,6 +8,7 @@ interface SlideshowLayoutProps {
   mode: "vertical" | "horizontal";
   currentSlide: number;
   onSlideChange: (index: number) => void;
+  sections?: string[];
 }
 
 export function SlideshowLayout({
@@ -15,6 +16,7 @@ export function SlideshowLayout({
   mode,
   currentSlide,
   onSlideChange,
+  sections,
 }: SlideshowLayoutProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isScrolling, setIsScrolling] = useState(false);
@@ -109,7 +111,14 @@ export function SlideshowLayout({
         transition={{ type: "tween", ease: [0.645, 0.045, 0.355, 1.000], duration: 0.8 }}
         style={{ width: `${totalSlides * 100}vw` }}
       >
-        {childrenArray.map((child, index) => (
+        {childrenArray.map((child, index) => {
+            // Determine padding based on section ID
+            // 'sobre' (About) should have 0px as requested. Others 100px.
+            const sectionId = sections?.[index];
+            const isAbout = sectionId === 'sobre';
+            const bottomPadding = index > 0 ? (isAbout ? '0px' : '100px') : '0';
+
+            return (
           <div
             key={index}
             className="w-screen h-screen flex-shrink-0 overflow-y-auto overflow-x-hidden relative"
@@ -117,12 +126,16 @@ export function SlideshowLayout({
                // Force each section to be full screen
                minWidth: '100vw',
                maxWidth: '100vw',
-               paddingBottom: index > 0 ? '200px' : '0' // Espaço extra no bottom para não cobrir conteúdo
+               paddingBottom: bottomPadding 
             }}
           >
-            {child}
+            {React.isValidElement(child) 
+              ? React.cloneElement(child as React.ReactElement<any>, { 
+                  isActive: currentSlide === index 
+                }) 
+              : child}
           </div>
-        ))}
+        )})} 
       </motion.div>
     </div>
   );
