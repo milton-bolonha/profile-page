@@ -89,7 +89,7 @@ import { TextMotion } from '@/components/ui/TextMotion';
 export default function NewTimelineSection() {
   const [selectedYear, setSelectedYear] = useState<string>("1998");
   const [isScrollLocked, setIsScrollLocked] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const yearNavRef = useRef<HTMLDivElement>(null); // New ref for year navigation
   const selectedItem = timelineData.find((item) => item.year === selectedYear) || timelineData[0];
   
