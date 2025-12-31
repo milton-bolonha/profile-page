@@ -30,6 +30,7 @@ import { ClientOnly } from "@/components/commons/ClientOnly";
 import MagneticButton from "@/components/ui/MagneticButton";
 import Seo from "@/components/commons/Seo";
 import FloatingNavigator from "@/components/commons/FloatingNavigator";
+import TransitionAd from "@/components/transitions/TransitionAd";
 // import FloatingBadge from "@/components/Home/FloatingBadge";
 import {
   ScrollContainer,
@@ -67,6 +68,8 @@ const HomeContent = ({
 }: HomeProps) => {
   const { t } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showAd, setShowAd] = useState(false);
+  const [adTargetSlide, setAdTargetSlide] = useState(0);
   
   // Detecção de Mobile para forçar layout vertical
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -92,10 +95,58 @@ const HomeContent = ({
   ];
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // --- PREFETCH AD ASSETS ---
   useEffect(() => {
+    // Basic prefetch of the GLB to ensure cache is hot
+    import('three/examples/jsm/loaders/GLTFLoader.js').then(({ GLTFLoader }) => {
+        const loader = new GLTFLoader();
+        loader.load(
+            '/games/exp/low-poly_laboratory.glb', 
+            (gltf) => {
+                // Just load it into memory
+                console.log('Ad Model Prefetched');
+            },
+            undefined,
+            (error) => {
+                console.warn('Prefetch Failed', error);
+            }
+        );
+    });
+    
+    // Timer for site loading state
     const timer = setTimeout(() => setIsLoaded(true), 100);
     return () => clearTimeout(timer);
   }, []);
+
+  // Intercept Navigation for Ad
+  const [adDirection, setAdDirection] = useState<'left' | 'right'>('left');
+
+  const handleSlideChange = (newIndex: number) => {
+    // Boundary is between Stats (1) and O Que Faço (2).
+    // Stats = 1.
+    // If crossing from <= 1 to >= 2: Crossing Right (Ad direction: Left -> Right view)
+    // If crossing from >= 2 to <= 1: Crossing Left (Ad direction: Right -> Left view)
+    
+    const isCrossingRight = currentSlide <= 1 && newIndex >= 2;
+    const isCrossingLeft = currentSlide >= 2 && newIndex <= 1;
+
+    // IMMEDIATE: Update the Navigation State so floating badge matches target
+    setCurrentSlide(newIndex);
+
+    if (isCrossingRight) {
+        setAdDirection('left'); // Camera moves Left -> Right
+        setAdTargetSlide(newIndex); // (Kept for compatibility, though slide is already set)
+        setShowAd(true);
+        return;
+    }
+
+    if (isCrossingLeft) {
+        setAdDirection('right'); // Camera moves Right -> Left
+        setAdTargetSlide(newIndex);
+        setShowAd(true);
+        return;
+    }
+  };
 
   const seoData = {
     title:
@@ -138,10 +189,21 @@ const HomeContent = ({
           config={navigatorSettings} 
           mode={layoutMode}
           currentSlide={currentSlide}
-          onNavigate={(index) => setCurrentSlide(index)}
+          onNavigate={(index) => handleSlideChange(index)}
           sections={sections}
           isMobile={isMobile}
         />
+
+        {/* 3D Ad Transition Overlay */}
+        {showAd && (
+            <TransitionAd 
+                direction={adDirection}
+                onComplete={() => {
+                    setShowAd(false);
+                    // setCurrentSlide(adTargetSlide); // Already updated at start of transition
+                }}
+            />
+        )}
         
         <div
           className={`transition-opacity duration-1000 ${
@@ -151,7 +213,7 @@ const HomeContent = ({
           <SlideshowLayout
             mode={layoutMode}
             currentSlide={currentSlide}
-            onSlideChange={setCurrentSlide}
+            onSlideChange={handleSlideChange}
             sections={sections}
           >
             {/* Hero Section */}

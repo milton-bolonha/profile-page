@@ -772,15 +772,32 @@ class VoxelImageRenderer {
     if (this.isRotating && this.group) {
       this.rotationProgress += 0.02; // Animation speed
       
+      // Extended duration for the offset timing
+      // We want to finish the Image flip (0->1) quickly, but the Voxel flip starts later.
+      // Image takes ~1.0 units (50 frames).
+      // Voxels start at 0.06 units (~3 frames / 0.05s delay).
+      // Voxels take ~1.0 units to finish.
+      // Total duration needed: ~1.06 units.
+      const startDelay = 0.06;
+      const maxProgress = 1.0 + startDelay + 0.1; // Buffer
+
       // Zoom out camera during rotation
-      this.cameraTargetZ = 300; // Zoom out to show full rotation (less distance)
+      this.cameraTargetZ = 300; 
       
-      if (this.rotationProgress >= 1) {
+      if (this.rotationProgress >= maxProgress) {
         this.rotationProgress = 0;
         this.isRotating = false;
-        this.group.rotation.y = 0; // Reset to original position
-        this.group.rotation.x = 0; // Reset tilt
-        this.cameraTargetZ = this.cameraBaseZ; // Zoom back in
+        
+        // Reset everything
+        this.group.rotation.y = 0; 
+        
+        // Reset Plane Rotation
+        if (this.group.children[0]) {
+            this.group.children[0].rotation.y = 0;
+        }
+
+        this.group.rotation.x = 0; 
+        this.cameraTargetZ = this.cameraBaseZ; 
         
         // Reset delayed rotations
         if (this.layeredDelay) {
@@ -816,49 +833,81 @@ class VoxelImageRenderer {
           }
         }
       } else {
-        // Bounce easing (cartoonish)
-        const t = this.rotationProgress;
-        const bounce = t < 0.5 
-          ? 4 * t * t * t 
-          : 1 - Math.pow(-2 * t + 2, 2) / 2; // Changed to 2 for smoother bounce
+        // --- 1. CALCULATE TIMELINES ---
+        // tImage: 0 -> 1 (Immediate start)
+        const tImage = Math.min(1.0, this.rotationProgress);
         
-        // Full 360° rotation (2 * PI radians)
-        const targetRotation = bounce * Math.PI * 2 * this.rotationDirection;
-        this.group.rotation.y = targetRotation;
+        // tBlocks: 0 -> 1 (Starts after startDelay)
+        const tBlocks = Math.max(0, Math.min(1, this.rotationProgress - startDelay));
         
-        // Layered delay animation for voxels
+        
+        // --- 2. CALCULATE TARGET ROTATIONS ---
+        
+        // Helper for bounce easing
+        const getBounceRotation = (t) => {
+             const bounce = t < 0.5 
+              ? 4 * t * t * t 
+              : 1 - Math.pow(-2 * t + 2, 2) / 2;
+             return bounce * Math.PI * 2 * this.rotationDirection;
+        };
+
+        const rotImage = getBounceRotation(tImage);
+        const rotBlocks = getBounceRotation(tBlocks);
+        
+        
+        // --- 3. APPLY ROTATIONS ---
+        
+        // Apply MAIN rotation to Group (effectively moving the voxels)
+        this.group.rotation.y = rotBlocks;
+        
+        // Apply DIFFERENCE to Image Plane (so it follows tImage curve relative to world)
+        // Image World Rot = Group Rot + Image Local Rot
+        // Image Local Rot = Image World Rot - Group Rot
+        if (this.group.children[0]) {
+            this.group.children[0].rotation.y = rotImage - rotBlocks;
+        }
+
+
+        // --- 4. VOXEL LOGIC (Using tBlocks) ---
+        // Voxels use tBlocks so they move with the Group's timeline
+        
         if (this.layeredDelay) {
           this.voxels.forEach(voxel => {
-            // Progressive delay: each layer delay decreases
-            // Layer 0: 6%, Layer 1: 3%, Layer 2: 1.5%
+            // Progressive delay logic preserved
             const layerDelays = [0.06, 0.03, 0.015];
             const layerDelay = layerDelays[voxel.layer] || 0;
-            const totalDelay = layerDelay + voxel.randomDelay; // Add random threshold
-            const delayedT = Math.max(0, Math.min(1, t - totalDelay));
+            const totalDelay = layerDelay + voxel.randomDelay; 
             
-            // Apply same bounce easing to delayed rotation
+            // Calculate delayed T based on BLOCKS timeline
+            const delayedT = Math.max(0, Math.min(1, tBlocks - totalDelay));
+            
             const delayedBounce = delayedT < 0.5
               ? 4 * delayedT * delayedT * delayedT
-              : 1 - Math.pow(-2 * delayedT + 2, 2) / 2; // Changed to 2 for smoother bounce
+              : 1 - Math.pow(-2 * delayedT + 2, 2) / 2;
             
             voxel.delayedRotation = delayedBounce * Math.PI * 2 * this.rotationDirection;
           });
         }
         
-        // Voxelize image animation
+        // Voxelize image animation (Opacity/Visibility) - SYNC WITH VOXELS (tBlocks)
         if (this.voxelizeImage) {
-          // Smoothly reduce image opacity to 85% during spin
+          const t = tBlocks; 
+          
+          // Image Opacity Logic
           if (this.group && this.group.children[0]) {
             const planeMesh = this.group.children[0];
             if (planeMesh.material) {
               // Gradual transition: fade to 85% in first 20%, stay, fade back in last 20%
               let imageOpacity = 1.0;
-              if (t < 0.2) {
-                imageOpacity = 1.0 - (t / 0.2) * 0.15; // 1.0 -> 0.85
-              } else if (t < 0.8) {
-                imageOpacity = 0.85; // Stay at 85%
-              } else {
-                imageOpacity = 0.85 + ((t - 0.8) / 0.2) * 0.15; // 0.85 -> 1.0
+              // Only fade out if we are actually in the voxel animation phase
+              if (t > 0) {
+                  if (t < 0.2) {
+                    imageOpacity = 1.0 - (t / 0.2) * 0.15; // 1.0 -> 0.85
+                  } else if (t < 0.8) {
+                    imageOpacity = 0.85; // Stay at 85%
+                  } else {
+                    imageOpacity = 0.85 + ((t - 0.8) / 0.2) * 0.15; // 0.85 -> 1.0
+                  }
               }
               planeMesh.material.opacity = imageOpacity;
               planeMesh.material.transparent = imageOpacity < 1.0;
@@ -866,9 +915,6 @@ class VoxelImageRenderer {
           }
           
           // Calculate fade for voxels
-          // Fade in: 0.0 -> 0.3 (t: 0.0 -> 0.3)
-          // Stay visible: 0.3 -> 0.7 (t: 0.3 -> 0.7)
-          // Fade out: 0.7 -> 1.0 (t: 0.7 -> 1.0)
           let voxelOpacity = 0;
           if (t < 0.3) {
             // Fade in smoothly
@@ -882,7 +928,8 @@ class VoxelImageRenderer {
           }
           
           // Create or show full voxel mesh
-          if (!this.isVoxelized && t > 0.1) {
+          // Trigger when Voxel Phase starts
+          if (!this.isVoxelized && t > 0.01) {
             this.buildFullVoxelMesh();
             this.isVoxelized = true;
           }
@@ -906,15 +953,16 @@ class VoxelImageRenderer {
                 }
               }
               
-              // Apply layered delay rotation to ALL voxels
+              // Apply SAME rotation logic to full mesh voxels
+              // Logic is identical to border voxels
               const layerDelays = [0.06, 0.03, 0.015];
               const layerDelay = layerDelays[voxel.layer] || 0;
               const totalDelay = layerDelay + voxel.randomDelay;
-              const delayedT = Math.max(0, Math.min(1, t - totalDelay));
+              const delayedT = Math.max(0, Math.min(1, tBlocks - totalDelay));
               
               const delayedBounce = delayedT < 0.5
                 ? 4 * delayedT * delayedT * delayedT
-                : 1 - Math.pow(-2 * delayedT + 2, 2) / 2; // Changed to 2 for smoother bounce
+                : 1 - Math.pow(-2 * delayedT + 2, 2) / 2;
               
               voxel.delayedRotation = delayedBounce * Math.PI * 2 * this.rotationDirection;
             });

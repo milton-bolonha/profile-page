@@ -114,6 +114,7 @@ export default function FloatingNavigator({
       // Horizontal behavior
       const targetId = href.replace('#', '');
       const slideIndex = sections.indexOf(targetId);
+      
       if (slideIndex !== -1) {
         onNavigate(slideIndex);
       }

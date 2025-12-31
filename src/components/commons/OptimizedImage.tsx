@@ -19,6 +19,7 @@ export const OptimizedImage = ({
   priority = false,
   cubeFrame = false,
   enableFlip = true,
+  shouldLoad, // Destructured here to remove from ...props
   ...props
 }: OptimizedImageProps) => {
   const [error, setError] = useState(false);
@@ -65,7 +66,7 @@ export const OptimizedImage = ({
 
   // Initialize framer-blocks when cubeFrame is enabled AND explicitly triggered (or default true implies load-on-view)
   // We add 'shouldLoad' to props to allow external delays (like for H1 animation)
-  const shouldLoad = props.shouldLoad !== undefined ? props.shouldLoad : true;
+  const shouldLoadVal = shouldLoad !== undefined ? shouldLoad : true;
 
   // Estado para controlar o indicador de "Carregando 3D"
   const [is3DReady, setIs3DReady] = useState(false);
@@ -77,7 +78,7 @@ export const OptimizedImage = ({
       return;
     }
     
-    if (!containerRef.current || loading || error || !isInView || !shouldLoad) return;
+    if (!containerRef.current || loading || error || !isInView || !shouldLoadVal) return;
     
     let cleanup: (() => void) | undefined;
 
@@ -114,7 +115,7 @@ export const OptimizedImage = ({
       rendererRef.current = null;
       setIs3DReady(false); // Resetar ao desmontar
     };
-  }, [cubeFrame, imgSrc, loading, error, isInView, shouldLoad]);
+  }, [cubeFrame, imgSrc, loading, error, isInView, shouldLoadVal]);
 
   // Funções de controle do 3D
   const [isGravityOn, setIsGravityOn] = useState(false);
@@ -150,18 +151,35 @@ export const OptimizedImage = ({
               priority={priority}
               {...props}
             />
+            {/* Overlay Estático "Sinta-se Bem-Vind@!" - Transição Suave */}
+            {(() => {
+                const shouldShowLoader = cubeFrame && !is3DReady && isInView && shouldLoadVal && !loading;
+                // Visible if NOT loading, NOT ready, and Loader is NOT showing
+                const isWelcomeVisible = cubeFrame && !loading && !shouldShowLoader && !is3DReady;
+                
+                return cubeFrame && !loading && (
+                   <div className={`absolute inset-0 flex justify-center items-center z-10 pointer-events-none transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isWelcomeVisible ? 'opacity-100 scale-110' : 'opacity-0 scale-0'}`}>
+                      <div className="bg-black/80 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 flex items-center justify-center shadow-2xl">
+                        <span className="text-xs font-bold text-white uppercase tracking-widest">Sinta-se Bem-Vind@!</span>
+                      </div>
+                   </div>
+                );
+            })()}
          </div>
       </div>
 
-      {/* Indicador de Carregamento 3D - Centralizado */}
-      {cubeFrame && !is3DReady && isInView && shouldLoad && !loading && (
-         <div className="absolute inset-0 flex justify-center items-center z-20 pointer-events-none">
-            <div className="bg-black/80 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 flex items-center gap-3 shadow-2xl transform scale-110">
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              <span className="text-xs font-bold text-white uppercase tracking-widest">Carregando Experiência 3D...</span>
-            </div>
-         </div>
-      )}
+      {/* Indicador de Carregamento 3D */}
+      {(() => {
+          const shouldShowLoader = cubeFrame && !is3DReady && isInView && shouldLoadVal && !loading;
+          return shouldShowLoader && (
+             <div className="absolute inset-0 flex justify-center items-center z-20 pointer-events-none animate-in fade-in zoom-in duration-300">
+                <div className="bg-black/80 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 flex items-center gap-3 shadow-2xl transform scale-110">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span className="text-xs font-bold text-white uppercase tracking-widest">Carregando Experiência 3D...</span>
+                </div>
+             </div>
+          );
+      })()}
 
       {/* 2. Camada 3D */}
       {cubeFrame && (

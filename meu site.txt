@@ -2,7 +2,8 @@ slider better transitions smooth
 
 transition 3d ads like type
 a transição entre slides ficará entre stats e quem sou
-
+ você vai colocar um seção que é obrigatória a passagem porém ela é um anúncio e não uma seção q vai no navegador flutuante e tudo mais, mas vamos precisar captar o estado da intenção de qual página o user quer acessar e de onde ele estava, ai qndo for passar pela sessão de ads ele para, ai dá pra pular, ou esperar o anúncio acabar bem típico de site com ads e com o pular do youtube sabe...
+vamos falar o fundo desse anúncio é um 3d irado wizards_room.glb em  public\games\exp 
 
 lazy load para 3d
 - kill mesh whe tab and sibling neiboirs arnt active.. identify w intelligence
@@ -68,3 +69,15 @@ seção oq que faço
 botão jogar demo
 tem q carregar nosso jogo, mas não carrega até clicar, pq ele é pesado.. eu não quero dar load no q não precisa ainda..
 NeonFlightGame
+
+----
+
+a imagem q roda com frame de bloquinhos ela qndo a aba tá ativa fica ouvindo se o usuário vai apertar R, se ele fizer isso, a imagem aciona o rotate dela e se o usuário apertar G aciona o botão/efeito da gravidade, inclusive alterando o estado da direção do icone do botão
+
+
+quero q investigue o slider em xxxx e me fale pq o deles é melhor q o nosso
+
+faq a transição abrindo e fechando não pode ser abrupta, tem q ser transição animada
+
+
+faltou tag em contato
