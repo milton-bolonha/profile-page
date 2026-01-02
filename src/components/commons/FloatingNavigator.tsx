@@ -12,6 +12,7 @@ import {
   FaClock,
   FaChartBar,
   FaQuestionCircle,
+  FaFlask,
 } from 'react-icons/fa';
 
 interface NavigatorItem {
@@ -55,11 +56,12 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   FaClock,
   FaChartBar,
   FaQuestionCircle,
+  FaFlask,
 };
 
-export default function FloatingNavigator({ 
-  config, 
-  mode, 
+export default function FloatingNavigator({
+  config,
+  mode,
   currentSlide,
   onNavigate,
   sections = [],
@@ -109,12 +111,12 @@ export default function FloatingNavigator({
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string, index: number) => {
     e.preventDefault();
-    
+
     if (mode === 'horizontal') {
       // Horizontal behavior
       const targetId = href.replace('#', '');
       const slideIndex = sections.indexOf(targetId);
-      
+
       if (slideIndex !== -1) {
         onNavigate(slideIndex);
       }
@@ -139,6 +141,11 @@ export default function FloatingNavigator({
 
   if (!config?.enabled) return null;
 
+  // HIDE if on the 'ad-transition' / Showcase 3D slide
+  if (sections[currentSlide] === 'ad-transition') {
+    return null;
+  }
+
   // Mobile Horizontal Mode (Special UI)
   if (isMobile && mode === 'horizontal') {
     const currentItem = config.items.find(item => item.id === activeSection) || config.items[0];
@@ -146,17 +153,17 @@ export default function FloatingNavigator({
 
     return (
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] flex flex-col items-center gap-4">
-        
+
         {/* Expanded Menu (popup) */}
         {isExpanded && (
           <div className="bg-black/80 backdrop-blur-md rounded-2xl border border-white/10 p-4 mb-2 animate-in slide-in-from-bottom-5 fade-in duration-300">
-             <ul className="grid grid-cols-4 gap-4">
+            <ul className="grid grid-cols-4 gap-4">
               {config.items.map((item, index) => {
                 const Icon = iconMap[item.icon] || FaHome;
                 const isActive = activeSection === item.id;
                 return (
                   <li key={item.id}>
-                     <a
+                    <a
                       href={item.href}
                       onClick={(e) => handleClick(e, item.href, index)}
                       className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all ${isActive ? 'text-white bg-white/10' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
@@ -167,38 +174,38 @@ export default function FloatingNavigator({
                   </li>
                 )
               })}
-             </ul>
+            </ul>
           </div>
         )}
 
         {/* Control Bar */}
-        <div 
+        <div
           className="bg-black/80 backdrop-blur-md rounded-full border border-white/10 p-2 flex items-center gap-4 shadow-lg"
         >
-           {/* Prev */}
-           <button onClick={handlePrev} className="w-10 h-10 flex items-center justify-center rounded-full text-white/70 hover:text-white hover:bg-white/10">
-             <svg className="w-5 h-5 rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-           </button>
+          {/* Prev */}
+          <button onClick={handlePrev} className="w-10 h-10 flex items-center justify-center rounded-full text-white/70 hover:text-white hover:bg-white/10">
+            <svg className="w-5 h-5 rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          </button>
 
-           {/* Current Indicator */}
-           <div className="w-12 h-12 flex items-center justify-center rounded-full bg-white text-black font-bold">
-              <CurrentIcon className="text-xl" />
-           </div>
+          {/* Current Indicator */}
+          <div className="w-12 h-12 flex items-center justify-center rounded-full bg-white text-black font-bold">
+            <CurrentIcon className="text-xl" />
+          </div>
 
-           {/* Next */}
-           <button onClick={handleNext} className="w-10 h-10 flex items-center justify-center rounded-full text-white/70 hover:text-white hover:bg-white/10">
-             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-           </button>
+          {/* Next */}
+          <button onClick={handleNext} className="w-10 h-10 flex items-center justify-center rounded-full text-white/70 hover:text-white hover:bg-white/10">
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          </button>
 
-           {/* Expand Trigger */}
-           <button 
+          {/* Expand Trigger */}
+          <button
             onClick={() => setIsExpanded(!isExpanded)}
             className={`w-10 h-10 flex items-center justify-center rounded-full border border-white/20 transition-all ${isExpanded ? 'bg-white text-black' : 'text-white/70 hover:text-white'}`}
-           >
-             <svg className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-             </svg>
-           </button>
+          >
+            <svg className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
         </div>
       </nav>
     );
@@ -213,7 +220,7 @@ export default function FloatingNavigator({
     <nav
       className={`fixed ${containerClass} z-[200]`}
     >
-      <div 
+      <div
         className={`backdrop-blur-md rounded-full border border-white/5 shadow-md py-2 px-2 transition-all duration-300`}
         style={{
           backgroundColor: config.style.backgroundColor,
@@ -223,7 +230,7 @@ export default function FloatingNavigator({
           {config.items.map((item, index) => {
             const Icon = iconMap[item.icon] || FaHome;
             const isActive = activeSection === item.id;
-            
+
             return (
               <li key={item.id}>
                 <a
@@ -236,7 +243,7 @@ export default function FloatingNavigator({
                   title={item.label}
                 >
                   <Icon className="text-sm transition-colors duration-300" />
-                  
+
                   {/* Tooltip */}
                   <span
                     className={`absolute ${mode === 'horizontal' ? 'bottom-full mb-2' : 'right-full mr-2'} px-2 py-0.5 rounded text-[10px] font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`}

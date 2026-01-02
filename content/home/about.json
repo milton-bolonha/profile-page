@@ -1,11 +1,22 @@
 {
   "about": {
+    "title": "Vamos Trabalhar",
+    "badge1": "Inteligência Artificial",
+    "badge2": "+20 Anos de Experiência",
+    "description": "O mundo digital mudou. Hoje, produtos são inteligentes, automatizados e conectados.\n\nTrabalho ajudando pessoas e empresas a transformarem ideias em:",
+    "list": [
+      "Produtos web reais",
+      "Sistemas com inteligência artificial",
+      "Experiências gamificadas",
+      "Carreiras sustentáveis no digital"
+    ],
+    "closing": "Seja um site, uma plataforma, um jogo ou uma mentoria, meu foco é clareza, execução e resultado.",
+    "cta": "Solicitar Contato",
     "photo": {
-      "url": "/img/perfil2.jpg",
-      "alt": "Milton Bolonha",
-      "width": 300,
-      "height": 300
-    },
-    "link": "/sobre"
+        "url": "/img/perfil2.jpg",
+        "alt": "Milton Bolonha",
+        "width": 500,
+        "height": 500
+    }
   }
 }

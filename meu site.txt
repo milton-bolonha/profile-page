@@ -3,7 +3,7 @@ slider better transitions smooth
 transition 3d ads like type
 a transição entre slides ficará entre stats e quem sou
  você vai colocar um seção que é obrigatória a passagem porém ela é um anúncio e não uma seção q vai no navegador flutuante e tudo mais, mas vamos precisar captar o estado da intenção de qual página o user quer acessar e de onde ele estava, ai qndo for passar pela sessão de ads ele para, ai dá pra pular, ou esperar o anúncio acabar bem típico de site com ads e com o pular do youtube sabe...
-vamos falar o fundo desse anúncio é um 3d irado wizards_room.glb em  public\games\exp 
+vamos falar o fundo desse anúncio é um 3d irado wizards_room.glb em  public\games\exp  ai tpo o moude meio q dá uma mexida assim na camera, q estará em close na cena q é um quarto com duas parede faltando justamente para posicionarmos a camera sabe da pra fazer ele isométrico (mas nao queremos isométrico foi pra exemplo q eu te disse issso).... então vai ter uma animação q vai funciona antes e depois de chegar nessa seção ads q será diferente se vem da esq ou seja dos primeros ou da direito os demais seções..  assumindo q a parede do quarto esta de frente para nós uma dela deixando sua parede uma coluna né vertical ela vai ser a nossa transição com a camera em close enquanto outras abas estarão deslizando, vem da esq pra direita ou melhor acamera da imporessão q vem junto com asos slides / abas anterioes o mesh da room susa arede é uma transição cinematrográfica... ai a cena fica em clos eno meio ou talvez ela da uma meia rotacionada pra pegar o quarto na perpendicular sabe diagonal ... ai o para, o anuncio será imbutido posteriormente pode colocar um ads placeholder ai tem o pular, a pessoa fechou ou pulou continua a ação, no caso do nosso exemplo primeiro da esq pra dir o qurto rotaciona, são duas paredes faltando, então vc entende q ele vai rotacionar a camera na verdade para continuar ir da esq pra ireita mas sempre focando a diagonal do quarto, a interseção q une as paredes né.. ai como é ação de sair da animação pra dir termina a rotação q era só meia rotação e ca camera leva o quarto para a esq (tipo isso né movimento de camera da impressao disso) e passa a outra parede né como coluna de pezinha assim e logo já vem a próxima aba q foi selecionada... lembrando q esse ads é parada obrigatória toda vez que passar por entre stats e sobre, não importa de onde estiver vindo... e depois você só fecha ou pula o anúncio e segue para o detino clicado inciailmente.. 
 
 lazy load para 3d
 - kill mesh whe tab and sibling neiboirs arnt active.. identify w intelligence
@@ -81,3 +81,365 @@ faq a transição abrindo e fechando não pode ser abrupta, tem q ser transiçã
 
 
 faltou tag em contato
+
+
+---
+
+
+
+
+
+
+
+Conteúdo correto
+
+stats
+conteúdo
+
+
+ads lab
+animação2
+
+
+
+a animação da esq pra dir ok perfeito
+
+
+
+
+
+
+
+
+O que falta
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-----
+
+
+
+primeiro slide:
+
+Inteligência Artificial, Games e Mentoria
+
+Milton Bolonha
+
+Equipando sonhadores para o sucesso na web desde 2005 com plataformas modernas e SaaS. Transformando ideias em produtos internacionais desde 2018.
+
+Vamos Conversar 
+Ver Projetos
+
+1M
+Views Mês
+(i) fazer um botão de informativo
+- Rede sociais
+
+U$60k+
+Faturamento 
+(i) fazer um botão de informativo
+- Freelancer Internacional
+
++8
+Países
+(i) fazer um botão de informativo
+- Dezenas de projetos
+
++200
+Mentorados 
+(i) fazer um botão de informativo
+- Carreiras Impactadas
+
+
+----
+#2 slide:
+stats vai lá pra mais pra frente do site, mas no fim na verdade
+e aqui onde era stats estamos trazendo uma parte de showcase de projetos (ajeitar no menu flutuante)
+
+
+
+Destaques
+
+- AI Insights
+- AI Times / moderntips.com
+- DashMasterPRO
+- blog.descola
+- 
+
+
+- I.A. & Web Dev
+- 3D & Game Dev
+- Mentoria
+
+I.A. & Web Dev
+Testar I.A.
+Ver Mais Projetos (*anchorLink ainda precisa ser feito, depois eu mando)
+
+3D & Game Dev
+Jogar Demo
+Ver Todos Jogos (*anchorLink ainda precisa ser feito, depois eu mando)
+
+Mentoria
+Conheça
+Contate o Mentor (*anchorLink ainda precisa ser feito, depois eu mando)
+
+
+Testemunhos
+---
+
+
+
+# ads slide
+
+
+Ads lab
+floating menu precisa não aparecer
+animação esq pra dir perfeita
+refazer dir pra esq animação
+-----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Game Station
+
+(Mando texto depois)
+
+
+
+
+
+
+
+
+
+
+
+
+Sobre <-> Vamos Trabalhar
+Quem sou eu?<-> muda pra Open To Work
+
+
+Inteligência Artificial
++20 Anos de Experiência
+
+
+O mundo digital mudou. Hoje, produtos são inteligentes, automatizados e conectados.
+
+
+
+Seja um site, uma plataforma, um jogo ou uma mentoria, meu foco é clareza, execução e resultado.
+
+Solicitar Contato
+
+
+
+
+--
+lixo::::
+
+Nos últimos três anos trabalhei quase que exclusivamente com produtos onde a Inteligência Artificial era o coração da aplicação. Estamos diante de um novo marco, é como participar do começo dos anos 90 e ver o surgimento da internet.
+
+O mundo digital não é mais o mesmo, é um ambiente inteligente, automatizado, gamificado, com aplicações web integradas com I.A. e Crypto. 
+
+Transformo a sua ideia em produtos web com inteligência artificial, as melhores tecnologias JS ou WordPress. Desde um Chatbot, até um game. 
+
+lixo::::
+----
+
+
+
+
+
+
+
+stats
+colocar testemunhos em stats
+
+Números <-> Na Prática
+Nossos Resultados <-> Impacto Real
+
+Nos últimos anos, ajudei profissionais e equipes a destravarem suas carreiras e projetos com clareza, visão de mercado e ação coordenada.
+
+
+
++300
+Projetos Web
+Desde 1998
+
+U$60k+
+Faturamento 
+(i) fazer um botão de informativo
+- Freelancer Internacional
+
++8 anos
++ 8 Países
+(i) fazer um botão de informativo
+- Dezenas de projetos
+
+
+253 Mentorados 
+(i) fazer um botão de informativo
+- Carreiras Impactadas
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Stack
+
+Tecnologias que domino
+
+Sempre aprendendo e evoluindo com as melhores ferramentas do mercado
+
+wordpress
+cpanel
+
+Next.js
+React
+JavaScript
+Node.js
+Express
+APIs REST
+HTML5
+CSS3
+SQL
+GitHub
+Netlify
+Trello
+clerkjs
+stripe
+etc...
+
+Nossa História
+
+desfazer rolagem automática presa.. deixar a mudança ali nos anos, com clique como já está lá e remover a coisa da rolagem presa pra mudar anos e acrescnetar cursor pointer no hover dos anos..
+Nossa História <-> Minha História
+Uma linda história de superação e criatividade.
+ 
+(mando texto depois)
+
+
+
+
+a parte de depoimentos tem q ir lá pra dentro do stats, abaixo do q tem lá já...
+
+
+
+# ads slide
+- new ads slide
+-- copiar o primeiro mas ver se está 
+
+
+
+
+Faq
+(mando texto depois)
+
+Contato
+(mando texto depois)
+
+
+Neon fly**arrumar tirar painel flutuante
+Ai insigths generation
+
+
+Contato não tem tag
+
+
+
+
+
+
+
+Início e Contato são os únicos corretos na questão do grid gradient q fizemos
+Contato tem o espaçamento no topo da página + o grid no lugar correto, ou seja, no topo da página, sem o espaçamento do topo para esse bg especial q pega a página inteira
+
+Todas as outras seções ou não exibem, ou exibem erradamente o grid
+
+
+Animação do ads para lab mesh
+da esq pra dir tá perfeito...
+da dir pra esquerda a animação 1 deveria ser a última e e deveria haver uma animação antes dessa..
+
+
+
+
+Catálogo
+
+WEB: AI SaaS - Boilerplate
+WEB: AI Times - Automatic Blog
+WEB: One Page Website
+WEB: SEO Business Page
+WEB: Server Maintenence
+WEB: Domain Management
+
+BOOK: How to code and manage AI SaaS - The definitive enterpeneur roadmap 
+
+BOOK: What's wrong with you delevoper? Or What's wrong with you enterpreneur?
+
+BOOK: Web Development: Essential Guidance for Begginers n Web Agencies
+
+GAME DEV: OnDemand.
+
+MENTORIA: Trilha Ignição
+MENTORIA: Autossuficiência Profissional
+MENTORIA: Programação Web, AI e SaaS
+MENTORIA: Carreira Internacional
+MENTORIA: Torne-se Um Mentor
+MENTORIA: Bushido 3.0 - O Caminho Do Organizacionista
+MENTORIA: Cosmologia Organizacionista
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

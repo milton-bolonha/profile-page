@@ -1,19 +1,34 @@
 {
   "hero": {
-    "badge": {
-      "icon": "",
-      "textKey": "about.education.degreeShort"
+    "badge": "Inteligência Artificial, Games e Mentoria",
+    "title": "Milton Bolonha",
+    "subtitle": "Desde 2005 desenvolvo plataformas web modernas e SaaS. Transformo ideias em produtos internacionais há 8 anos.",
+    "cta": {
+      "primary": "Vamos Conversar",
+      "secondary": "Ver Projetos"
     },
-    "experienceBadge": {
-      "number": "2+",
-      "textKey": "home.hero.experience"
-    },
+    "stats": [
+      {
+        "value": "1M",
+        "label": "Views Mês",
+        "info": "Rede sociais"
+      },
+      {
+        "value": "U$60k+",
+        "label": "Faturamento",
+        "info": "Freelancer Internacional"
+      },
+      {
+        "value": "+8",
+        "label": "Países",
+        "info": "Dezenas de projetos"
+      }
+    ],
     "photo": {
-      "url": "/img/foto-perfil.jpg",
-      "alt": "Milton Bolonha",
-      "width": 400,
-      "height": 400
+        "url": "/img/foto-perfil.jpg",
+        "alt": "Milton Bolonha",
+        "width": 500,
+        "height": 600
     }
   }
 }
-

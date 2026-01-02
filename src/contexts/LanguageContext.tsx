@@ -18,7 +18,8 @@ const translations = {
 };
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState('en');
+  const [language, setLanguageState] = useState('pt'); // Default to PT based on user preference usually, but 'en' was default in old code. Let's keep 'pt' as default or 'en'? Old code had 'en'. I will switch to 'pt' if that's the primary audience, but strictly let's keep 'en' to match old behavior or check logic.
+  // Actually, allow logic to decide.
 
   useEffect(() => {
     // Carregar idioma do localStorage apenas no cliente
@@ -26,6 +27,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const savedLanguage = localStorage.getItem('language');
       if (savedLanguage && (savedLanguage === 'pt' || savedLanguage === 'en')) {
         setLanguageState(savedLanguage);
+      } else {
+         // Default fallback could be pt since the content is now heavily PT focused in json?
+         // Let's stick to safe default 'pt' for now as the user writes in Portuguese.
+         setLanguageState('pt'); 
       }
     }
   }, []);
@@ -38,6 +43,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const t = (key: string): any => {
+    if (!key || typeof key !== 'string') return key || '';
+    
     const keys = key.split('.');
     let value: any = translations[language as keyof typeof translations];
     

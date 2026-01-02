@@ -1,0 +1,28 @@
+{
+  "statsSection": {
+    "title": "Our Results",
+    "subtitle": "Real impact on projects and careers around the world.",
+    "items": [
+      {
+        "value": "+300",
+        "label": "Web Projects",
+        "sublabel": "Since 1998"
+      },
+      {
+        "value": "$60k+",
+        "label": "Revenue",
+        "info": "International Freelancer"
+      },
+      {
+        "value": "+8 Years",
+        "label": "+8 Countries",
+        "info": "Dozens of projects"
+      },
+      {
+        "value": "253",
+        "label": "Mentored",
+        "info": "Careers Impacted"
+      }
+    ]
+  }
+}

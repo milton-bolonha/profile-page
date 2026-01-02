@@ -9,12 +9,6 @@
       "href": "#inicio"
     },
     {
-      "id": "stats",
-      "label": "Stats",
-      "icon": "FaChartBar",
-      "href": "#stats"
-    },
-    {
       "id": "o-que-faco",
       "label": "O Que Faço",
       "icon": "FaGamepad",
@@ -28,33 +22,15 @@
     },
     {
       "id": "projetos",
-      "label": "Projetos",
+      "label": "Catálogo",
       "icon": "FaCode",
       "href": "#projetos"
-    },
-    {
-      "id": "tecnologias",
-      "label": "Tech Stack",
-      "icon": "FaLaptopCode",
-      "href": "#tecnologias"
     },
     {
       "id": "historia",
       "label": "História",
       "icon": "FaClock",
       "href": "#historia"
-    },
-    {
-      "id": "showcase-demo",
-      "label": "Demo",
-      "icon": "FaFlask",
-      "href": "#showcase-demo"
-    },
-    {
-      "id": "testimonials",
-      "label": "Depoimentos",
-      "icon": "FaCommentDots",
-      "href": "#testimonials"
     },
     {
       "id": "faq",

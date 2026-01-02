@@ -1,3 +1,4 @@
+
 import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
 import { OptimizedImage } from '@/components/commons/OptimizedImage';
@@ -9,16 +10,15 @@ export const AboutSection = () => {
   const { t } = useLanguage();
 
   return (
-    <div className="relative bg-black w-full h-full">
-      {/* Pure black background with subtle left-side grid */}
+    <div className="relative w-full h-full">
+      {/* Transparent background to allow Wrapper Grid to show */}
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-          
+
           {/* Left: Image */}
           <div className="order-2 lg:order-1">
             <div className="relative max-w-sm mx-auto lg:mx-0">
-              {/* Removed glow and blur effects */}
               <div className="relative aspect-[3/4] overflow-hidden">
                 <OptimizedImage
                   src={aboutData.about.photo.url}
@@ -38,14 +38,14 @@ export const AboutSection = () => {
               <div className="inline-block px-4 py-2 bg-white/5 backdrop-blur-sm rounded-full border border-white/10 mb-6">
                 <span className="text-sm font-medium text-white/80 tracking-wide">Sobre Mim</span>
               </div>
-              
+
               <h2 className="text-4xl md:text-6xl font-semibold text-white mb-6 leading-tight" style={{ fontFamily: 'Noto Serif Variable, serif', lineHeight: '1.3' }}>
                 <TextMotion trigger={true} stagger={0.05}>
                   {t('home.about.title')}
                 </TextMotion>
               </h2>
             </div>
-            
+
             <div className="space-y-4 text-lg text-white/70 font-light leading-relaxed">
               {t('home.about.description').split('\n').map((paragraph: string, idx: number) => (
                 <p key={idx}>{paragraph}</p>

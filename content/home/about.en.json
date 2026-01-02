@@ -1,0 +1,22 @@
+{
+  "about": {
+    "title": "Let's Work Together",
+    "badge1": "Artificial Intelligence",
+    "badge2": "+20 Years Experience",
+    "description": "The digital world has changed. Today, products are intelligent, automated, and connected.\n\nI work helping people and companies transform ideas into:",
+    "list": [
+      "Real web products",
+      "AI-powered systems",
+      "Gamified experiences",
+      "Sustainable digital careers"
+    ],
+    "closing": "Whether it's a site, a platform, a game, or mentorship, my focus is clarity, execution, and results.",
+    "cta": "Request Contact",
+    "photo": {
+        "url": "/img/foto-perfil.jpg",
+        "alt": "Milton Bolonha",
+        "width": 500,
+        "height": 500
+    }
+  }
+}

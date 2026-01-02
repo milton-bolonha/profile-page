@@ -1,0 +1,39 @@
+{
+  "hero": {
+    "badge": "AI, Games & Mentorship",
+    "title": "Milton Bolonha",
+    "subtitle": "Equipping dreamers for web success since 2005 with modern platforms and SaaS. Transforming ideas into international products since 2018.",
+    "cta": {
+      "primary": "Let's Talk",
+      "secondary": "View Projects"
+    },
+    "stats": [
+      {
+        "value": "1M",
+        "label": "Monthly Views",
+        "info": "Social Networks"
+      },
+      {
+        "value": "$60k+",
+        "label": "Revenue",
+        "info": "International Freelancer"
+      },
+      {
+        "value": "+8",
+        "label": "Countries",
+        "info": "Dozens of projects"
+      },
+      {
+        "value": "+200",
+        "label": "Mentored",
+        "info": "Careers Impacted"
+      }
+    ],
+    "photo": {
+        "url": "/img/foto-perfil.jpg",
+        "alt": "Milton Bolonha",
+        "width": 500,
+        "height": 600
+    }
+  }
+}

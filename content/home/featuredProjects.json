@@ -3,7 +3,7 @@
   "projects": [
     {
       "id": 1,
-      "titleKey": "projects.projectNumber",
+      "titleKey": "home.projects.projectNumber",
       "descriptionKey": "home.projects.project1",
       "techs": ["Next.js", "TypeScript", "Tailwind"],
       "featured": true,
@@ -11,7 +11,7 @@
     },
     {
       "id": 2,
-      "titleKey": "projects.projectNumber",
+      "titleKey": "home.projects.projectNumber",
       "descriptionKey": "home.projects.project2",
       "techs": ["React", "Node.js", "MongoDB"],
       "featured": true,
@@ -19,7 +19,7 @@
     },
     {
       "id": 3,
-      "titleKey": "projects.projectNumber",
+      "titleKey": "home.projects.projectNumber",
       "descriptionKey": "home.projects.project3",
       "techs": ["Next.js", "PostgreSQL", "API REST"],
       "featured": true,
@@ -27,4 +27,3 @@
     }
   ]
 }
-

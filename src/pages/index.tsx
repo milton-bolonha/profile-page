@@ -2,10 +2,8 @@ import React, { useState, useEffect } from "react";
 import { FaGamepad, FaCode, FaChalkboardTeacher, FaExpand, FaBriefcase } from "react-icons/fa";
 import { Inicio } from "@/components/Home/Inicio";
 import { AboutSection } from "@/components/Home/AboutSection";
-import { ServicesSection } from "@/components/Home/ServicesSection";
 import { FeaturedProjects } from "@/components/Home/FeaturedProjects";
 import { TechStack } from "@/components/Home/TechStack";
-// import { TimelineSection } from "@/components/Home/TimelineSection"; // Manter compatibilidade se necessário, mas vamos usar o NewTimeline
 import NewTimelineSection from "@/components/Home/NewTimelineSection";
 import { NewStatsSection } from "@/components/Home/NewStatsSection";
 import { FAQSection } from "@/components/Home/FAQSection";
@@ -19,19 +17,18 @@ import { getSortedPostsData } from "@/lib/posts";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getBusinessSettings, getGeneralSettings, getNavigatorSettings, getThemeSettings } from "@/lib/settings";
 import dynamic from "next/dynamic";
+import { GridBackground } from "@/components/commons/GridBackground";
 
 const NeonFlightGame = dynamic(
   () => import("@/components/games/fly/components/NeonFlightGame"),
   { ssr: false }
 );
-// import BoilerplateGame from "@/components/games/fly/components/BoilerplateGame";
-// import TheBeeBoilerplate from "@/components/games/TheBeeBoilerplate";
+
 import { ClientOnly } from "@/components/commons/ClientOnly";
-import MagneticButton from "@/components/ui/MagneticButton";
 import Seo from "@/components/commons/Seo";
 import FloatingNavigator from "@/components/commons/FloatingNavigator";
 import TransitionAd from "@/components/transitions/TransitionAd";
-// import FloatingBadge from "@/components/Home/FloatingBadge";
+import { TransitionAdStandalone } from "@/components/transitions/TransitionAdStandalone";
 import {
   ScrollContainer,
   SectionWrapper,
@@ -69,101 +66,62 @@ const HomeContent = ({
   const { t } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showAd, setShowAd] = useState(false);
-  const [adTargetSlide, setAdTargetSlide] = useState(0);
-  
-  // Detecção de Mobile para forçar layout vertical
+  const [adDirection, setAdDirection] = useState<'left' | 'right'>('left');
+
   const isMobile = useMediaQuery("(max-width: 768px)");
   const themeLayout = themeSettings?.generalThemeSettings?.layoutMode || 'vertical';
-  
-  // Se for mobile, ainda podemos querer o fluxo horizontal se o usuario preferir
   const layoutMode = themeLayout;
 
-  // Section IDs in order for slideshow mapping
+  // SECTIONS (Slides)
   const sections = [
-    'inicio',
-    'stats',
-    'o-que-faco',
-    'sobre',
-    'projetos',
-    'tecnologias',
-    'historia',
-    'showcase-demo',
-    'testimonials',
-    'faq',
-    'contato',
-    'cta'
+    'inicio',      // 0
+    'o-que-faco',  // 1
+    'sobre',       // 2
+    'projetos',    // 3
+    'historia',    // 4
+    'faq',         // 5
+    'contato',     // 6
+    'cta'          // 7
   ];
+
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // --- PREFETCH AD ASSETS ---
   useEffect(() => {
-    // Basic prefetch of the GLB to ensure cache is hot
     import('three/examples/jsm/loaders/GLTFLoader.js').then(({ GLTFLoader }) => {
-        const loader = new GLTFLoader();
-        loader.load(
-            '/games/exp/low-poly_laboratory.glb', 
-            (gltf) => {
-                // Just load it into memory
-                console.log('Ad Model Prefetched');
-            },
-            undefined,
-            (error) => {
-                console.warn('Prefetch Failed', error);
-            }
-        );
+      const loader = new GLTFLoader();
+      loader.load('/games/exp/low-poly_laboratory.glb', () => { console.log('Ad Model Prefetched'); });
     });
-    
-    // Timer for site loading state
     const timer = setTimeout(() => setIsLoaded(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
-  // Intercept Navigation for Ad
-  const [adDirection, setAdDirection] = useState<'left' | 'right'>('left');
-
+  // AD TRANSITION LOGIC (Catcher)
   const handleSlideChange = (newIndex: number) => {
-    // Boundary is between Stats (1) and O Que Faço (2).
-    // Stats = 1.
-    // If crossing from <= 1 to >= 2: Crossing Right (Ad direction: Left -> Right view)
-    // If crossing from >= 2 to <= 1: Crossing Left (Ad direction: Right -> Left view)
-    
-    const isCrossingRight = currentSlide <= 1 && newIndex >= 2;
-    const isCrossingLeft = currentSlide >= 2 && newIndex <= 1;
+    const min = Math.min(currentSlide, newIndex);
+    const max = Math.max(currentSlide, newIndex);
 
-    // IMMEDIATE: Update the Navigation State so floating badge matches target
+    const crossesGate1 = min <= 0 && max >= 1;
+    const crossesGate2 = min <= 4 && max >= 5;
+
+    const direction = newIndex > currentSlide ? 'left' : 'right';
+
     setCurrentSlide(newIndex);
 
-    if (isCrossingRight) {
-        setAdDirection('left'); // Camera moves Left -> Right
-        setAdTargetSlide(newIndex); // (Kept for compatibility, though slide is already set)
+    if (crossesGate1 || crossesGate2) {
+      if (!showAd) {
+        setAdDirection(direction);
         setShowAd(true);
-        return;
-    }
-
-    if (isCrossingLeft) {
-        setAdDirection('right'); // Camera moves Right -> Left
-        setAdTargetSlide(newIndex);
-        setShowAd(true);
-        return;
+      }
     }
   };
 
   const seoData = {
-    title:
-      "Milton Bolonha — Desenvolvedor Full Stack | Next.js, React, Node.js",
-    description:
-      "Desenvolvedor Full Stack especializado em Next.js, React e Node.js. Criação de aplicações web modernas, responsivas e escaláveis. Veja meu portfolio e entre em contato.",
+    title: "Milton Bolonha — Desenvolvedor Full Stack | Next.js, React, Node.js",
+    description: "Desenvolvedor Full Stack especializado em Next.js, React e Node.js. Criação de aplicações web modernas, responsivas e escaláveis.",
     siteUrl: generalSettings.siteUrl,
     slug: "/",
     author: "Milton Bolonha",
-    keywords: [
-      "desenvolvedor full stack",
-      "next.js",
-      "react",
-      "node.js",
-      "typescript",
-      "desenvolvimento web",
-    ],
+    keywords: ["desenvolvedor full stack", "next.js", "react", "node.js", "typescript", "desenvolvimento web"],
     featuredImage: `${generalSettings.siteUrl}/img/og-image.jpg`,
     topology: "page" as const,
   };
@@ -172,264 +130,176 @@ const HomeContent = ({
     <>
       <Seo data={seoData} />
       <ScrollContainer>
-        {/* Elegant loading overlay */}
         {!isLoaded && (
           <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
             <div className="text-center">
               <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-white/60 text-sm">
-                Carregando experiência premium...
-              </p>
+              <p className="text-white/60 text-sm">Carregando experiência premium...</p>
             </div>
           </div>
         )}
 
-        {/* Floating Navigator */}
-        <FloatingNavigator 
-          config={navigatorSettings} 
-          mode={layoutMode}
-          currentSlide={currentSlide}
-          onNavigate={(index) => handleSlideChange(index)}
-          sections={sections}
-          isMobile={isMobile}
-        />
-
-        {/* 3D Ad Transition Overlay */}
-        {showAd && (
-            <TransitionAd 
-                direction={adDirection}
-                onComplete={() => {
-                    setShowAd(false);
-                    // setCurrentSlide(adTargetSlide); // Already updated at start of transition
-                }}
-            />
+        {/* Floating Navigator - Hidden during Ad */}
+        {!showAd && (
+          <FloatingNavigator
+            config={navigatorSettings}
+            mode={layoutMode}
+            currentSlide={currentSlide}
+            onNavigate={(index) => handleSlideChange(index)}
+            sections={sections}
+            isMobile={isMobile}
+          />
         )}
-        
-        <div
-          className={`transition-opacity duration-1000 ${
-            isLoaded ? "opacity-100" : "opacity-0"
-          }`}
-        >
+
+        {/* Full Screen Ad Overlay */}
+        {showAd && (
+          <TransitionAd
+            direction={adDirection}
+            onComplete={() => setShowAd(false)}
+          />
+        )}
+
+        <div className={`transition-opacity duration-1000 ${isLoaded ? "opacity-100" : "opacity-0"}`}>
           <SlideshowLayout
             mode={layoutMode}
             currentSlide={currentSlide}
             onSlideChange={handleSlideChange}
             sections={sections}
           >
-            {/* Hero Section */}
+            {/* Slide 0: Hero */}
             <SectionWrapper id="inicio" vPadding="py-0" fullHeight>
               <Inicio />
             </SectionWrapper>
 
-    {/* Neon Flight Game */}
-    {/* <SectionWrapper id="game" vPadding="py-0" fullHeight>
-         <ClientOnly>
-           <NeonFlightGame />
-         </ClientOnly>
-       </SectionWrapper> */}
-  
-    {/* TEMPORARY: Boilerplate Game */}
-    {/* <SectionWrapper id="boilerplate" vPadding="py-0" fullHeight>
-      <ClientOnly>
-        <BoilerplateGame />
-      </ClientOnly>
-    </SectionWrapper> */}
-  
-    {/* TEMPORARY: The Bee Boilerplate */}
-    {/* <SectionWrapper id="bee-boilerplate" vPadding="py-0" fullHeight>
-      <ClientOnly>
-        <TheBeeBoilerplate />
-      </ClientOnly>
-    </SectionWrapper> */}
-  
-            {/* New Stats Section */}
-            <SectionWrapper id="stats" vPadding="pt-12 pb-0">
-              <NewStatsSection />
+            {/* Slide 1: Showcase Merged */}
+            <SectionWrapper
+              id="o-que-faco"
+              vPadding="pt-24 pb-0"
+              className="relative flex flex-col w-full"
+              background={<GridBackground />}
+            >
+              <div className="mb-24">
+                <ClientOnly>
+                  <ExperienceShowcase
+                    badge="+20 Anos de Experiência"
+                    title="Transformando Sonhos em Realidade"
+                    description="Explorei as minhas diferentes facetas profissionais ao longo de mais de 20 anos de carreira."
+                    tabs={[
+                      {
+                        id: 'game',
+                        label: '3D & Game Dev',
+                        icon: FaGamepad,
+                        content: {
+                          type: 'slideshow',
+                          slides: [
+                            { bg: "/img/fly-1-a.jpg", fg: "/img/fly-1-b.jpg" },
+                            { bg: "/img/fly-2-a.jpg", fg: "/img/fly-2-b.jpg" },
+                            { bg: "/img/fly-3-a.jpg", fg: "/img/fly-3-b.jpg" },
+                          ],
+                          gameComponent: <NeonFlightGame onExit={() => { }} />,
+                          buttons: [
+                            { text: 'JOGAR DEMO', variant: 'primary', action: 'startGame' },
+                            { text: 'VER TODOS JOGOS', link: '/games/airplane', variant: 'secondary', icon: FaExpand },
+                          ],
+                        },
+                      },
+                      {
+                        id: 'web',
+                        label: 'Web Dev',
+                        icon: FaCode,
+                        content: {
+                          type: 'placeholder',
+                          placeholderIcon: FaCode,
+                          placeholderTitle: 'Web Apps',
+                          placeholderDescription: 'Aplicações Next.js, Dashboards SaaS e Arquitetura Escalável.',
+                        },
+                      },
+                      {
+                        id: 'mentor',
+                        label: 'Mentoria',
+                        icon: FaChalkboardTeacher,
+                        content: {
+                          type: 'placeholder',
+                          placeholderIcon: FaChalkboardTeacher,
+                          placeholderTitle: 'Mentoria Tech',
+                          placeholderDescription: 'Programas de mentoria, code reviews e workshops.',
+                        },
+                      },
+                    ]}
+                    defaultTab="game"
+                  />
+                </ClientOnly>
+              </div>
+
+              <div className="mb-24">
+                <NewStatsSection />
+              </div>
+
+              <div className="mb-12">
+                <TestimonialsSection />
+              </div>
             </SectionWrapper>
-  
-    {/* Experience / Showcase Section */}
-            <SectionWrapper id="o-que-faco" vPadding="pt-24 pb-0" className="relative flex flex-col items-center justify-center overflow-hidden w-full">
-              <ClientOnly>
-                <ExperienceShowcase
-                  badge="+20 Anos de Experiência"
-                  title="Transformando Sonhos em Realidade"
-                  description="Explorei as minhas diferentes facetas profissionais ao longo de mais de 20 anos de carreira. Dos mundos dos jogos à aplicações web integrada com I.A. e mentoria especializada."
-                  tabs={[
-                    {
-                      id: 'game',
-                      label: '3D & Game Dev',
-                      icon: FaGamepad,
-                      content: {
-                        type: 'slideshow',
-                        slides: [
-                          { bg: "/img/fly-1-a.jpg", fg: "/img/fly-1-b.jpg" },
-                          { bg: "/img/fly-2-a.jpg", fg: "/img/fly-2-b.jpg" },
-                          { bg: "/img/fly-3-a.jpg", fg: "/img/fly-3-b.jpg" },
-                        ],
-                        gameComponent: <NeonFlightGame onExit={() => {}} />,
-                        buttons: [
-                          {
-                            text: 'JOGAR DEMO',
-                            variant: 'primary',
-                            action: 'startGame',
-                          },
-                          {
-                            text: 'VER TODOS JOGOS',
-                            link: '/games/airplane',
-                            variant: 'secondary',
-                            icon: FaExpand,
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      id: 'web',
-                      label: 'Web Dev',
-                      icon: FaCode,
-                      content: {
-                        type: 'placeholder',
-                        placeholderIcon: FaCode,
-                        placeholderTitle: 'Web Development Mastery',
-                        placeholderDescription: 'Em breve: Showcase de aplicações Next.js, Dashboards SaaS e Arquitetura Escalável.',
-                      },
-                    },
-                    {
-                      id: 'mentor',
-                      label: 'Mentor',
-                      icon: FaChalkboardTeacher,
-                      content: {
-                        type: 'placeholder',
-                        placeholderIcon: FaChalkboardTeacher,
-                        placeholderTitle: 'Mentoria Tech & Carreira',
-                        placeholderDescription: 'Em breve: Detalhes sobre programas de mentoria, code reviews e workshops.',
-                      },
-                    },
-                  ]}
-                  defaultTab="game"
-                />
-              </ClientOnly>
-            </SectionWrapper>
-  
-          
-  
-            {/* About Section */}
-            <SectionWrapper id="sobre" vPadding="pt-0 pb-0">
+
+            {/* Slide 2: About (Open to Work) - INVERTED GRID */}
+            <SectionWrapper
+              id="sobre"
+              vPadding="pt-0 pb-0"
+              background={<GridBackground inverted={true} />}
+            >
               <AboutSection />
             </SectionWrapper>
-  
-            {/* Services Section */}
-            {/* <SectionWrapper id="servicos" vPadding="py-12 lg:py-20">
-              <ServicesSection />
-            </SectionWrapper> */}
-  
-            {/* Featured Projects */}
-            <SectionWrapper id="projetos" vPadding="pt-24 pb-0">
+
+            {/* Slide 3: Featured Projects (Catálogo) */}
+            <SectionWrapper
+              id="projetos"
+              vPadding="pt-24 pb-0"
+              background={<GridBackground />}
+            >
               <FeaturedProjects />
             </SectionWrapper>
-  
-            {/* Tech Stack */}
-            <SectionWrapper id="tecnologias" vPadding="pt-0 pb-0">
-              <TechStack />
-            </SectionWrapper>
-  
-            {/* Timeline Section */}
-            <SectionWrapper id="historia" vPadding="pt-12 pb-0">
+
+            {/* Slide 4: Timeline Section */}
+            <SectionWrapper
+              id="historia"
+              vPadding="pt-12 pb-0"
+              background={<GridBackground />}
+            >
               <NewTimelineSection />
             </SectionWrapper>
-    {/* Second Experience Showcase Instance - Demo */}
-            <SectionWrapper id="showcase-demo" vPadding="pt-24 pb-0" className="relative flex flex-col items-center justify-center overflow-hidden">
-              <ClientOnly>
-                <ExperienceShowcase
-                  badge="Demonstração de Reutilização"
-                  title="Componente Totalmente Configurável"
-                  description="Esta é uma segunda instância do mesmo componente, demonstrando sua total reutilização com conteúdo, imagens e configurações completamente diferentes."
-                  tabs={[
-                    {
-                      id: 'portfolio',
-                      label: 'Portfolio',
-                      icon: FaBriefcase,
-                      content: {
-                        type: 'slideshow',
-                        slides: [
-                          { bg: "/img/fly-2-a.jpg", fg: "/img/fly-3-b.jpg" },
-                          { bg: "/img/fly-3-a.jpg", fg: "/img/fly-1-b.jpg" },
-                        ],
-  
-                        buttons: [
-                          {
-                            text: 'VER PROJETOS',
-                            link: '/projetos',
-                            variant: 'primary',
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      id: 'blog',
-                      label: 'Blog',
-                      icon: FaCode,
-                      content: {
-                        type: 'placeholder',
-                        placeholderIcon: FaCode,
-                        placeholderTitle: 'Blog Técnico',
-                        placeholderDescription: 'Artigos sobre desenvolvimento, arquitetura de software e boas práticas.',
-                      },
-                    },
-                  ]}
-                  defaultTab="portfolio"
-                />
-              </ClientOnly>
-            </SectionWrapper>
-            
-            {/* Testimonials Section */}
-            <SectionWrapper id="testimonials" vPadding="pt-24 pb-0">
-               <TestimonialsSection />
-            </SectionWrapper>
-            {/* FAQ Section */}
-            <SectionWrapper id="faq" vPadding="pt-24 pb-0">
+
+            {/* Slide 5: FAQ Section */}
+            <SectionWrapper
+              id="faq"
+              vPadding="pt-24 pb-0"
+              background={<GridBackground />}
+            >
               <FAQSection />
             </SectionWrapper>
-  
-            {/* Contact Section */}
-            <SectionWrapper id="contato" vPadding="pt-0 pb-0">
-              <ContactSection 
+
+            {/* Slide 6: Contact Section */}
+            <SectionWrapper
+              id="contato"
+              vPadding="pt-0 pb-0"
+              background={<GridBackground />}
+            >
+              <ContactSection
                 contacts={[
-                  {
-                    name: "LinkedIn",
-                    link: "https://www.linkedin.com/in/miltonbolonha/",
-                  },
-                  {
-                    name: "GitHub",
-                    link: "https://github.com/miltonbolonha",
-                  },
-                  {
-                    name: "Email",
-                    link: "contato@miltonbolonha.com.br",
-                    isMail: true,
-                  },
-                  {
-                    name: "Baixar Currículo",
-                    link: "/files/Curriculo 02072025.pdf",
-                    isDownload: true,
-                  },
+                  { name: "LinkedIn", link: "https://www.linkedin.com/in/miltonbolonha/" },
+                  { name: "GitHub", link: "https://github.com/miltonbolonha" },
+                  { name: "Email", link: "contato@miltonbolonha.com.br", isMail: true },
+                  { name: "Baixar Currículo", link: "/files/Curriculo 02072025.pdf", isDownload: true },
                 ]}
                 title="Entre em Contato"
                 formTitle="Envie uma Mensagem"
               />
             </SectionWrapper>
-  
-            {/* CTA Final */}
+
+            {/* Slide 7: CTA Final */}
             <SectionWrapper id="cta" vPadding="pt-12 pb-0">
               <CTASection />
             </SectionWrapper>
           </SlideshowLayout>
-  
-            {/* Badge flutuante */}
-            {/* <FloatingBadge />  */}
-          </div>
-  
-          {/* Floating Navigator 
-          <FloatingNavigator /> Moved up */}
+        </div>
       </ScrollContainer>
     </>
   );

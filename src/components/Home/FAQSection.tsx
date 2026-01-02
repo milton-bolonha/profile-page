@@ -52,7 +52,7 @@ const FAQItem = ({ faq, index, isOpen, onToggle }: FAQItemProps) => {
     >
       {/* Radial gradient bottom-right */}
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-radial from-gray-800/20 to-transparent pointer-events-none" />
-      
+
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between p-6 text-left group relative z-10 cursor-pointer"
@@ -60,10 +60,10 @@ const FAQItem = ({ faq, index, isOpen, onToggle }: FAQItemProps) => {
         <h3 className="text-white pr-8 group-hover:text-white/80 transition-colors text-left font-medium" style={{ fontSize: '18px' }}>
           {faq.question}
         </h3>
-        <svg 
+        <svg
           className={`w-5 h-5 text-white/60 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
-          fill="none" 
-          stroke="currentColor" 
+          fill="none"
+          stroke="currentColor"
           viewBox="0 0 24 24"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -91,7 +91,7 @@ export const FAQSection = () => {
   };
 
   return (
-    <div className="relative bg-black w-full h-full">
+    <div className="relative w-full h-full">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/3 rounded-full blur-[150px]" />
       </div>
@@ -101,7 +101,7 @@ export const FAQSection = () => {
           <div className="inline-block px-4 py-2 bg-white/5 backdrop-blur-sm rounded-full border border-white/10 mb-6">
             <span className="text-sm font-medium text-white/80 tracking-wide">FAQ</span>
           </div>
-          
+
           <h2 className="text-3xl md:text-4xl font-semibold text-white mb-6" style={{ fontFamily: 'Noto Serif Variable, serif', lineHeight: '1.3' }}>
             <TextMotion trigger={true} stagger={0.05}>
               Perguntas Frequentes

@@ -2,12 +2,12 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Rocket, 
-  ScrollText, 
-  Globe, 
-  Plane, 
-  Bot 
+import {
+  Rocket,
+  ScrollText,
+  Globe,
+  Plane,
+  Bot
 } from "lucide-react";
 
 interface TimelineItem {
@@ -92,7 +92,7 @@ export default function NewTimelineSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const yearNavRef = useRef<HTMLDivElement>(null); // New ref for year navigation
   const selectedItem = timelineData.find((item) => item.year === selectedYear) || timelineData[0];
-  
+
   const years = timelineData.map(t => t.year);
   const uniqueYears = Array.from(new Set(years));
   const currentIndex = uniqueYears.indexOf(selectedYear);
@@ -131,7 +131,7 @@ export default function NewTimelineSection() {
 
       e.preventDefault();
       e.stopPropagation();
-      
+
       // Debounce wheel events
       clearTimeout(wheelTimeout);
       wheelTimeout = setTimeout(() => {
@@ -167,7 +167,7 @@ export default function NewTimelineSection() {
           }
         });
       },
-      { 
+      {
         threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
         rootMargin: '-20% 0px -20% 0px' // More forgiving margins
       }
@@ -175,7 +175,7 @@ export default function NewTimelineSection() {
 
     const yearNav = yearNavRef.current;
     observer.observe(yearNav);
-    
+
     // Add to window to bypass ScrollContainer
     window.addEventListener('wheel', handleWheel, { passive: false, capture: true });
 
@@ -203,7 +203,7 @@ export default function NewTimelineSection() {
   };
 
   return (
-    <div ref={sectionRef} className="w-full h-full flex flex-col justify-center bg-background relative overflow-hidden">
+    <div ref={sectionRef} className="w-full h-full flex flex-col justify-center relative overflow-hidden">
       {/* Skip buttons when locked */}
       <AnimatePresence>
         {isScrollLocked && (
@@ -254,24 +254,24 @@ export default function NewTimelineSection() {
 
         <div ref={yearNavRef} className="mb-2 relative px-4 md:px-6 timeline-year-nav">
           <div className="absolute top-1/2 left-0 w-full h-px bg-white/20 -translate-y-1/2" />
-          
+
           <div className="relative flex justify-between items-center w-full overflow-x-auto pb-8 scrollbar-hide md:overflow-visible">
             {uniqueYears.map((year, i) => {
               const isActive = year === selectedYear;
               return (
-                <button 
+                <button
                   key={year}
                   onClick={() => setSelectedYear(year)}
                   className={`relative flex flex-col items-center gap-4 transition-all duration-300 min-w-[80px] group`}
                 >
                   <div className={`w-3 h-3 rounded-full transition-all duration-300 border border-white/40 ${isActive ? 'bg-white scale-150' : 'bg-transparent hover:bg-white/20'}`} />
-                  
+
                   <span className={`text-sm font-mono tracking-wider transition-all duration-300 ${isActive ? 'text-white opacity-100 font-bold' : 'text-muted-foreground opacity-50 group-hover:opacity-80'}`}>
                     {year}
                   </span>
 
                   {isActive && (
-                    <motion.div 
+                    <motion.div
                       layoutId="activeIndicator"
                       className="absolute top-3 w-px h-8 bg-gradient-to-b from-white to-transparent"
                     />
@@ -302,7 +302,7 @@ export default function NewTimelineSection() {
               <h3 className="text-2xl md:text-4xl font-display font-medium text-white leading-tight">
                 {selectedItem.title}
               </h3>
-              
+
               <p className="text-xl text-muted-foreground leading-relaxed">
                 {selectedItem.description}
               </p>

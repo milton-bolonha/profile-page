@@ -16,8 +16,8 @@ export interface ContactSectionProps {
   formTitle?: string;
 }
 
-export default function ContactSection({ 
-  contacts, 
+export default function ContactSection({
+  contacts,
   title = "Contatos",
   formTitle = "Envie uma Mensagem"
 }: ContactSectionProps) {
@@ -33,7 +33,7 @@ export default function ContactSection({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       const response = await fetch(process.env.NEXT_PUBLIC_NETLIFY_FUNCTION_URL || '/.netlify/functions/send-email', {
         method: 'POST',
@@ -62,9 +62,17 @@ export default function ContactSection({
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <div className="flex-grow flex flex-col justify-center max-w-7xl mx-auto px-6 w-full py-24">
+    <div className="relative w-full min-h-screen flex flex-col">
+      {/* Grid Pattern Restored */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:100px_100px] [mask-image:linear-gradient(to_bottom,black_20%,transparent_90%)] pointer-events-none" />
+
+      <div className="flex-grow flex flex-col justify-center max-w-7xl mx-auto px-6 w-full py-24 relative z-10">
         <div className="text-center mb-12">
+          {/* Added Badge */}
+          <div className="inline-block px-4 py-2 bg-white/5 backdrop-blur-sm rounded-full border border-white/10 mb-6">
+            <span className="text-sm font-medium text-white/80 tracking-wide">Contato</span>
+          </div>
+
           <h2 className="text-4xl md:text-6xl font-semibold mb-4 text-white" style={{ fontFamily: 'Noto Serif Variable, serif' }}>
             {title}
           </h2>
@@ -79,8 +87,8 @@ export default function ContactSection({
             <h3 className="text-2xl font-semibold text-white mb-6">Meus Links</h3>
             <ul className="space-y-4">
               {contacts.map(({ link, name, isMail, isDownload }, idx) => (
-                <li 
-                  key={name + idx} 
+                <li
+                  key={name + idx}
                   className="flex items-center gap-4 p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300"
                 >
                   <span className="text-2xl">
@@ -160,7 +168,7 @@ export default function ContactSection({
           </div>
         </div>
       </div>
-      
+
       <Footer />
     </div>
   );
