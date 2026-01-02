@@ -55,6 +55,11 @@ interface HomeProps {
   themeSettings: any;
 }
 
+import { PollSection } from "@/components/Home/PollSection";
+import { BottomAdBanner } from "@/components/commons/BottomAdBanner";
+
+// ... imports remain the same
+
 const HomeContent = ({
   home,
   allPostsData,
@@ -80,6 +85,7 @@ const HomeContent = ({
     'projetos',    // 3
     'historia',    // 4
     'faq',         // 5
+    // 'poll' removed
     'contato',     // 6
     'cta'          // 7
   ];
@@ -151,12 +157,21 @@ const HomeContent = ({
           />
         )}
 
-        {/* Full Screen Ad Overlay */}
+        {/* Full Screen Ad Overlay & Banner */}
         {showAd && (
-          <TransitionAd
-            direction={adDirection}
-            onComplete={() => setShowAd(false)}
-          />
+          <>
+            <BottomAdBanner />
+            <TransitionAd
+              direction={adDirection}
+              onComplete={() => setShowAd(false)}
+            />
+            {/* Poll Overlay - Center Center */}
+            <div className="fixed inset-0 z-[120] flex items-center justify-center pointer-events-none">
+              <div className="pointer-events-auto w-full max-w-4xl">
+                <PollSection />
+              </div>
+            </div>
+          </>
         )}
 
         <div className={`transition-opacity duration-1000 ${isLoaded ? "opacity-100" : "opacity-0"}`}>
@@ -276,7 +291,7 @@ const HomeContent = ({
               <FAQSection />
             </SectionWrapper>
 
-            {/* Slide 6: Contact Section */}
+            {/* Slide 7: Contact Section */}
             <SectionWrapper
               id="contato"
               vPadding="pt-0 pb-0"
@@ -294,7 +309,7 @@ const HomeContent = ({
               />
             </SectionWrapper>
 
-            {/* Slide 7: CTA Final */}
+            {/* Slide 8: CTA Final */}
             <SectionWrapper id="cta" vPadding="pt-12 pb-0">
               <CTASection />
             </SectionWrapper>

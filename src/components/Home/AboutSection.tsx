@@ -1,19 +1,19 @@
-
 import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
 import { OptimizedImage } from '@/components/commons/OptimizedImage';
 import { trackEvent } from '@/lib/analytics';
 import { TextMotion } from '@/components/ui/TextMotion';
 import aboutData from '../../../content/home/about.json';
+import { GridBackground } from "@/components/commons/GridBackground";
 
 export const AboutSection = () => {
   const { t } = useLanguage();
 
   return (
-    <div className="relative w-full h-full">
-      {/* Transparent background to allow Wrapper Grid to show */}
+    <div className="relative w-full h-full min-h-screen flex items-center">
+      <GridBackground inverted={true} />
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 relative z-10 w-full py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
 
           {/* Left: Image */}

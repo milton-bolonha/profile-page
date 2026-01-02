@@ -10,6 +10,7 @@ interface SectionWrapperProps {
   vPadding?: string;
   fullHeight?: boolean;
   isActive?: boolean;
+  background?: ReactNode;
 }
 
 export const SectionWrapper = ({
@@ -20,11 +21,13 @@ export const SectionWrapper = ({
   vPadding = "py-4",
   fullHeight = false,
   isActive = true,
+  background,
 }: SectionWrapperProps) => {
   const sectionRef = useRef<HTMLElement>(null);
 
 
   const sectionClasses = `
+    relative
     w-full
     ${vPadding}
     ${bgImage ? `bg-cover bg-center bg-no-repeat` : ""}
@@ -36,6 +39,7 @@ export const SectionWrapper = ({
 
   return (
     <section ref={sectionRef} id={id} className={sectionClasses} style={style}>
+      {background}
       {children}
     </section>
   );

@@ -10,6 +10,7 @@ import {
   Bot
 } from "lucide-react";
 
+
 interface TimelineItem {
   year: string;
   title: string;
@@ -90,7 +91,7 @@ export default function NewTimelineSection() {
   const [selectedYear, setSelectedYear] = useState<string>("1998");
   const [isScrollLocked, setIsScrollLocked] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const yearNavRef = useRef<HTMLDivElement>(null); // New ref for year navigation
+  const yearNavRef = useRef<HTMLDivElement>(null);
   const selectedItem = timelineData.find((item) => item.year === selectedYear) || timelineData[0];
 
   const years = timelineData.map(t => t.year);
@@ -111,22 +112,10 @@ export default function NewTimelineSection() {
       const scrollingUp = e.deltaY < 0;
       const scrollingDown = e.deltaY > 0;
 
-      console.log('[Timeline Scroll]', {
-        isScrollLocked,
-        selectedYear,
-        currentIdx,
-        isAtFirstYear,
-        isAtLastYear,
-        scrollingUp,
-        scrollingDown,
-        deltaY: e.deltaY,
-      });
-
       // Allow natural scroll at boundaries
       if ((isAtFirstYear && scrollingUp) || (isAtLastYear && scrollingDown)) {
-        console.log('[Timeline Scroll] Unlocking at boundary');
         setIsScrollLocked(false);
-        return; // Let the scroll pass through
+        return;
       }
 
       e.preventDefault();
@@ -136,10 +125,8 @@ export default function NewTimelineSection() {
       clearTimeout(wheelTimeout);
       wheelTimeout = setTimeout(() => {
         if (scrollingDown && currentIdx < uniqueYears.length - 1) {
-          console.log('[Timeline Scroll] Moving to next year:', uniqueYears[currentIdx + 1]);
           setSelectedYear(uniqueYears[currentIdx + 1]);
         } else if (scrollingUp && currentIdx > 0) {
-          console.log('[Timeline Scroll] Moving to previous year:', uniqueYears[currentIdx - 1]);
           setSelectedYear(uniqueYears[currentIdx - 1]);
         }
       }, 50);
@@ -148,28 +135,16 @@ export default function NewTimelineSection() {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          console.log('[Timeline Observer]', {
-            isIntersecting: entry.isIntersecting,
-            intersectionRatio: entry.intersectionRatio,
-            boundingClientRect: entry.boundingClientRect,
-            target: entry.target.className,
-          });
-
-          // Lock when year navigation is well-positioned in viewport
-          // For scroll down: activate when year nav is in upper-middle area (ratio > 0.6)
-          // For scroll up: activate when year nav enters from top (ratio > 0.5)
           if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
-            console.log('[Timeline Observer] Locking scroll');
             setIsScrollLocked(true);
           } else if (!entry.isIntersecting || entry.intersectionRatio < 0.3) {
-            console.log('[Timeline Observer] Unlocking scroll');
             setIsScrollLocked(false);
           }
         });
       },
       {
         threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
-        rootMargin: '-20% 0px -20% 0px' // More forgiving margins
+        rootMargin: '-20% 0px -20% 0px'
       }
     );
 
@@ -188,7 +163,7 @@ export default function NewTimelineSection() {
 
   const skipToPrevSection = () => {
     setIsScrollLocked(false);
-    const techSection = document.getElementById('tecnologias');
+    const techSection = document.getElementById('tecnologias'); // Verify this ID reference
     if (techSection) {
       window.scrollTo({ top: techSection.offsetTop, behavior: 'smooth' });
     }
@@ -196,14 +171,16 @@ export default function NewTimelineSection() {
 
   const skipToNextSection = () => {
     setIsScrollLocked(false);
-    const demoSection = document.getElementById('showcase-demo');
+    const demoSection = document.getElementById('showcase-demo'); // Verify this ID reference
     if (demoSection) {
       window.scrollTo({ top: demoSection.offsetTop, behavior: 'smooth' });
     }
   };
 
   return (
-    <div ref={sectionRef} className="w-full h-full flex flex-col justify-center relative overflow-hidden">
+    <div ref={sectionRef} className="w-full h-full flex flex-col justify-center relative overflow-hidden min-h-screen">
+
+
       {/* Skip buttons when locked */}
       <AnimatePresence>
         {isScrollLocked && (
@@ -240,7 +217,7 @@ export default function NewTimelineSection() {
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-secondary/20 rounded-full blur-[80px]" />
       </div>
 
-      <div className="container mx-auto px-4 z-10">
+      <div className="container mx-auto px-4 z-10 pb-24">
         <div className="mb-8 text-center">
           <h2 className="text-4xl md:text-6xl font-semibold mb-4 text-white" style={{ fontFamily: 'Noto Serif Variable, serif', lineHeight: '1.3' }}>
             <TextMotion trigger={true} stagger={0.05}>

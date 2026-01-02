@@ -6,6 +6,7 @@ import { TextMotion } from "@/components/ui/TextMotion";
 import { useEffect, useRef } from "react";
 import featuredProjectsData from "../../../content/home/featuredProjects.json";
 
+
 export const FeaturedProjects = () => {
   const { t } = useLanguage();
   const tiltRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -35,12 +36,14 @@ export const FeaturedProjects = () => {
   }, []);
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full min-h-screen">
+
+
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-white/3 rounded-full blur-[150px]" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 relative z-10 pb-24">
         <div className="text-center mb-20">
           {/* Badge: Catálogo */}
           <div className="inline-block px-4 py-2 bg-white/5 backdrop-blur-sm rounded-full border border-white/10 mb-6">

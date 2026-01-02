@@ -388,18 +388,20 @@ Contato não tem tag
 
 
 Início e Contato são os únicos corretos na questão do grid gradient q fizemos
-Contato tem o espaçamento no topo da página + o grid no lugar correto, ou seja, no topo da página, sem o espaçamento do topo para esse bg especial q pega a página inteira
+Contato tá certo.. tem o espaçamento no topo da página + o grid no lugar correto, ou seja, no topo da página, sem o espaçamento do topo para esse bg especial q pega a página inteira
 
-Todas as outras seções ou não exibem, ou exibem erradamente o grid
+Todas as outras seções ou não exibem (caso da maioria), ou exibem erradamente o grid (caso do slide 2) q exibe em um componente q não é o primeiro da seção slide...
 
 
 Animação do ads para lab mesh
-da esq pra dir tá perfeito...
+da esq pra dir tá perfeito... !! da dir pra esq q não, deveria prever qual é o contrário do q ta sendo feito, tipo, se da esq pra dir ta perfeito e tem 2 animações, a ultima parte da ultima animação é a primeira do dir pra esq, e assim por diante, agora ta meio aleatório.
+
 da dir pra esquerda a animação 1 deveria ser a última e e deveria haver uma animação antes dessa..
 
 
 
 
+Precisamos criar o MD de novos itens do nosso catalogo de projetos
 Catálogo
 
 WEB: AI SaaS - Boilerplate
@@ -427,7 +429,7 @@ MENTORIA: Cosmologia Organizacionista
 
 
 
-
+animação lab commponent poll and ads
 
 
 
