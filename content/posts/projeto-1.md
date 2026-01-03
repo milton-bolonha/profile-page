@@ -2,6 +2,7 @@
 title: "Projeto 1 - E-commerce Moderno com Next.js"
 date: "2025-01-17"
 author: "Milton Bolonha"
+type: "catalog"
 description: "Desenvolvimento de plataforma e-commerce completa utilizando Next.js 13, React Server Components, Stripe para pagamentos e Tailwind CSS."
 keywords: ["next.js", "e-commerce", "react", "stripe", "tailwind css", "typescript"]
 featuredImage: "/img/projeto-1.jpg"

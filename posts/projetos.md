@@ -2,6 +2,7 @@
 title: "Meus Projetos"
 date: "2025-01-15"
 author: "Milton Bolonha"
+type: "catalog"
 public: true
 ---
 

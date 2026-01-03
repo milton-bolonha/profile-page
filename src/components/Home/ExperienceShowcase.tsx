@@ -23,6 +23,7 @@ export interface TabContent {
     bg: string;
     fg: string;
   }>;
+  manualSlideshow?: boolean;
 
   buttons?: TabButton[];
   // Para game
@@ -77,8 +78,8 @@ function ActionButton({ button, onAction }: ActionButtonProps) {
       className={`
         group relative inline-flex items-center gap-3 font-medium py-4 px-8 rounded-full 
         transition-all duration-300 cursor-pointer
-        ${isPrimary 
-          ? 'bg-white text-black hover:bg-white/90 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)]' 
+        ${isPrimary
+          ? 'bg-white text-black hover:bg-white/90 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)]'
           : 'bg-black/10 backdrop-blur-md text-white border border-white hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] shadow-[0_0_20px_rgba(0,0,0,0.6)]'
         }
       `}
@@ -96,45 +97,47 @@ import Image from "next/image";
 interface SlideshowContentProps {
   slides: Array<{ bg: string; fg: string }>;
   currentSlide: number;
+  // manualSlideshow and hoveredIndex removed from props as logic moved to parent
 
   buttons?: TabButton[];
   onAction?: (action: string) => void;
+  onHover?: (index: number | null) => void;
 }
 
-function SlideshowContent({ slides, currentSlide, buttons, onAction }: SlideshowContentProps) {
+function SlideshowContent({ slides, currentSlide, buttons, onAction, onHover }: SlideshowContentProps) {
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden">
       {/* SLIDESHOW LAYER */}
       {slides.map((slide, index) => (
-        <div 
-          key={index} 
-          className={`absolute w-full h-full transition-opacity duration-[2000ms] ease-in-out ${currentSlide === index ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+        <div
+          key={index}
+          className={`absolute w-full h-full transition-opacity duration-[1000ms] ease-in-out ${currentSlide === index ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
           style={{ pointerEvents: 'none' }}
         >
           {/* Background Image (Blurred & Darkened) */}
           <div className="absolute inset-0">
-             <Image
-                src={slide.bg}
-                alt="Background"
-                fill
-                className="object-cover filter brightness-[0.3] blur-[8px]"
-                loading="lazy"
-             />
+            <Image
+              src={slide.bg}
+              alt="Background"
+              fill
+              className="object-cover filter brightness-[0.3] blur-[8px]"
+              loading="lazy"
+            />
           </div>
-          
+
           {/* Central Box Image (Sharp & Glowing) */}
           <div className="absolute inset-x-20 top-20 bottom-0 flex items-center justify-center">
             <div className="w-[85%] h-[200px] relative border border-white/10 shadow-[0_0_50px_rgba(0,255,255,0.15)] overflow-hidden rounded-xl">
-               <Image
-                 src={slide.fg}
-                 alt="Foreground"
-                 fill
-                 className="object-cover transition-transform duration-[6000ms] ease-out"
-                 style={{ 
-                   transform: currentSlide === index ? 'scale(1.05)' : 'scale(1.0)' 
-                 }}
-                 loading="lazy"
-               />
+              <Image
+                src={slide.fg}
+                alt="Foreground"
+                fill
+                className="object-cover transition-transform duration-[6000ms] ease-out"
+                style={{
+                  transform: currentSlide === index ? 'scale(1.05)' : 'scale(1.0)'
+                }}
+                loading="lazy"
+              />
               {/* Vignette */}
               <div className="absolute inset-0 bg-radial-gradient from-transparent to-black/60 opacity-60 pointer-events-none" />
             </div>
@@ -145,12 +148,18 @@ function SlideshowContent({ slides, currentSlide, buttons, onAction }: Slideshow
       {/* CONTENT LAYER */}
       <div className="relative z-20 mt-24 md:mt-72 flex flex-col items-center gap-4">
 
-        
+
         {/* Buttons */}
         {buttons && buttons.length > 0 && (
           <div className="flex flex-col sm:flex-row gap-6">
             {buttons.map((button, idx) => (
-              <ActionButton key={idx} button={button} onAction={onAction} />
+              <div
+                key={idx}
+                onMouseEnter={() => onHover && onHover(idx)}
+              // Removed onMouseLeave to persist selection
+              >
+                <ActionButton button={button} onAction={onAction} />
+              </div>
             ))}
           </div>
         )}
@@ -203,10 +212,12 @@ export default function ExperienceShowcase({
   const [activeTab, setActiveTab] = useState<string>(defaultTab || tabs[0]?.id || '');
   const [isGameActive, setIsGameActive] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [hoveredButtonIndex, setHoveredButtonIndex] = useState<number | null>(null);
   const [isPageVisible, setIsPageVisible] = useState(true);
 
   const activeTabData = tabs.find(tab => tab.id === activeTab);
   const slides = activeTabData?.content.slides || [];
+  const isManual = activeTabData?.content.manualSlideshow;
 
   // Handle Page Visibility to prevent animation stacking
   useEffect(() => {
@@ -217,21 +228,28 @@ export default function ExperienceShowcase({
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, []);
 
-  // Slideshow Interval (Pauses if game active or page hidden or not slideshow)
+  // Update current slide on hover (Manual Mode)
   useEffect(() => {
-    if (isGameActive || !isPageVisible || activeTabData?.content.type !== 'slideshow' || slides.length === 0) return;
-    
+    if (isManual && hoveredButtonIndex !== null) {
+      setCurrentSlide(hoveredButtonIndex);
+    }
+  }, [isManual, hoveredButtonIndex]);
+
+  // Slideshow Interval (Pauses if game active or page hidden or Manual Mode)
+  useEffect(() => {
+    if (isGameActive || !isPageVisible || activeTabData?.content.type !== 'slideshow' || slides.length === 0 || isManual) return;
+
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, [isGameActive, isPageVisible, activeTabData, slides.length]);
+  }, [isGameActive, isPageVisible, activeTabData, slides.length, isManual]);
 
   return (
     <div className="relative w-full flex flex-col items-center justify-center overflow-hidden">
       {/* HEADER & TABS CONTAINER */}
       <div className="relative z-30 max-w-7xl mx-auto px-6 w-full flex flex-col items-center text-center">
-        
+
         {/* Badge */}
         {badge && (
           <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/5 backdrop-blur-sm rounded-full border border-white/10 mb-6">
@@ -245,7 +263,7 @@ export default function ExperienceShowcase({
         <h2 className="text-4xl md:text-5xl text-white font-semibold mb-4" style={{ fontFamily: 'Noto Serif Variable, serif' }}>
           {title}
         </h2>
-        
+
         {/* Description */}
         <p className="text-lg text-white/60 font-normal max-w-2xl mx-auto leading-relaxed mb-10">
           {description}
@@ -260,12 +278,13 @@ export default function ExperienceShowcase({
                 key={tab.id}
                 onClick={() => {
                   setActiveTab(tab.id);
-                  setIsGameActive(false); 
+                  setIsGameActive(false);
+                  setCurrentSlide(0); // Reset slide on tab change 
                 }}
                 className={`
                   px-8 py-3 rounded-full font-medium transition-all duration-300 flex items-center gap-3 cursor-pointer border
-                  ${activeTab === tab.id 
-                    ? 'bg-white text-black border-white scale-105 shadow-[0_0_20px_rgba(255,255,255,0.3)]' 
+                  ${activeTab === tab.id
+                    ? 'bg-white text-black border-white scale-105 shadow-[0_0_20px_rgba(255,255,255,0.3)]'
                     : 'bg-white/5 text-white/70 border-white/10 hover:bg-white/10 hover:text-white hover:border-white/30'}
                 `}
               >
@@ -283,30 +302,32 @@ export default function ExperienceShowcase({
           <div className="w-full h-full absolute inset-0">
             {/* SLIDESHOW CONTENT */}
             {activeTabData.content.type === 'slideshow' && !isGameActive && (
-              <SlideshowContent 
+              <SlideshowContent
                 slides={slides}
                 currentSlide={currentSlide}
+                // manualSlideshow and hoveredIndex no longer needed as props
                 buttons={activeTabData.content.buttons}
                 onAction={(action) => {
                   if (action === 'startGame') setIsGameActive(true);
                 }}
+                onHover={setHoveredButtonIndex}
               />
             )}
 
             {/* GAME CONTENT */}
             {isGameActive && activeTabData.content.gameComponent && (
               <GameContent gameComponent={
-                React.isValidElement(activeTabData.content.gameComponent) 
-                  ? React.cloneElement(activeTabData.content.gameComponent as React.ReactElement<any>, { 
-                      onExit: () => setIsGameActive(false) 
-                    })
+                React.isValidElement(activeTabData.content.gameComponent)
+                  ? React.cloneElement(activeTabData.content.gameComponent as React.ReactElement<any>, {
+                    onExit: () => setIsGameActive(false)
+                  })
                   : activeTabData.content.gameComponent
               } />
             )}
 
             {/* PLACEHOLDER CONTENT */}
             {activeTabData.content.type === 'placeholder' && (
-              <PlaceholderContent 
+              <PlaceholderContent
                 icon={activeTabData.content.placeholderIcon}
                 title={activeTabData.content.placeholderTitle || 'Em Breve'}
                 description={activeTabData.content.placeholderDescription || 'Conteúdo em desenvolvimento'}

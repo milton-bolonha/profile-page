@@ -2,6 +2,7 @@
 title: "🏆 Projeto 1"
 date: "2025-01-20"
 author: "Milton Bolonha"
+type: "catalog"
 public: true
 ---
 

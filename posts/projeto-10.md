@@ -2,6 +2,7 @@
 title: "Projeto 10"
 date: "2025-01-10"
 author: "Milton Bolonha"
+type: "catalog"
 public: true
 ---
 

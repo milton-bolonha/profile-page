@@ -220,36 +220,46 @@ const HomeContent = ({
                 <ClientOnly>
                   <ExperienceShowcase
                     badge="+20 Anos de Experiência"
-                    title="Transformando Sonhos em Realidade"
-                    description="Explorei as minhas diferentes facetas profissionais ao longo de mais de 20 anos de carreira."
+                    title="O Que Faço?"
+                    description="Explore as diferentes facetas da minha jornada profissional, desde o desenvolvimento de games imersivos até soluções web inteligentes e mentoria técnica."
                     tabs={[
+                      {
+                        id: 'web',
+                        label: 'IA & Web Apps',
+                        icon: FaCode,
+                        content: {
+                          type: 'slideshow',
+                          manualSlideshow: true,
+                          slides: [
+                            { bg: "/img/fly-2-a.jpg", fg: "/img/fly-2-b.jpg" }, // Placeholder 1
+                            { bg: "/img/fly-1-a.jpg", fg: "/img/fly-1-b.jpg" }, // Placeholder 2
+                            { bg: "/img/fly-3-a.jpg", fg: "/img/fly-3-b.jpg" }, // Placeholder 3
+                          ],
+                          buttons: [
+                            { text: 'AI Insights', variant: 'primary', link: '#' },
+                            { text: 'AI AutoBlog', variant: 'secondary', link: '#' },
+                            { text: 'WordPress Sites', variant: 'secondary', link: '#' },
+                          ]
+                        },
+                      },
                       {
                         id: 'game',
                         label: '3D & Game Dev',
                         icon: FaGamepad,
                         content: {
                           type: 'slideshow',
+                          manualSlideshow: true,
                           slides: [
-                            { bg: "/img/fly-1-a.jpg", fg: "/img/fly-1-b.jpg" },
-                            { bg: "/img/fly-2-a.jpg", fg: "/img/fly-2-b.jpg" },
-                            { bg: "/img/fly-3-a.jpg", fg: "/img/fly-3-b.jpg" },
+                            { bg: "/img/fly-1-a.jpg", fg: "/img/fly-1-b.jpg" },      // Button 1 Hover: Neon Flight
+                            { bg: "/img/fly-2-a.jpg", fg: "/img/fly-2-b.jpg" },       // Button 2 Hover: Stranger Craft
+                            { bg: "/img/fly-3-a.jpg", fg: "/img/fly-3-b.jpg" },       // Button 3 Hover: Air Flight
                           ],
                           gameComponent: <NeonFlightGame onExit={() => { }} />,
                           buttons: [
                             { text: 'JOGAR DEMO', variant: 'primary', action: 'startGame' },
-                            { text: 'VER TODOS JOGOS', link: '/games/airplane', variant: 'secondary', icon: FaExpand },
+                            { text: 'Stranger Craft', link: '/games/stranger-craft', variant: 'secondary', icon: FaGamepad },
+                            { text: 'Air Flight', link: '/games/airplane', variant: 'secondary', icon: FaGamepad },
                           ],
-                        },
-                      },
-                      {
-                        id: 'web',
-                        label: 'Web Dev',
-                        icon: FaCode,
-                        content: {
-                          type: 'placeholder',
-                          placeholderIcon: FaCode,
-                          placeholderTitle: 'Web Apps',
-                          placeholderDescription: 'Aplicações Next.js, Dashboards SaaS e Arquitetura Escalável.',
                         },
                       },
                       {
@@ -257,14 +267,25 @@ const HomeContent = ({
                         label: 'Mentoria',
                         icon: FaChalkboardTeacher,
                         content: {
-                          type: 'placeholder',
-                          placeholderIcon: FaChalkboardTeacher,
-                          placeholderTitle: 'Mentoria Tech',
-                          placeholderDescription: 'Programas de mentoria, code reviews e workshops.',
+                          type: 'slideshow',
+                          manualSlideshow: true,
+                          slides: [
+                            { bg: "/img/fly-3-a.jpg", fg: "/img/fly-3-b.jpg" }, // Placeholder 1
+                            { bg: "/img/fly-1-a.jpg", fg: "/img/fly-1-b.jpg" }, // Placeholder 2
+                          ],
+                          buttons: [
+                            { text: 'Ver Vídeo', variant: 'primary', link: '#' },
+                            {
+                              text: 'Falar com o Mentor',
+                              variant: 'secondary',
+                              link: `https://wa.me/5512981062959?text=${encodeURIComponent("Olá Milton! Vi seu portfólio e gostaria de saber mais sobre a mentoria.")}`,
+                              icon: FaChalkboardTeacher
+                            },
+                          ]
                         },
                       },
                     ]}
-                    defaultTab="game"
+                    defaultTab="web"
                   />
                 </ClientOnly>
               </div>

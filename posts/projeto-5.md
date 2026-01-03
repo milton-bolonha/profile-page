@@ -2,6 +2,7 @@
 title: "Projeto 8"
 date: "2025-01-13"
 author: "Milton Bolonha"
+type: "catalog"
 public: true
 ---
 

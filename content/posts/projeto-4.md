@@ -2,6 +2,7 @@
 title: "Projeto 4 - SaaS Multi-tenant"
 date: "2025-01-13"
 author: "Milton Bolonha"
+type: "catalog"
 description: "Plataforma SaaS multi-tenant com Next.js, autenticação avançada e billing automatizado."
 keywords: ["saas", "multi-tenant", "next.js", "stripe", "authentication"]
 featuredImage: "/img/projeto-4.jpg"

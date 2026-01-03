@@ -2,6 +2,7 @@
 title: "Projeto 3 - API REST Escalável (Privado)"
 date: "2025-01-14"
 author: "Milton Bolonha"
+type: "catalog"
 description: "Desenvolvimento de API REST escalável com Node.js e microserviços. Conteúdo restrito."
 keywords: ["api rest", "node.js", "microservices", "docker", "kubernetes"]
 featuredImage: "/img/projeto-3.jpg"

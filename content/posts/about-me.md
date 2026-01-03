@@ -2,6 +2,7 @@
 title: "Sobre Mim - Desenvolvedor Full Stack"
 date: "2025-01-15"
 author: "Milton Bolonha"
+type: "catalog"
 description: "Conheça minha trajetória como desenvolvedor full stack especializado em Next.js, React e Node.js. Experiência desde 1998, CEO/CTO da 21 Miles e Top Rated no Upwork."
 keywords:
   [

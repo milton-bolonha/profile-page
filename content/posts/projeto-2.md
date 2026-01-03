@@ -2,6 +2,7 @@
 title: "Projeto 2 - Dashboard Analytics (Privado)"
 date: "2025-01-16"
 author: "Milton Bolonha"
+type: "catalog"
 description: "Dashboard de analytics em tempo real para cliente corporativo. Acesso restrito."
 keywords: ["dashboard", "analytics", "react", "data visualization"]
 featuredImage: "/img/projeto-2.jpg"
