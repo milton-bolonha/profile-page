@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaCheck, FaPaperPlane } from 'react-icons/fa';
+import { SquareAd } from '../commons/SquareAd'; // Import SquareAd
 
 const OPTIONS = [
     'Freelancer (Contratar)',
@@ -21,11 +22,21 @@ export const PollSection = () => {
     const [emailError, setEmailError] = useState('');
     const [isVisible, setIsVisible] = useState(false);
 
+    // New State for fallback Ad
+    const [showSquareAd, setShowSquareAd] = useState(false);
+
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setIsVisible(true);
-        }, 2000);
-        return () => clearTimeout(timer);
+        const hasInteracted = localStorage.getItem('hasInteractedWithPoll');
+        if (!hasInteracted) {
+            // If NOT interacted, show Poll (delayed)
+            const timer = setTimeout(() => {
+                setIsVisible(true);
+            }, 2000);
+            return () => clearTimeout(timer);
+        } else {
+            // If already interacted, show SquareAd
+            setShowSquareAd(true);
+        }
     }, []);
 
     const toggleOption = (option: string) => {
@@ -79,6 +90,33 @@ export const PollSection = () => {
         }
     };
 
+    const handleReset = () => {
+        setStep('options');
+        setSelectedOptions([]);
+        setEmail('');
+        setOtherText('');
+        setIsVisible(true);
+    };
+
+    useEffect(() => {
+        if (step === 'success') {
+            localStorage.setItem('hasInteractedWithPoll', 'true');
+            const timer = setTimeout(() => {
+                setIsVisible(false);
+            }, 3000); // Auto close after 3s
+            return () => clearTimeout(timer);
+        }
+    }, [step]);
+
+    // Render SquareAd if poll already interacted
+    if (showSquareAd) {
+        return (
+            <div className="w-full h-full flex items-center justify-center">
+                <SquareAd />
+            </div>
+        );
+    }
+
     if (!isVisible) return null;
 
     return (
@@ -89,8 +127,8 @@ export const PollSection = () => {
             className="w-full max-w-lg mx-auto px-4 relative flex flex-col items-center justify-center pointer-events-auto"
         >
 
-            {/* Ultra Minimal Glass Card */}
-            <div className="relative w-full bg-black/40 backdrop-blur-md border border-white/10 shadow-2xl rounded-2xl p-6 overflow-hidden transition-all duration-300 hover:border-white/20 hover:bg-black/50">
+            {/* Ultra Minimal Glass Card - Light Theme for Black Text */}
+            <div className="relative w-full bg-white/90 backdrop-blur-xl border border-white/40 shadow-2xl rounded-2xl p-6 overflow-hidden transition-all duration-300">
 
                 <AnimatePresence mode="wait">
 
@@ -104,10 +142,10 @@ export const PollSection = () => {
                             transition={{ duration: 0.3 }}
                             className="flex flex-col items-center"
                         >
-                            <h2 className="text-xl font-bold text-center text-white mb-1 tracking-tight">
+                            <h2 className="text-sm font-bold text-center text-black mb-1 tracking-tight" style={{ fontFamily: '"Inter Variable", sans-serif', fontSize: '20px', lineHeight: '1.2' }}>
                                 O Que Você Quer Ver Mais?
                             </h2>
-                            <p className="text-white/40 mb-6 text-xs uppercase tracking-widest font-mono">
+                            <p className="text-gray-500 mb-6 text-[10px] uppercase tracking-widest font-mono">
                                 Até 2 opções
                             </p>
 
@@ -117,10 +155,10 @@ export const PollSection = () => {
                                         key={opt}
                                         onClick={() => toggleOption(opt)}
                                         className={`
-                      relative px-3 py-1.5 rounded-lg border transition-all duration-200 text-xs font-medium
+                      relative px-3 py-1.5 rounded-lg border transition-all duration-200 text-xs font-bold cursor-pointer
                       ${selectedOptions.includes(opt)
-                                                ? 'bg-white text-black border-white shadow-[0_0_10px_rgba(255,255,255,0.3)]'
-                                                : 'bg-white/5 text-white/60 border-white/5 hover:border-white/20 hover:bg-white/10'}
+                                                ? 'bg-black text-white border-black shadow-md'
+                                                : 'bg-gray-200 text-gray-600 border-gray-200 hover:bg-gray-300 hover:text-black'}
                     `}
                                     >
                                         {opt}
@@ -149,7 +187,7 @@ export const PollSection = () => {
                                     initial={{ opacity: 0, y: 5 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     onClick={handleOptionSubmit}
-                                    className="w-full py-2 bg-white text-black text-sm font-bold rounded hover:bg-gray-200 transition-colors"
+                                    className="w-full py-2 bg-black text-white text-sm font-bold rounded hover:bg-gray-800 transition-colors cursor-pointer"
                                 >
                                     Continuar
                                 </motion.button>
@@ -166,8 +204,8 @@ export const PollSection = () => {
                             exit={{ opacity: 0, x: -20, filter: 'blur(4px)' }}
                             className="flex flex-col items-center w-full"
                         >
-                            <h3 className="text-lg font-bold text-white mb-2">Quer receber novidades?</h3>
-                            <p className="text-white/40 mb-4 text-xs text-center px-4">Deixe seu email se quiser (Opcional).</p>
+                            <h3 className="text-sm font-bold text-black mb-2 font-sans">Quer receber novidades?</h3>
+                            <p className="text-gray-500 mb-4 text-[10px] text-center px-4">Deixe seu email se quiser (Opcional).</p>
 
                             <form
                                 onSubmit={handleEmailSubmit}
@@ -183,20 +221,20 @@ export const PollSection = () => {
                                         }}
                                         placeholder="seu@email.com"
                                         className={`
-                            w-full px-4 py-2.5 rounded bg-white/5 border text-sm text-white outline-none transition-all
+                            w-full px-4 py-2.5 rounded bg-gray-50 border text-sm text-black outline-none transition-all placeholder-gray-400
                             ${email && validateEmail(email)
                                                 ? 'border-green-500/50'
-                                                : 'border-white/10 focus:border-white/30'}
+                                                : 'border-gray-200 focus:border-gray-400'}
                         `}
                                     />
                                     <button
                                         type="submit" // Changed to type="submit"
                                         disabled={email ? !validateEmail(email) || isSubmitting : isSubmitting} // Disable if email is present and invalid, or if submitting
                                         className={`
-                            absolute right-1 top-1 bottom-1 px-3 rounded text-xs font-bold transition-all flex items-center gap-2
+                            absolute right-1 top-1 bottom-1 px-3 rounded text-xs font-bold transition-all flex items-center gap-2 cursor-pointer
                             ${email && validateEmail(email)
-                                                ? 'bg-white text-black hover:bg-gray-200'
-                                                : 'bg-transparent text-white/20 cursor-not-allowed'}
+                                                ? 'bg-black text-white hover:bg-gray-800'
+                                                : 'bg-transparent text-gray-400 cursor-not-allowed'}
                         `}
                                     >
                                         {isSubmitting ? '...' : <FaPaperPlane />}
@@ -207,7 +245,7 @@ export const PollSection = () => {
                                 <button
                                     type="button"
                                     onClick={handleEmailSubmit} // Allow skip/submit empty if strictly optional? User logic implied submit.
-                                    className="mt-4 text-xs text-white/30 hover:text-white/60 underline w-full text-center"
+                                    className="mt-4 text-xs text-gray-400 hover:text-black underline w-full text-center cursor-pointer transition-colors"
                                 >
                                     Enviar sem email
                                 </button>
@@ -228,12 +266,12 @@ export const PollSection = () => {
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
                                 transition={{ type: "spring", stiffness: 200, damping: 10 }}
-                                className="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center mb-3 shadow-[0_0_15px_rgba(255,255,255,0.4)]"
+                                className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center mb-3 shadow-lg"
                             >
                                 <FaCheck className="text-xl" />
                             </motion.div>
-                            <h3 className="text-lg font-bold text-white">Recebido!</h3>
-                            <p className="text-white/40 text-xs mt-1">Obrigado pelo feedback.</p>
+                            <h3 className="text-lg font-bold text-black font-sans">Recebido!</h3>
+                            <p className="text-gray-500 text-xs mt-1">Obrigado pelo feedback.</p>
                         </motion.div>
                     )}
 
@@ -248,4 +286,5 @@ export const PollSection = () => {
         </motion.div>
     );
 };
+
 

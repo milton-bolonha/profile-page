@@ -11,7 +11,7 @@ export const StatsSection = () => {
           {t('home.stats.title')}
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {statsData.stats.map((stat) => (
+          {statsData.statsSection.items.map((stat) => (
             <div key={stat.id} className="text-center">
               {stat.icon && <div className="text-4xl mb-2">{stat.icon}</div>}
               <div className="text-4xl md:text-5xl font-bold text-blue-600 dark:text-blue-400 mb-2">

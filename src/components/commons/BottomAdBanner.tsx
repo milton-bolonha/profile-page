@@ -1,6 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 export const BottomAdBanner = () => {
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsVisible(true);
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (!isVisible) return null;
 
 
     return (
@@ -8,7 +18,7 @@ export const BottomAdBanner = () => {
             <div className="relative group">
 
                 {/* Ad Container */}
-                <div className="bg-black/80 backdrop-blur-md border border-white/10 px-4 py-2 rounded-t-lg shadow-2xl flex items-center justify-center min-w-[320px] md:min-w-[728px] h-[90px]">
+                <div className="bg-black/80 backdrop-blur-md px-4 py-2 rounded-t-lg shadow-2xl flex items-center justify-center min-w-[320px] md:min-w-[728px] h-[90px]">
                     <div className="w-full h-full border border-dashed border-white/20 rounded flex items-center justify-center bg-white/5">
                         <span className="text-white/30 text-xs font-mono tracking-widest uppercase">
                             Espaço Publicitário (728x90)

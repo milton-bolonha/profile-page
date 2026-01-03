@@ -38,6 +38,12 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 import homeData from "../../public/home.json";
 
+import { PollSection } from "@/components/Home/PollSection";
+import { BottomAdBanner } from "@/components/commons/BottomAdBanner";
+import { ImmersiveModal } from "@/components/commons/ImmersiveModal";
+import { DebugControls } from "@/components/commons/DebugControls";
+import TransitionAdError from "@/components/transitions/TransitionAdError";
+
 interface HomeProps {
   home: {
     aboutMe: TAboutMe;
@@ -55,11 +61,6 @@ interface HomeProps {
   themeSettings: any;
 }
 
-import { PollSection } from "@/components/Home/PollSection";
-import { BottomAdBanner } from "@/components/commons/BottomAdBanner";
-
-// ... imports remain the same
-
 const HomeContent = ({
   home,
   allPostsData,
@@ -72,6 +73,7 @@ const HomeContent = ({
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showAd, setShowAd] = useState(false);
   const [adDirection, setAdDirection] = useState<'left' | 'right'>('left');
+  const [adVariant, setAdVariant] = useState<'lab' | 'error'>('lab');
 
   const isMobile = useMediaQuery("(max-width: 768px)");
   const themeLayout = themeSettings?.generalThemeSettings?.layoutMode || 'vertical';
@@ -96,6 +98,7 @@ const HomeContent = ({
     import('three/examples/jsm/loaders/GLTFLoader.js').then(({ GLTFLoader }) => {
       const loader = new GLTFLoader();
       loader.load('/games/exp/low-poly_laboratory.glb', () => { console.log('Ad Model Prefetched'); });
+      loader.load('/games/exp/i_am_error.glb', () => { console.log('Ad Model Error Prefetched'); });
     });
     const timer = setTimeout(() => setIsLoaded(true), 100);
     return () => clearTimeout(timer);
@@ -116,6 +119,14 @@ const HomeContent = ({
     if (crossesGate1 || crossesGate2) {
       if (!showAd) {
         setAdDirection(direction);
+
+        // Determine Variant
+        if (crossesGate2) {
+          setAdVariant('error');
+        } else {
+          setAdVariant('lab');
+        }
+
         setShowAd(true);
       }
     }
@@ -135,6 +146,8 @@ const HomeContent = ({
   return (
     <>
       <Seo data={seoData} />
+      <DebugControls />
+      <ImmersiveModal />
       <ScrollContainer>
         {!isLoaded && (
           <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
@@ -161,16 +174,26 @@ const HomeContent = ({
         {showAd && (
           <>
             <BottomAdBanner />
-            <TransitionAd
-              direction={adDirection}
-              onComplete={() => setShowAd(false)}
-            />
-            {/* Poll Overlay - Center Center */}
-            <div className="fixed inset-0 z-[120] flex items-center justify-center pointer-events-none">
-              <div className="pointer-events-auto w-full max-w-4xl">
-                <PollSection />
-              </div>
-            </div>
+
+            {adVariant === 'lab' ? (
+              <>
+                <TransitionAd
+                  direction={adDirection}
+                  onComplete={() => setShowAd(false)}
+                />
+                {/* Poll Overlay only for Lab */}
+                <div className="fixed inset-0 z-[120] flex items-center justify-center pointer-events-none">
+                  <div className="pointer-events-auto w-full max-w-4xl">
+                    <PollSection />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <TransitionAdError
+                direction={adDirection}
+                onComplete={() => setShowAd(false)}
+              />
+            )}
           </>
         )}
 
@@ -315,7 +338,7 @@ const HomeContent = ({
             </SectionWrapper>
           </SlideshowLayout>
         </div>
-      </ScrollContainer>
+      </ScrollContainer >
     </>
   );
 };

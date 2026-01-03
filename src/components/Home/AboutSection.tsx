@@ -19,7 +19,7 @@ export const AboutSection = () => {
           {/* Left: Image */}
           <div className="order-2 lg:order-1">
             <div className="relative max-w-sm mx-auto lg:mx-0">
-              <div className="relative aspect-[3/4] overflow-hidden">
+              <div className="relative aspect-[3/4] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] bg-black md:rounded-2xl">
                 <OptimizedImage
                   src={aboutData.about.photo.url}
                   alt={aboutData.about.photo.alt}
