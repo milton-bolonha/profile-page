@@ -87,7 +87,7 @@ const Sobre = ({ businessSettings, generalSettings }: SobreProps) => {
                       {t("about.services.title")}
                     </h3>
                     <ul className="text-lg text-gray-700 dark:text-gray-300 space-y-2 mb-6 list-disc list-inside">
-                      {t("about.services.items").map(
+                      {(Array.isArray(t("about.services.items")) ? t("about.services.items") : []).map(
                         (item: string, index: number) => (
                           <li key={index}>{item}</li>
                         )
@@ -100,7 +100,7 @@ const Sobre = ({ businessSettings, generalSettings }: SobreProps) => {
                       {t("about.whyChoose.title")}
                     </h3>
                     <ul className="text-lg text-gray-700 dark:text-gray-300 space-y-2 mb-6 list-disc list-inside">
-                      {t("about.whyChoose.items").map(
+                      {(Array.isArray(t("about.whyChoose.items")) ? t("about.whyChoose.items") : []).map(
                         (item: string, index: number) => (
                           <li key={index}>{item}</li>
                         )

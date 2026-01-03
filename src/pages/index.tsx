@@ -120,11 +120,11 @@ const HomeContent = ({
       if (!showAd) {
         setAdDirection(direction);
 
-        // Determine Variant
-        if (crossesGate2) {
-          setAdVariant('error');
-        } else {
+        // Determine Variant - PRIORITY: LAB (Gate 1)
+        if (crossesGate1) {
           setAdVariant('lab');
+        } else if (crossesGate2) {
+          setAdVariant('error');
         }
 
         setShowAd(true);

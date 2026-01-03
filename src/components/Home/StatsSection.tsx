@@ -11,15 +11,19 @@ export const StatsSection = () => {
           {t('home.stats.title')}
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {statsData.statsSection.items.map((stat) => (
-            <div key={stat.id} className="text-center">
-              {stat.icon && <div className="text-4xl mb-2">{stat.icon}</div>}
+          {statsData.statsSection.items.map((stat, index) => (
+            <div key={index} className="text-center">
               <div className="text-4xl md:text-5xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                {stat.number}
+                {stat.value}
               </div>
               <div className="text-gray-700 dark:text-gray-300 font-medium">
-                {t(stat.translationKey)}
+                {stat.label}
               </div>
+              {(stat.sublabel || stat.info) && (
+                <div className="text-sm text-gray-500 mt-1">
+                  {stat.sublabel || stat.info}
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -9,9 +9,45 @@
     },
     "scroll": "Role para explorar",
     "about": {
-      "title": "Open To Work",
-      "description": "Trabalho ajudando pessoas e empresas a transformarem ideias em produtos web reais, sistemas com inteligência artificial e experiências gamificadas.",
-      "cta": "Agende Uma Reunião"
+      "title": "Sobre Mim",
+      "introduction": "Olá! Sou Milton Bolonha, estudante de Análise e Desenvolvimento de Sistemas, conhecido por ser trabalhador e honrado em cumprir minhas promessas. Meu objetivo é ajudar empreendedores e profissionais como você a transformarem ideias em projetos digitais de sucesso, com soluções escaláveis, modernas e funcionais.",
+      "education": {
+        "title": "Educação",
+        "degree": "Graduando em Análise e Desenvolvimento de Sistemas",
+        "degreeShort": "Análise e Desenvolvimento de Sistemas"
+      },
+      "specialization": {
+        "title": "Especialização",
+        "area": "Desenvolvimento Web Full-Stack"
+      },
+      "services": {
+        "title": "O que posso fazer pelo seu projeto?",
+        "items": [
+          "Desenvolvimento de sites responsivos e modernos que destacam seus produtos ou serviços.",
+          "Criação de aplicações web personalizadas, com Front-End e Back-End integrados.",
+          "Otimização e deploy em plataformas como Netlify e Vercel, garantindo performance e estabilidade.",
+          "Estruturação de sistemas eficientes utilizando Node.js, SQL, ReactJS e NextJS.",
+          "Documentação organizada e comunicação clara, facilitando o trabalho em equipe e manutenções futuras."
+        ]
+      },
+      "whyChoose": {
+        "title": "Por que escolher trabalhar comigo?",
+        "items": [
+          "Comprometimento total: Entrego o que prometo, estudando e aplicando soluções eficazes.",
+          "Aprendizado rápido e constante: Estou sempre atualizado nas tecnologias mais recentes, oferecendo soluções modernas e eficientes.",
+          "Foco em resultados: Antes de codificar, analiso e entendo profundamente o problema, garantindo que a solução atenda exatamente às suas necessidades."
+        ]
+      },
+      "skills": {
+        "title": "Minhas habilidades técnicas:",
+        "frontend": "Front-End:",
+        "backend": "Back-End:",
+        "deploy": "Deploy & Otimização:",
+        "frontendTechs": "ReactJS | NextJS | HTML5 | CSS3 | Tailwind CSS | Bootstrap | JavaScript | TypeScript",
+        "backendTechs": "Node.js | SQL | REST APIs | Git | GitHub",
+        "deployTechs": "Netlify | Vercel"
+      },
+      "cta": "Conheça Minha História"
     },
     "projects": {
       "title": "Catálogo",
