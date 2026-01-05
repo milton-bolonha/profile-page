@@ -231,9 +231,9 @@ const HomeContent = ({
                           type: 'slideshow',
                           manualSlideshow: true,
                           slides: [
-                            { bg: "/img/fly-2-a.jpg", fg: "/img/fly-2-b.jpg" }, // Placeholder 1
-                            { bg: "/img/fly-1-a.jpg", fg: "/img/fly-1-b.jpg" }, // Placeholder 2
-                            { bg: "/img/fly-3-a.jpg", fg: "/img/fly-3-b.jpg" }, // Placeholder 3
+                            { bg: "/img/thumb-insights-a.jpg", fg: "/img/thumb-insights-b.jpg" }, // Placeholder 1
+                            { bg: "/img/thumb-blog-a.jpg", fg: "/img/thumb-blog-b.jpg" }, // Placeholder 2
+                            { bg: "/img/thumb-wp-a.jpg", fg: "/img/thumb-wp-b.jpg" }, // Placeholder 3
                           ],
                           buttons: [
                             { text: 'AI Insights', variant: 'primary', link: '#' },
@@ -251,7 +251,7 @@ const HomeContent = ({
                           manualSlideshow: true,
                           slides: [
                             { bg: "/img/fly-1-a.jpg", fg: "/img/fly-1-b.jpg" },      // Button 1 Hover: Neon Flight
-                            { bg: "/img/fly-2-a.jpg", fg: "/img/fly-2-b.jpg" },       // Button 2 Hover: Stranger Craft
+                            { bg: "/img/thumb-stranger-b.jpg", fg: "/img/thumb-stranger-a.jpg" },       // Button 2 Hover: Stranger Craft
                             { bg: "/img/fly-3-a.jpg", fg: "/img/fly-3-b.jpg" },       // Button 3 Hover: Air Flight
                           ],
                           gameComponent: <NeonFlightGame onExit={() => { }} />,
@@ -270,8 +270,8 @@ const HomeContent = ({
                           type: 'slideshow',
                           manualSlideshow: true,
                           slides: [
-                            { bg: "/img/fly-3-a.jpg", fg: "/img/fly-3-b.jpg" }, // Placeholder 1
-                            { bg: "/img/fly-1-a.jpg", fg: "/img/fly-1-b.jpg" }, // Placeholder 2
+                            { bg: "/img/thumb-mentoria-1-b.jpg", fg: "/img/thumb-mentoria-1-a.jpg" }, // Placeholder 1
+                            { bg: "/img/thumb-mentoria-2-b.jpg", fg: "/img/thumb-mentoria-2-a.jpg" }, // Placeholder 2
                           ],
                           buttons: [
                             { text: 'Ver Vídeo', variant: 'primary', link: '#' },
