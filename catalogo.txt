@@ -1,0 +1,44 @@
+
+
+Precisamos criar o MD de novos itens do nosso catalogo de projetos
+Catálogo
+
+AI: AI Insights - Boilerplate
+AI: AI Blog - Automatic Blog
+AI: AI SaaS - Boilerplate
+
+WEB: One Page Website
+WEB: Landing Page Extreme CTO
+WEB: CMS for Agencies
+WEB: SEO Business Page
+WEB: Server Maintenence
+WEB: Domain Management
+WEB: WordPress Development
+
+BOOK: How to code and manage AI SaaS - The definitive enterpeneur roadmap 
+BOOK: What's wrong with you delevoper? Or What's wrong with you enterpreneur?
+BOOK: Web Development: Essential Guidance for Begginers n Web Agencies
+
+GAME DEV: OnDemand.
+
+MENTORIA: Trilha Ignição
+MENTORIA: Autossuficiência Profissional
+MENTORIA: Programação Web, AI e SaaS
+MENTORIA: Carreira Internacional
+MENTORIA: Torne-se Um Mentor
+MENTORIA: Bushido 3.0 - O Caminho Do Organizacionista
+MENTORIA: Cosmologia Organizacionista
+
+ENTREPENEUR: I/O - Mentoria
+ENTREPENEUR: I/O - Editora
+
+
+BOOK: Introdução a Programação
+BOOK: Eugenia 3.0: As Crianças CTO's
+BOOK: Inteligências e Ordens
+
+
+
+
+
+

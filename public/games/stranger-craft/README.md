@@ -41,7 +41,7 @@ Um clone de Minecraft inspirado em Stranger Things, desenvolvido com Three.js e 
   - Edifícios ocos com múltiplos andares
   - Portas e janelas
 
-### 🤖 NPCs e Entidades
+###  NPCs e Entidades
 - **Builder (Construtor)**:
   - Constrói vilas automaticamente
   - 3 tipos de casas (simples, alta, grande)

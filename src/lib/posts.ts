@@ -10,8 +10,11 @@ export interface PostData {
   date: string;
   author: string;
   public: boolean;
-  featured?: boolean; // Adicionar a propriedade opcional 'featured'
-  content: string; // Alterar de contentHtml para content
+  published?: boolean;
+  featured?: boolean;
+  category?: string;
+  description?: string;
+  content: string;
 }
 
 export function getSortedPostsData() {
@@ -34,7 +37,10 @@ export function getSortedPostsData() {
       date: Date | string;
       author: string;
       public: boolean;
+      published?: boolean;
       featured?: boolean;
+      category?: string;
+      description?: string;
     };
     const dateString =
       data.date instanceof Date ? data.date.toISOString() : data.date;
@@ -43,10 +49,15 @@ export function getSortedPostsData() {
       slug,
       ...data,
       date: dateString,
+      content: matterResult.content, // Incluindo content para previews se necessário
     };
   });
+
+  // Filter out unpublished posts
+  const publishedPosts = allPostsData.filter((post) => post.published === true);
+
   // Sort posts by date
-  return allPostsData.sort((a, b) => {
+  return publishedPosts.sort((a, b) => {
     if (a.date < b.date) {
       return 1;
     } else {
@@ -76,7 +87,10 @@ export async function getPostData(slug: string): Promise<PostData> {
     date: Date | string;
     author: string;
     public: boolean;
+    published?: boolean;
     featured?: boolean;
+    category?: string;
+    description?: string;
   };
   const dateString =
     data.date instanceof Date ? data.date.toISOString() : data.date;
@@ -94,11 +108,22 @@ export async function getPostData(slug: string): Promise<PostData> {
 
 export function getAllPostSlugs() {
   const fileNames = fs.readdirSync(postsDirectory);
-  return fileNames.map((fileName) => {
-    return {
-      params: {
-        slug: fileName.replace(/\.md$/, ""),
-      },
-    };
-  });
+  return fileNames
+    .map((fileName) => {
+      const fullPath = path.join(postsDirectory, fileName);
+      const fileContents = fs.readFileSync(fullPath, "utf8");
+      const matterResult = matter(fileContents);
+      return {
+        fileName,
+        published: matterResult.data.published,
+      };
+    })
+    .filter((post) => post.published === true)
+    .map((post) => {
+      return {
+        params: {
+          slug: post.fileName.replace(/\.md$/, ""),
+        },
+      };
+    });
 }

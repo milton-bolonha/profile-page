@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+      <?xml-stylesheet type="text/xsl" href="/template.xsl"?>
+        <!-- Created in Sat Dec 07 2024 10:02:15 GMT+0000 (Coordinated Universal Time) -->
+        <urlset
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd http://www.google.com/schemas/sitemap-image/1.1 http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd"
+          xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+          <url>
+            <loc>https://moderntips.com/terms-and-conditions</loc>
+            <lastmod>2024-11-28T00:44:45.938Z</lastmod>
+            
+          </url>,<url>
+            <loc>https://moderntips.com/about-us</loc>
+            <lastmod>2024-11-28T00:44:45.937Z</lastmod>
+            
+          </url>,<url>
+            <loc>https://moderntips.com/advertising-disclosure</loc>
+            <lastmod>2024-11-28T00:44:45.937Z</lastmod>
+            
+          </url>,<url>
+            <loc>https://moderntips.com/privacy-policy</loc>
+            <lastmod>2024-11-28T00:44:45.937Z</lastmod>
+            
+          </url>
+      </urlset>
+      

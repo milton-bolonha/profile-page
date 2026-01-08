@@ -1,5 +1,58 @@
+ManoDev
+- StrangerCraft
+Portfolio
+- Catálogo
+- Links
+- Ai Insights OK
+Vídeo de Vendas
+
+Explore as diferentes facetas da minha jornada profissional, desde o desenvolvimento aplicativos com Inteligência Artificial, soluções web, games imersivos e mentoria técnica.
+
+8 Anos com 100% de Satisfação
+8 Anos no Mercado Internacional
+
+Bandeiras
+svg
+Itália
+França
+Brazil
+EUA
+California
+São Paulo
+Portugal
+
+
+Btns vão para detalhes dos projetos
+
+
+História - Falta hover cursor pointer
+
+1998
+Início da Jornada
+
+Com 11 anos, engenharia reversa de um site em HTML, CSS e JS dedicado ao anti-herói de anime Vegeta.
+
+2005
+Primeiro trabalho em agência web de Ribeirão Preto. Clietes como USP, HC-USP e Grupo MultiPlan.
+
+2007
+2 anos de serviço filantrópico na Paraíba. Serviços na área de ajuda humanitária, psico-social e de ensino.
+
+2009
+Do interior para a capital, sou contratado para trabalhar em uma agência de marketing na Faria Lima. Clientes como Clube Hebraica e Itaú.
+
+2018
+Após +9 anos desenvolvendo em WordPress, inicío a minha carreira internacional em uma agência WP do Colorado e começo a desenvolver em NodeJs.
+
+
+Contato
+Entre em contato através das redes sociais ou envie uma mensagem diretamente.
+
+
+
+
 Tendo Ideias
-Jogando dos outros
+Jogando MineCraft Web Clone
 
 Minecraft em 1 min
 Minecraft em 5 min
@@ -8,9 +61,31 @@ Minecraft em 1 dia
 Minecraft em 1 semana
 Adicionando um pouco de molho
 Criando e Pintando Capas
-Disponibilizando em git/netlify
+Disponibilizando em git
+Distribuindo com netlify
 
 
+Próximos
+Divulgação 
+Portfólio
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FAZER TELAS TRANSITÓRIAS
 I/O
 FHC
 STF

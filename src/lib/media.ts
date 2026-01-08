@@ -10,14 +10,17 @@ export const normalizeImage = (
   url: string | undefined | null,
   label: string
 ) => {
+  const safeLabel = encodeURIComponent(label || "Imagem");
+  
+  // Se não tem URL, usa placeholder com o nome e dimensão
   if (!url) {
-    return PLACEHOLD_FALLBACK;
+    const text = `${safeLabel} (800x600)`;
+    return `https://placehold.co/800x600/1a1a1a/666666?text=${text}&font=roboto`;
   }
 
   // Se vier placeholder padrão, troca para placehold.co com nome do produto
   if (/placeholder\.com/i.test(url)) {
-    const safeLabel = encodeURIComponent(label || "Image");
-    return `https://placehold.co/800x600/EEE/31343C?font=open-sans&text=${safeLabel}`;
+    return `https://placehold.co/800x600/1a1a1a/666666?text=${safeLabel}&font=roboto`;
   }
 
   return url;

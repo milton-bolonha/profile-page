@@ -17,11 +17,12 @@ keywords:
 featuredImage: "/img/perfil.jpg"
 public: true
 featured: true
+published: false
 ---
 
 # Sobre Mim - Desenvolvedor Full Stack
 
-Bem-vindo ao meu portfolio! Sou Milton Bolonha, desenvolvedor desde 1998, CEO/CTO da 21 Miles, autor e Top Rated no Upwork.
+Bem-vindo ao meu portfolio! Sou Milton Bolonha, desenvolvedor desde 1998, CEO e Mentor da I/O - Mentoria Inteligente, autor e Top Rated no Mercado Internacional de Programadores.
 
 ## O Que Você Encontrará Aqui
 

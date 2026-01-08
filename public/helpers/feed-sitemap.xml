@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <?xml-stylesheet type="text/xsl" href="/template.xsl"?>
+    <!-- Created in Sun Aug 18 2024 19:34:06 GMT+0000 (Coordinated Universal Time) -->
+    <urlset
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd http://www.google.com/schemas/sitemap-image/1.1 http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd"
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+      <url>
+        <loc>https://moderntips.com/atom-feed.xml</loc>
+        <lastmod>2024-12-07T10:02:15.222Z</lastmod>
+        <image:image>
+        <image:loc>https://res.cloudinary.com/dj0et6kq4/image/upload/v1725537988/moderntips/assets/mt_cover_1_w0m81h.png</image:loc>
+      </image:image>
+      </url>,<url>
+        <loc>https://moderntips.com/rss-feed.xml</loc>
+        <lastmod>2024-12-07T10:02:15.222Z</lastmod>
+        <image:image>
+        <image:loc>https://res.cloudinary.com/dj0et6kq4/image/upload/v1725537988/moderntips/assets/mt_cover_1_w0m81h.png</image:loc>
+      </image:image>
+      </url>,<url>
+        <loc>https://moderntips.com/robots.txt</loc>
+        <lastmod>2024-12-07T10:02:15.222Z</lastmod>
+        <image:image>
+        <image:loc>https://res.cloudinary.com/dj0et6kq4/image/upload/v1725537988/moderntips/assets/mt_cover_1_w0m81h.png</image:loc>
+      </image:image>
+      </url>
+    </urlset>

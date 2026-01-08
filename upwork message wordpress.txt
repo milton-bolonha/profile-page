@@ -1,7 +1,7 @@
 Olá, meu nome é Milton. Sou especialista em WordPress e Javascript, estou codando para web desde 1998. O meu melhor job aqui na plataforma de Upwrok foi em uma agência trabalhando com WordPress, foram 3 anos de trabalho, do começo de 2018 até até o início da pandemia, em março de 2020.
 
 
-Eu comecei com WordPress em 2009, desde lá fiz centenas de sites em WP, mas já trabalho com CMS desde 2006. Nos últimos 6 anos me especializei em React.js, Next.js, Gatsby.js, Vite, Vercel, Netlify, MongoDb, dentre outras tecnologias.
+Eu comecei com WordPress em 2009, desde lá fiz centenas de sites em WP, trabalhei com diversos CMS desde 2006. Nos últimos 6 anos me especializei em React.js, Next.js, Gatsby.js, Vite, Vercel, Netlify, MongoDb, dentre outras tecnologias.
 
 Eu estou criando o meu portifólio aqui: bolonhaporfolio.netlify.app (warn men working)
 

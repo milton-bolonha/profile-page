@@ -13,7 +13,7 @@ import ExperienceShowcase from "@/components/Home/ExperienceShowcase";
 import TestimonialsSection from "@/components/Home/TestimonialsSection";
 import { AboutMe as TAboutMe } from "@/types/Home";
 import { GetStaticProps } from "next";
-import { getSortedPostsData } from "@/lib/posts";
+import { getSortedPostsData, PostData } from "@/lib/posts";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getBusinessSettings, getGeneralSettings, getNavigatorSettings, getThemeSettings } from "@/lib/settings";
 import dynamic from "next/dynamic";
@@ -48,13 +48,7 @@ interface HomeProps {
   home: {
     aboutMe: TAboutMe;
   };
-  allPostsData: Array<{
-    slug: string;
-    title: string;
-    date: string;
-    author: string;
-    public: boolean;
-  }>;
+  allPostsData: PostData[];
   businessSettings: any;
   generalSettings: any;
   navigatorSettings: any;
@@ -314,7 +308,7 @@ const HomeContent = ({
               vPadding="pt-24 pb-0"
               background={<GridBackground />}
             >
-              <FeaturedProjects />
+              <FeaturedProjects posts={allPostsData} />
             </SectionWrapper>
 
             {/* Slide 4: Timeline Section */}

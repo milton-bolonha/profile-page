@@ -73,7 +73,7 @@ export default function ContactSection({
             <span className="text-sm font-medium text-white/80 tracking-wide">Contato</span>
           </div>
 
-          <h2 className="text-4xl md:text-6xl font-semibold mb-4 text-white" style={{ fontFamily: 'Noto Serif Variable, serif' }}>
+          <h2 className="text-4xl md:text-6xl font-semibold mb-4 text-white">
             {title}
           </h2>
           <p className="text-lg text-white/60 max-w-2xl mx-auto">
