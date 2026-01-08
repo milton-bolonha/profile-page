@@ -11,7 +11,7 @@ import Head from "next/head";
 import { getSortedPostsData, PostData } from "@/lib/posts";
 import { useUser } from "@clerk/nextjs";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getBusinessSettings, getGeneralSettings } from "@/lib/settings";
+import { getBusinessSettings, getGeneralSettings, getCategoriesSettings } from "@/lib/settings";
 import { ClientOnly } from "@/components/commons/ClientOnly";
 
 import homeData from "../../public/home.json";
@@ -29,6 +29,7 @@ interface HomeProps {
   }>;
   businessSettings: any;
   generalSettings: any;
+  categoriesSettings: any;
 }
 
 const HomeContent = ({
@@ -36,6 +37,7 @@ const HomeContent = ({
   allPostsData,
   businessSettings,
   generalSettings,
+  categoriesSettings
 }: HomeProps) => {
   const { aboutMe } = home || { aboutMe: {} as TAboutMe };
   const { t } = useLanguage();
@@ -143,7 +145,7 @@ const HomeContent = ({
         <AboutSection />
 
         {/* Featured Projects */}
-        <FeaturedProjects />
+        <FeaturedProjects categories={categoriesSettings.categories} />
 
         {/* Tech Stack */}
         <TechStack />
@@ -175,6 +177,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   const allPostsData = getSortedPostsData(); // Buscar dados dos posts
   const businessSettings = getBusinessSettings();
   const generalSettings = getGeneralSettings();
+  const categoriesSettings = getCategoriesSettings();
 
   return {
     props: {
@@ -182,6 +185,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
       allPostsData,
       businessSettings,
       generalSettings,
+      categoriesSettings,
     },
   };
 };
