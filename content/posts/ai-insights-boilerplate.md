@@ -1,86 +1,89 @@
 ---
-title: "AI Insights - Boilerplate"
-date: "2025-01-07"
+title: "AI Insights Boilerplate"
+date: "2025-01-08"
 author: "Milton Bolonha"
 type: "catalog"
 description: "Boilerplate completo para desenvolvimento de aplicações de análise de dados com IA. Inclui integração com OpenAI, processamento de dados e dashboard interativo."
-keywords: ["ai", "openai", "data analysis", "next.js", "typescript", "dashboard"]
+keywords: ["ai", "openai", "data analysis", "next.js", "typescript", "dashboard", "boilerplate", "saas"]
 featuredImage: "/img/ai-insights.jpg"
 category: "AI"
 public: true
 featured: true
 published: true
+technologies:
+  - Next.js 16
+  - React 19
+  - Tailwind CSS
+  - Clerk
+  - Stripe
+  - OpenAI
+  - MongoDB
+  - Cloudinary
+link: 'https://dashmasterpro.vercel.app/'
 ---
 
-# AI Insights - Boilerplate
+# AI Insights Platform - Sistema Completo
 
-<div class="catalog-header">
+## ✅ Status: Sistema Funcional
 
-## Ficha Técnica
+O sistema está **100% funcional** e pronto para escalar.
 
-| | |
-|---|---|
-| **Categoria** |  AI Product - Boilerplate |
-| **Tipo** | Código-fonte completo + Documentação |
-| **Stack Principal** | Next.js 16, TypeScript, OpenAI API |
-| **Tecnologias** | Prisma, PostgreSQL, Tailwind CSS, Recharts |
-| **Nível** | Intermediário a Avançado |
-| **Formato** | Repositório GitHub + Docs |
-| **Investimento** | Sob consulta |
-| **Tempo de Setup** | 2-4 horas |
-| **Status** | ✅ Disponível |
-| **Suporte** | Incluído (30 dias) |
+- ✅ **Compilação**: Next.js 16 sem erros
+- ✅ **Arquitetura**: Baseada no nextjs-openai-insights
+- ✅ **Componentes**: Layout Ade completo implementado
+- ✅ **APIs**: Todas as rotas principais funcionais
+- ✅ **IA**: OpenAI integration completa
 
-</div>
+## 🚀 Visão Geral
 
----
+Este é um sistema completo de SaaS que permite:
 
-Boilerplate profissional para construção de aplicações de análise de dados com inteligência artificial. Ideal para startups e empresas que querem implementar insights automatizados rapidamente.
+- **Workspaces**: Ambientes virtuais principais de cada usuário
+- **Dashboards**: Painéis que contêm coleções de tiles
+- **Tiles**: Unidades de conteúdo geradas por IA
+- **Notes**: Anotações livres
+- **Contacts**: Registros de contatos com conteúdo gerado por IA
 
-## Stack Tecnológico
+## 📋 Tipos de Usuário
 
-- **Next.js 16** com App Router e Server Actions
-- **OpenAI API** para análise inteligente de dados
-- **TypeScript** para type safety completo
-- **Prisma** com PostgreSQL para persistência
-- **Tailwind CSS** para UI moderna
-- **Recharts** para visualização de dados
+- **Guest (Convidado)**: Acesso sem login, workspace em localStorage, limites de uso
+- **Member (Membro)**: Autenticado via Clerk, assinatura Stripe, dados em MongoDB com quotas server-side
 
-## Funcionalidades Principais
+## 🛠️ Stack Técnica
 
-- Dashboard interativo com métricas em tempo real
-- Análise de dados com GPT-4 e modelos customizados
-- Sistema de upload e processamento de arquivos (CSV, JSON, Excel)
-- Geração automática de relatórios e insights
-- API REST type-safe com validação
-- Sistema de autenticação e permissões
-- Temas claro/escuro
+- **Frontend**: Next.js 16 (App Router), React 19, Tailwind CSS
+- **Backend**: API Routes do Next.js
+- **Autenticação**: Clerk
+- **Pagamentos**: Stripe
+- **IA**: OpenAI (GPT-4/GPT-5)
+- **Storage**: MongoDB + localStorage
+- **Arquivos**: Cloudinary
 
-## Arquitetura
+## 📦 Funcionalidades Implementadas
 
-- Server Components para performance otimizada
-- Edge Functions para baixa latência
-- Streaming de respostas da IA
-- Cache inteligente de análises
-- Rate limiting e controle de custos
-- Logs e monitoramento integrados
+### ✅ Workspaces & Dashboards
+Criação e gerenciamento de múltiplos ambientes com personalização de temas.
 
-## Casos de Uso
+### ✅ Conteúdo via IA (Tiles)
+Geração de conteúdo inteligente, chat contextual e regeneração de respostas usando OpenAI.
 
-- Análise de vendas e métricas de negócio
-- Processamento de feedback de clientes
-- Geração de relatórios automatizados
-- Análise preditiva de tendências
-- Dashboards executivos com IA
+### ✅ Sistema de Contatos CRM
+Gerenciamento de contatos com auxílio de IA para outreach e anotações.
 
-## Performance e Escalabilidade
+### ✅ Tema Profissional
+Design system completo "Ade" com modo dark/light e personalização de cores.
 
-- Lighthouse score 95+
-- Otimizado para SEO
-- Responsivo em todos os dispositivos
-- Pronto para deploy em Vercel/Netlify
-- Documentação completa incluída
+## 🔒 Limites de Uso (SaaS)
+
+### Members
+- Limites processados no backend via `usage-service`.
+- Controle de quotas para Workspaces, Tiles e Contatos.
+- Integração direta com planos do Stripe.
+
+### Guests
+- Limites locais para experimentação.
+- Migração automática de dados ao fazer upgrade (Guest -> Member).
 
 ---
 
-**Interessado neste boilerplate? [Entre em contato](/contato) para saber mais sobre licenciamento e customização.**
+**Lance seu SaaS de IA em dias, não meses. [Ver Demo ao Vivo](https://dashmasterpro.vercel.app/)**

@@ -12,8 +12,11 @@ export interface PostData {
   public: boolean;
   published?: boolean;
   featured?: boolean;
+  technologies?: string[];
+  link?: string;
   category?: string;
   description?: string;
+  featuredImage?: string;
   content: string;
 }
 

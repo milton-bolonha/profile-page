@@ -1,0 +1,14 @@
+---
+title: "AI Blog"
+date: "2025-01-07"
+author: "Milton Bolonha"
+type: "catalog"
+description: "Sistema automatizado de geração de conteúdo para blogs usando IA. Crie artigos otimizados para SEO de forma inteligente e escalável."
+keywords: ["ai", "blog", "content generation", "seo", "automation", "openai"]
+featuredImage: "/img/thumb-blog-b.jpg"
+category: "AI"
+public: true
+featured: true
+published: true
+---
+

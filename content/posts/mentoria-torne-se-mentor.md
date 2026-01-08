@@ -1,39 +1,26 @@
 ---
-title: "Torne-se Um Mentor - Mentoria"
-date: "2025-01-07"
-author: "Milton Bolonha"
-category: "MENTORIA"
-type: "catalog"
-description: "Programa para desenvolvedores experientes que querem monetizar conhecimento através de mentoria. Crie renda recorrente ensinando."
-keywords: ["mentoria", "teaching", "knowledge monetization", "passive income", "coaching"]
-featuredImage: "/img/mentoria-torne-se-mentor.jpg"
+title: Torne-se Um Mentor - Mentoria
+date: '2025-01-07'
+author: Milton Bolonha
+category: MENTORIA
+type: catalog
+description: >-
+  Programa para desenvolvedores experientes que querem monetizar conhecimento
+  através de mentoria. Crie renda recorrente ensinando.
+keywords:
+  - mentoria
+  - teaching
+  - knowledge monetization
+  - passive income
+  - coaching
+featuredImage: /img/mentoria-torne-se-mentor.jpg
 public: true
 featured: false
 ---
-
 # Torne-se Um Mentor
 ## Monetize Seu Conhecimento Através de Mentoria
 
-<div class="catalog-header">
 
-## Ficha Técnica
-
-| | |
-|---|---|
-| **Categoria** | 🎯 MENTORIA - Para Mentores |
-| **Tipo** | Programa 8 semanas |
-| **Temas** | Ensino, Monetização, Marketing, Vendas |
-| **Nível** | Desenvolvedores sênior |
-| **Formato** | Mentoria semanal 1h |
-| **Investimento** | R$ 3.997 (ou 4x R$ 1.097) |
-| **Meta** | Primeiro mentorado em 8 semanas |
-| **Renda Esperada** | R$ 5k-15k/mês adicional |
-| **Status** | ✅ Disponível |
-| **ROI** | 1 mentorado = investimento pago |
-
-</div>
-
----
 
 Programa de 8 semanas para desenvolvedores experientes que querem criar renda adicional (ou principal) através de mentoria e ensino.
 

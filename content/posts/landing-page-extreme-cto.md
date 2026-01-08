@@ -1,37 +1,31 @@
 ---
-title: "Landing Page Extreme CTO"
-date: "2025-01-07"
-author: "Milton Bolonha"
-type: "catalog"
-description: "Landing pages de alta conversão desenvolvidas com visão técnica de CTO. Otimização extrema de performance, SEO e experiência do usuário."
-keywords: ["landing page", "conversion", "cto", "performance", "a/b testing", "analytics"]
-featuredImage: "/img/landing-extreme.jpg"
+title: Landing Page Extreme CTO
+date: '2025-01-07'
+author: Milton Bolonha
+type: catalog
+description: >-
+  Landing pages de alta conversão desenvolvidas com visão técnica de CTO.
+  Otimização extrema de performance, SEO e experiência do usuário.
+keywords:
+  - landing page
+  - conversion
+  - cto
+  - performance
+  - a/b testing
+  - analytics
+featuredImage: /img/landing-extreme.jpg
 public: true
 featured: true
 published: true
+technologies:
+  - Next.js 16
+  - TypeScript
+  - Tailwind CSS
+  - Framer Motion
+  - Vercel Analytics
+  - Posthog
 ---
-
 # Landing Page Extreme CTO
-
-<div class="catalog-header">
-
-## Ficha Técnica
-
-| | |
-|---|---|
-| **Categoria** | 🌐 WEB Service - Landing Page Premium |
-| **Tipo** | Landing page de alta conversão |
-| **Stack Principal** | Next.js 16, TypeScript, Tailwind CSS |
-| **Tecnologias** | Framer Motion, Vercel Analytics, Posthog |
-| **Nível** | Enterprise |
-| **Formato** | Site + Analytics + A/B Testing |
-| **Lighthouse Score** | 100/100 garantido |
-| **Status** | ✅ Disponível |
-| **ROI Esperado** | 2-5x taxa de conversão |
-
-</div>
-
----
 
 Landing pages que convertem, desenvolvidas com rigor técnico de CTO. Não é só design bonito - é engenharia de conversão.
 

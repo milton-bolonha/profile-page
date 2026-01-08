@@ -180,7 +180,7 @@ const CityCatalogContent = ({
                     </div>
 
                     {/* Contact Footer */}
-                    <div className="relative z-10 w-full bg-black border-t border-white/10">
+                    <div className="relative z-10 w-full bg-black">
                         <ContactSection
                             contacts={[
                                 { name: "LinkedIn", link: "https://www.linkedin.com/in/miltonbolonha/" },

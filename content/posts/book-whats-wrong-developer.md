@@ -1,40 +1,28 @@
 ---
-title: "What's Wrong With You Developer? Or What's Wrong With You Entrepreneur?"
-date: "2025-01-07"
-author: "Milton Bolonha"
-type: "catalog"
-description: "Um livro honesto sobre o gap entre desenvolvedores e empreendedores. Por que projetos falham e como criar produtos que realmente funcionam."
-keywords: ["book", "developer", "entrepreneur", "startup", "product development", "communication"]
-featuredImage: "/img/book-developer-entrepreneur.jpg"
-category: "BOOK"
+title: What's Wrong With You Developer? Or What's Wrong With You Entrepreneur?
+date: '2025-01-07'
+author: Milton Bolonha
+type: catalog
+description: >-
+  Um livro honesto sobre o gap entre desenvolvedores e empreendedores. Por que
+  projetos falham e como criar produtos que realmente funcionam.
+keywords:
+  - book
+  - developer
+  - entrepreneur
+  - startup
+  - product development
+  - communication
+featuredImage: /img/book-developer-entrepreneur.jpg
+category: BOOK
 public: true
 featured: false
 published: false
 ---
-
 # What's Wrong With You Developer?
 ## Or What's Wrong With You Entrepreneur?
 
-<div class="catalog-header">
 
-## Ficha Técnica
-
-| | |
-|---|---|
-| **Categoria** | 📚 BOOK - Desenvolvimento Profissional |
-| **Tipo** | Livro sobre comunicação e carreira |
-| **Temas** | Desenvolvedores, Empreendedores, Startups |
-| **Nível** | Todos os níveis |
-| **Público** | Devs e founders |
-| **Formato** | Ebook + Impresso + Audiobook |
-| **Tom** | Honesto e direto |
-| **Investimento** | A definir |
-| **Status** | 🚧 Em produção |
-| **Lançamento** | Q3 2025 |
-
-</div>
-
----
 
 O livro que ninguém teve coragem de escrever. Uma análise honesta e sem filtros sobre por que desenvolvedores e empreendedores não se entendem - e como resolver isso.
 

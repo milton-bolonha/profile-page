@@ -1,36 +1,32 @@
 ---
-title: "WordPress Development"
-date: "2025-01-07"
-author: "Milton Bolonha"
-category: "WEB"
-type: "catalog"
-description: "Desenvolvimento profissional em WordPress. Sites, temas customizados, plugins e otimização para performance e SEO."
-keywords: ["wordpress", "wp", "cms", "theme development", "plugin", "woocommerce"]
-featuredImage: "/img/wordpress-dev.jpg"
+title: WordPress Development
+date: '2025-01-07'
+author: Milton Bolonha
+category: WEB
+type: catalog
+description: >-
+  Desenvolvimento profissional em WordPress. Sites, temas customizados, plugins
+  e otimização para performance e SEO.
+keywords:
+  - wordpress
+  - wp
+  - cms
+  - theme development
+  - plugin
+  - woocommerce
+featuredImage: /img/wordpress-dev.jpg
 public: true
+published: true
 featured: false
+technologies:
+  - PHP
+  - WordPress
+  - WooCommerce
+  - ACF Pro
+  - Elementor
+  - Yoast SEO
 ---
-
 # WordPress Development
-
-<div class="catalog-header">
-
-## Ficha Técnica
-
-| | |
-|---|---|
-| **Categoria** | 🌐 WEB Service - WordPress |
-| **Tipo** | Desenvolvimento customizado |
-| **Stack Principal** | PHP, WordPress, WooCommerce |
-| **Tecnologias** | ACF Pro, Elementor, Yoast SEO |
-| **Nível** | Todos os níveis |
-| **Formato** | Site + Tema + Plugins |
-| **Status** | ✅ Disponível |
-| **Experiência** | 20+ anos com WordPress |
-
-</div>
-
----
 
 Desenvolvimento profissional em WordPress. Não é só instalar um tema - é criar soluções customizadas, performáticas e escaláveis.
 

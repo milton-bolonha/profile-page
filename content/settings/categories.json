@@ -1,0 +1,40 @@
+{
+  "categories": [
+    {
+      "id": "AI",
+      "label": "AI & SaaS",
+      "icon": "FaRobot",
+      "description": "Intelligent AI solutions and modern SaaS applications"
+    },
+    {
+      "id": "WEB",
+      "label": "Web Services",
+      "icon": "FaGlobe",
+      "description": "High-performance and scalable web development"
+    },
+    {
+      "id": "GAME DEV",
+      "label": "Game Dev",
+      "icon": "FaGamepad",
+      "description": "Games and interactive 3D experiences"
+    },
+    {
+      "id": "BOOK",
+      "label": "Books",
+      "icon": "FaBook",
+      "description": "Technical books and educational content"
+    },
+    {
+      "id": "MENTORIA",
+      "label": "Mentoring",
+      "icon": "FaChalkboardTeacher",
+      "description": "Personalized mentoring for developers"
+    },
+    {
+      "id": "ENTREPRENEUR",
+      "label": "Entrepreneur",
+      "icon": "FaRocket",
+      "description": "Entrepreneurial projects and innovation"
+    }
+  ]
+}

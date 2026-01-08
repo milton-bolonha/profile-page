@@ -1,39 +1,26 @@
 ---
-title: "Carreira Internacional - Mentoria"
-date: "2025-01-07"
-author: "Milton Bolonha"
-category: "MENTORIA"
-type: "catalog"
-description: "Mentoria para desenvolvedores do mundo inteiro que querem trabalhar no Mercado Internacional. Remoto, em dólar/euro, com liberdade geográfica."
-keywords: ["mentoria", "international career", "remote work", "upwork", "freelancer internacional"]
-featuredImage: "/img/mentoria-internacional.jpg"
+title: Carreira Internacional - Mentoria
+date: '2025-01-07'
+author: Milton Bolonha
+category: MENTORIA
+type: catalog
+description: >-
+  Mentoria para desenvolvedores do mundo inteiro que querem trabalhar no Mercado
+  Internacional. Remoto, em dólar/euro, com liberdade geográfica.
+keywords:
+  - mentoria
+  - international career
+  - remote work
+  - upwork
+  - freelancer internacional
+featuredImage: /img/mentoria-internacional.jpg
 public: true
 featured: false
 ---
-
 # Carreira Internacional
 ## Trabalhe No Mercado Internacional Ganhando em Dólar/Euro
 
-<div class="catalog-header">
 
-## Ficha Técnica
-
-| | |
-|---|---|
-| **Categoria** | 🎯 MENTORIA - Internacional |
-| **Tipo** | Programa 3 meses |
-| **Temas** | Upwork, Toptal, Inglês técnico, Impostos |
-| **Nível** | Desenvolvedores com 2+ anos exp |
-| **Formato** | Mentoria quinzenal 1h30 + Suporte |
-| **Investimento** | R$ 4.997 (ou 3x R$ 1.797) |
-| **Meta** | Primeiro cliente em dólar em 90 dias |
-| **Plataformas** | Upwork, Toptal, Contra, Gun.io |
-| **Status** | ✅ Disponível |
-| **ROI** | 3-5x multiplicação de renda |
-
-</div>
-
----
 
 Programa de 3 meses para desenvolvedores brasileiros que querem trabalhar remotamente para empresas e clientes internacionais.
 

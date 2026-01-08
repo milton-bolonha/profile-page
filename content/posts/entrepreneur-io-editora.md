@@ -1,40 +1,27 @@
 ---
-title: "I/O - Editora"
-date: "2025-01-07"
-author: "Milton Bolonha"
-type: "catalog"
-description: "Editora independente da 21 Miles focada em publicações técnicas e de desenvolvimento pessoal para profissionais de tecnologia."
-keywords: ["entrepreneur", "publishing", "books", "technical content", "knowledge"]
-featuredImage: "/img/io-editora.jpg"
-category: "WEB"
+title: I/O - Editora
+date: '2025-01-07'
+author: Milton Bolonha
+type: catalog
+description: >-
+  Editora independente da 21 Miles focada em publicações técnicas e de
+  desenvolvimento pessoal para profissionais de tecnologia.
+keywords:
+  - entrepreneur
+  - publishing
+  - books
+  - technical content
+  - knowledge
+featuredImage: /img/io-editora.jpg
+category: WEB
 public: true
 featured: false
-published: true
+published: false
 ---
-
 # I/O - Editora
 ## Publicações Técnicas e Desenvolvimento Pessoal
 
-<div class="catalog-header">
 
-## Ficha Técnica
-
-| | |
-|---|---|
-| **Categoria** | 🚀 ENTREPRENEUR - Editora |
-| **Tipo** | Editora independente |
-| **Foco** | Conteúdo técnico e desenvolvimento pessoal |
-| **Público** | Profissionais de tecnologia |
-| **Linha Editorial** | Técnica, Carreira, Filosofia |
-| **Formatos** | Ebook, Impresso, Audiobook, Cursos |
-| **Empresa** | 21 Miles |
-| **Catálogo** | 3 títulos em produção |
-| **Status** | 🚧 Lançamentos 2025 |
-| **Submissões** | Abertas para autores |
-
-</div>
-
----
 
 Editora independente da **21 Miles** especializada em conteúdo de qualidade para profissionais de tecnologia que buscam evolução técnica e pessoal.
 

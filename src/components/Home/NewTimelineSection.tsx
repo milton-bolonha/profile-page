@@ -27,8 +27,8 @@ interface TimelineItem {
 const timelineData: TimelineItem[] = [
   {
     year: "1998",
-    title: "O Início da Jornada",
-    description: "Com 11 anos, engenharia reversa de um site em HTML, CSS e JS dedicado ao anime Vegeta.",
+    title: "Início da Jornada",
+    description: "Com 11 anos, engenharia reversa de um site em HTML, CSS e JS dedicado ao anti-herói de anime Vegeta.",
     icon: Rocket,
     category: "Origem",
     detailedContent: {
@@ -38,49 +38,48 @@ const timelineData: TimelineItem[] = [
     },
   },
   {
-    year: "1999",
-    title: "Tratado de Bologna",
-    description: "Assinatura do Tratado de Bologna pelo Presidente FHC, marcando o início de uma nova revolução industrial.",
-    icon: ScrollText,
-    category: "Origem",
-    detailedContent: {
-      achievements: ["Contexto histórico brasileiro"],
-      impact: "Mudanças educacionais que influenciaram a formação",
-    },
-  },
-  {
     year: "2005",
-    title: "Era da Internet",
-    description: "A revolução da internet transforma tudo. Aos 18 anos, já trabalhava com tecnologia há 2 anos.",
+    title: "Primeiro Trabalho",
+    description: "Primeiro trabalho em agência web de Ribeirão Preto. Clientes como USP, HC-USP e Grupo MultiPlan.",
     icon: Globe,
     category: "Carreira",
     detailedContent: {
-      achievements: ["Experiência prática em tecnologia", "Acompanhamento da revolução digital"],
-      technologies: ["Tecnologias web emergentes"],
-      impact: "Base sólida para carreira profissional",
+      achievements: ["Experiência em agência web", "Trabalho com grandes clientes"],
+      impact: "Início da carreira profissional",
     },
+  },
+  {
+    year: "2007",
+    title: "Serviço Filantrópico",
+    description: "2 anos de serviço filantrópico na Paraíba. Serviços na área de ajuda humanitária, psico-social e de ensino.",
+    icon: ScrollText,
+    category: "Carreira",
+    detailedContent: {
+      achievements: ["Trabalho humanitário", "Ensino e desenvolvimento social"],
+      impact: "Desenvolvimento pessoal e social",
+    },
+  },
+  {
+    year: "2009",
+    title: "Faria Lima",
+    description: "Do interior para a capital, sou contratado para trabalhar em uma agência de marketing na Faria Lima. Clientes como Clube Hebraica e Itaú.",
+    icon: Plane,
+    category: "Carreira",
+    detailedContent: {
+      achievements: ["Mudança para São Paulo", "Trabalho em grandes agências"],
+      impact: "Expansão profissional",
+    }
   },
   {
     year: "2018",
     title: "Mercado Internacional",
-    description: "Início da jornada no mercado internacional. Lançamento do primeiro livro técnico.",
-    icon: Plane,
-    category: "Carreira",
-    detailedContent: {
-      achievements: ["Expansão internacional", "Publicação de livro técnico"],
-      impact: "Reconhecimento internacional"
-    }
-  },
-  {
-    year: "2025",
-    title: "Futuro Presente",
-    description: "Mentorias 'Trilha Ignição', IA @goshDev e expansão da rede de mentores.",
+    description: "Após +9 anos desenvolvendo em WordPress, início a minha carreira internacional em uma agência WP do Colorado e começo a desenvolver em NodeJs.",
     icon: Bot,
     category: "Futuro",
     detailedContent: {
-      achievements: ["Programa de mentorias", "Desenvolvimento de IA"],
-      technologies: ["Inteligência Artificial", "Machine Learning"],
-      impact: "Futuro da educação tecnológica"
+      achievements: ["Expansão internacional", "Transição para NodeJs"],
+      technologies: ["WordPress", "NodeJs"],
+      impact: "Reconhecimento internacional"
     }
   }
 ];
@@ -239,7 +238,7 @@ export default function NewTimelineSection() {
                 <button
                   key={year}
                   onClick={() => setSelectedYear(year)}
-                  className={`relative flex flex-col items-center gap-4 transition-all duration-300 min-w-[80px] group`}
+                  className={`relative flex flex-col items-center gap-4 transition-all duration-300 min-w-[80px] group cursor-pointer`}
                 >
                   <div className={`w-3 h-3 rounded-full transition-all duration-300 border border-white/40 ${isActive ? 'bg-white scale-150' : 'bg-transparent hover:bg-white/20'}`} />
 

@@ -1,7 +1,7 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getAllPostSlugs, getPostData, PostData } from '@/lib/posts';
+import { getAllPostSlugs, getPostData, PostData, getSortedPostsData } from '@/lib/posts';
 import { getSeoSettings } from '@/lib/seoSettings';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -12,8 +12,10 @@ import Seo from '@/components/commons/Seo';
 import dynamic from 'next/dynamic';
 import { GridBackground } from "@/components/commons/GridBackground";
 import ContactSection from "@/components/Home/ContactSection";
-import { FaBoxOpen, FaHome } from "react-icons/fa";
+import { FaHome, FaExternalLinkAlt, FaCheck, FaTag, FaLayerGroup, FaDatabase, FaServer, FaCode } from "react-icons/fa";
 import { normalizeImage } from "@/lib/media";
+import { extractTableData, getSpecValue } from '@/lib/extractTableData';
+import { TechnicalSidebar } from '@/components/catalog/TechnicalSidebar';
 
 const SignedIn = dynamic(() => import("@clerk/nextjs").then((mod) => mod.SignedIn), { ssr: false });
 const SignedOut = dynamic(() => import("@clerk/nextjs").then((mod) => mod.SignedOut), { ssr: false });
@@ -21,15 +23,30 @@ const SignedOut = dynamic(() => import("@clerk/nextjs").then((mod) => mod.Signed
 interface PostProps {
     postData: PostData;
     seoSettings: any;
+    relatedPosts: PostData[];
 }
 
-const CatalogItem = ({ postData, seoSettings }: PostProps) => {
+const CatalogItem = ({ postData, seoSettings, relatedPosts }: PostProps) => {
     if (!postData) {
         return <div className="min-h-screen flex items-center justify-center text-white bg-black">Carregando...</div>;
     }
 
-    // Use featuredImage from frontmatter or default to placeholder if not set
-    const bannerImage = normalizeImage((postData as any).featuredImage, postData.title);
+    // Extract technical specs from markdown
+    const { specs, contentWithoutTable } = extractTableData(postData.content);
+
+    // Generate placeholder images (4 images for gallery)
+    const galleryImages = [
+        normalizeImage((postData as any).featuredImage, postData.title),
+        normalizeImage(null, `${postData.title} - Vista 2`),
+        normalizeImage(null, `${postData.title} - Vista 3`),
+        normalizeImage(null, `${postData.title} - Detalhes`),
+    ];
+
+    // Get link from specs if available (fallback) or frontmatter (primary)
+    const linkSpec = getSpecValue(specs, 'Link') || getSpecValue(specs, 'Demo');
+    const externalLink = postData.link || (linkSpec && !linkSpec.includes('N/A') && !linkSpec.includes('Sob') ? linkSpec : undefined);
+
+    const bannerImage = galleryImages[0];
 
     // Prepare SEO data
     const seoData = {
@@ -70,19 +87,8 @@ const CatalogItem = ({ postData, seoSettings }: PostProps) => {
     };
 
     const HeadingRenderer = ({ node, ...props }: any) => {
-        const text = props.children?.[0];
-        if (text === "Ficha Técnica") {
-            return (
-                <h2 {...props} className="flex items-center gap-3 text-2xl font-bold text-white mt-8 mb-4">
-                    <FaBoxOpen className="text-blue-400" />
-                    {props.children}
-                </h2>
-            );
-        }
         return <h2 {...props} className="text-2xl font-bold text-white mt-8 mb-4" />;
     };
-
-    const content = postData.content;
 
     return (
         <>
@@ -106,114 +112,148 @@ const CatalogItem = ({ postData, seoSettings }: PostProps) => {
 
                             {/* Center: Home */}
                             <div className="flex justify-center">
-                                <Link href="/" className="inline-flex items-center gap-2 text-white/70 hover:text-blue-400 transition-colors font-semibold uppercase tracking-widest text-sm">
+                                <Link href="/" className="inline-flex items-center gap-2 text-white/70 hover:text-yellow-400 transition-colors font-semibold uppercase tracking-widest text-sm">
                                     <FaHome size={18} />
                                     <span className="hidden md:inline">Home</span>
                                 </Link>
                             </div>
 
-                            {/* Right: Title */}
+                            {/* Right: External Link */}
                             <div className="flex justify-end">
-                                <span className="text-white/80 text-sm hidden md:block truncate max-w-[200px]">{postData.title}</span>
+                                {externalLink && (
+                                    <a
+                                        href={externalLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 text-yellow-400 hover:text-yellow-300 transition-colors font-medium text-sm"
+                                    >
+                                        <span className="hidden md:inline">Visitar</span>
+                                        <FaExternalLinkAlt size={14} />
+                                    </a>
+                                )}
                             </div>
                         </div>
                     </div>
 
-                    {/* Hero / Banner Section */}
-                    {bannerImage ? (
-                        <div className="w-full h-[40vh] md:h-[50vh] relative mt-0 overflow-hidden border-b border-white/10">
-                            <Image
-                                src={bannerImage}
-                                alt={postData.title}
-                                fill
-                                className="object-cover object-center"
-                                priority
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-
-                            <div className="absolute bottom-0 left-0 w-full p-8 md:p-12">
-                                <div className="max-w-5xl mx-auto">
-                                    {postData.category && (
-                                        <div className="inline-block px-4 py-1.5 rounded-full border border-white/20 bg-white/10 text-white font-semibold tracking-wide uppercase text-xs mb-4 backdrop-blur-md">
-                                            {postData.category}
-                                        </div>
-                                    )}
-                                    <h1 className="text-4xl md:text-6xl font-bold mb-4 text-white drop-shadow-lg leading-tight">
-                                        {postData.title}
-                                    </h1>
+                    {/* Hero Header - Compact */}
+                    <div className="pt-24 pb-12 px-6 bg-gradient-to-b from-gray-900 to-black">
+                        <div className="max-w-7xl mx-auto">
+                            {postData.category && (
+                                <div className="inline-block px-4 py-1.5 rounded-full border border-white/20 bg-white/10 text-white font-semibold tracking-wide uppercase text-xs mb-4">
+                                    {postData.category}
                                 </div>
-                            </div>
+                            )}
+                            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                                {postData.title}
+                            </h1>
+                            {(postData as any).description && (
+                                <p className="text-xl text-white/60 max-w-3xl">
+                                    {(postData as any).description}
+                                </p>
+                            )}
                         </div>
-                    ) : (
-                        <div className="pt-24 pb-12 px-6 bg-gradient-to-b from-gray-900 to-black border-b border-white/10">
-                            <div className="max-w-5xl mx-auto text-center">
-                                {postData.category && (
-                                    <div className="inline-block px-4 py-1.5 rounded-full border border-white/20 bg-white/10 text-white font-semibold tracking-wide uppercase text-xs mb-4">
-                                        {postData.category}
+                    </div>
+
+                    {/* Main Content with Sidebar */}
+                    <div className="container mx-auto px-6 max-w-7xl py-16">
+                        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-12">
+                            {/* Main Content */}
+                            <main>
+                                {/* Attributes Header */}
+                                {specs.length > 0 && (
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-12 border-b border-white/10 pb-12">
+                                        {specs.map((spec, idx) => {
+                                            if (['Link', 'Demo'].includes(spec.label)) return null;
+
+                                            let icon = <FaCheck className="text-green-400" />;
+                                            let colorClass = "text-white";
+
+                                            if (spec.label === 'Categoria') { icon = <FaTag className="text-yellow-400" />; colorClass = "text-yellow-100"; }
+                                            if (spec.label === 'Tipo') { icon = <FaLayerGroup className="text-purple-400" />; }
+                                            if (spec.label === 'Stack Principal') { icon = <FaCode className="text-yellow-400" />; colorClass = "text-yellow-100 font-bold"; }
+                                            if (spec.label === 'Tecnologias') { icon = <FaDatabase className="text-cyan-400" />; }
+                                            if (spec.label === 'Status') { icon = <FaCheck className="text-green-400" />; }
+
+                                            return (
+                                                <div key={idx} className="bg-white/5 rounded-xl p-4 border border-white/5 hover:border-white/10 transition-colors">
+                                                    <div className="flex items-center gap-2 mb-2 text-xs font-bold uppercase tracking-widest text-white/40">
+                                                        {icon}
+                                                        {spec.label}
+                                                    </div>
+                                                    <div className={`text-sm leading-relaxed ${colorClass}`}>
+                                                        {spec.value}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 )}
-                                <h1 className="text-4xl md:text-6xl font-bold text-white mb-2">
-                                    {postData.title}
-                                </h1>
-                            </div>
+
+                                {postData.public ? (
+                                    <div className="prose prose-lg prose-invert max-w-none 
+                                        prose-headings:text-white prose-h2:text-white prose-h3:text-white 
+                                        prose-p:text-gray-300 prose-li:text-gray-300 prose-strong:text-white 
+                                        prose-a:text-yellow-400 hover:prose-a:text-yellow-300 prose-a:underline prose-a:decoration-blue-400/50
+                                        prose-blockquote:border-l-white prose-blockquote:bg-white/5 prose-blockquote:text-gray-300
+                                        prose-code:text-gray-200 prose-code:bg-white/10 prose-code:px-1 prose-code:rounded
+                                        prose-th:text-white prose-td:text-gray-300">
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]}
+                                            rehypePlugins={[rehypeRaw]}
+                                            components={{
+                                                img: ImageRenderer,
+                                                p: ParagraphRenderer,
+                                                h2: HeadingRenderer,
+                                            }}
+                                        >
+                                            {contentWithoutTable}
+                                        </ReactMarkdown>
+                                    </div>
+                                ) : (
+                                    <div className="max-w-2xl mx-auto my-12">
+                                        <ClientOnly>
+                                            <SignedOut>
+                                                <div className="bg-red-900/10 border border-red-500/20 text-red-200 px-8 py-10 rounded-2xl text-center backdrop-blur-sm">
+                                                    <h3 className="text-2xl font-bold mb-4">Conteúdo Exclusivo 🔒</h3>
+                                                    <p className="mb-8 text-white/70">Este material é reservado para membros. Por favor, faça login para ter acesso completo.</p>
+                                                    <CustomSignInButton />
+                                                </div>
+                                            </SignedOut>
+                                            <SignedIn>
+                                                <div className="prose prose-lg prose-invert max-w-none">
+                                                    <ReactMarkdown
+                                                        remarkPlugins={[remarkGfm]}
+                                                        rehypePlugins={[rehypeRaw]}
+                                                        components={{
+                                                            img: ImageRenderer,
+                                                            p: ParagraphRenderer,
+                                                        }}
+                                                    >
+                                                        {contentWithoutTable}
+                                                    </ReactMarkdown>
+                                                </div>
+                                            </SignedIn>
+                                        </ClientOnly>
+                                    </div>
+                                )}
+                            </main>
+
+                            {/* Sidebar */}
+                            <TechnicalSidebar
+                                specs={specs}
+                                images={galleryImages}
+                                title={postData.title}
+                                link={externalLink}
+                                technologies={postData.technologies}
+                                relatedPosts={relatedPosts}
+                                category={postData.category}
+                            />
                         </div>
-                    )}
-
-                    {/* Main Content */}
-                    <div className="container mx-auto px-6 max-w-4xl py-16">
-                        {postData.public ? (
-
-                            <div className="prose prose-lg prose-invert max-w-none 
-                                prose-headings:text-white prose-h2:text-white prose-h3:text-white 
-                                prose-p:text-gray-300 prose-li:text-gray-300 prose-strong:text-white 
-                                prose-a:text-white hover:prose-a:text-gray-300 prose-a:underline prose-a:decoration-white/50
-                                prose-blockquote:border-l-white prose-blockquote:bg-white/5 prose-blockquote:text-gray-300
-                                prose-code:text-gray-200 prose-code:bg-white/10 prose-code:px-1 prose-code:rounded
-                                prose-th:text-white prose-td:text-gray-300">
-                                <ReactMarkdown
-                                    remarkPlugins={[remarkGfm]}
-                                    rehypePlugins={[rehypeRaw]}
-                                    components={{
-                                        img: ImageRenderer,
-                                        p: ParagraphRenderer,
-                                        h2: HeadingRenderer,
-                                    }}
-                                >
-                                    {content}
-                                </ReactMarkdown>
-                            </div>
-                        ) : (
-                            <div className="max-w-2xl mx-auto my-12">
-                                <ClientOnly>
-                                    <SignedOut>
-                                        <div className="bg-red-900/10 border border-red-500/20 text-red-200 px-8 py-10 rounded-2xl text-center backdrop-blur-sm">
-                                            <h3 className="text-2xl font-bold mb-4">Conteúdo Exclusivo 🔒</h3>
-                                            <p className="mb-8 text-white/70">Este material é reservado para membros. Por favor, faça login para ter acesso completo.</p>
-                                            <CustomSignInButton />
-                                        </div>
-                                    </SignedOut>
-                                    <SignedIn>
-                                        <div className="prose prose-lg prose-invert max-w-none">
-                                            <ReactMarkdown
-                                                remarkPlugins={[remarkGfm]}
-                                                rehypePlugins={[rehypeRaw]}
-                                                components={{
-                                                    img: ImageRenderer,
-                                                    p: ParagraphRenderer,
-                                                }}
-                                            >
-                                                {content}
-                                            </ReactMarkdown>
-                                        </div>
-                                    </SignedIn>
-                                </ClientOnly>
-                            </div>
-                        )}
                     </div>
                 </div>
 
                 {/* Contact Footer */}
-                <div className="relative z-10 w-full bg-black border-t border-white/10">
+                <div className="relative z-10 w-full bg-black">
                     <ContactSection
                         contacts={[
                             { name: "LinkedIn", link: "https://www.linkedin.com/in/miltonbolonha/" },
@@ -241,11 +281,17 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps<PostProps> = async ({ params }) => {
     const postData = await getPostData(params?.slug as string);
     const seoSettings = getSeoSettings();
+    const allPosts = getSortedPostsData();
+
+    const relatedPosts = allPosts
+        .filter(p => p.category === postData.category && p.slug !== postData.slug && p.published)
+        .slice(0, 3);
 
     return {
         props: {
             postData,
             seoSettings,
+            relatedPosts
         },
     };
 };

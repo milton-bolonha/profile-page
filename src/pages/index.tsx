@@ -15,7 +15,7 @@ import { AboutMe as TAboutMe } from "@/types/Home";
 import { GetStaticProps } from "next";
 import { getSortedPostsData, PostData } from "@/lib/posts";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getBusinessSettings, getGeneralSettings, getNavigatorSettings, getThemeSettings } from "@/lib/settings";
+import { getBusinessSettings, getGeneralSettings, getNavigatorSettings, getThemeSettings, getCategoriesSettings } from "@/lib/settings";
 import dynamic from "next/dynamic";
 import { GridBackground } from "@/components/commons/GridBackground";
 
@@ -53,6 +53,7 @@ interface HomeProps {
   generalSettings: any;
   navigatorSettings: any;
   themeSettings: any;
+  categoriesSettings: any;
 }
 
 const HomeContent = ({
@@ -61,7 +62,8 @@ const HomeContent = ({
   businessSettings,
   generalSettings,
   navigatorSettings,
-  themeSettings
+  themeSettings,
+  categoriesSettings
 }: HomeProps) => {
   const { t } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -308,7 +310,7 @@ const HomeContent = ({
               vPadding="pt-24 pb-0"
               background={<GridBackground />}
             >
-              <FeaturedProjects posts={allPostsData} />
+              <FeaturedProjects categories={categoriesSettings.categories} />
             </SectionWrapper>
 
             {/* Slide 4: Timeline Section */}
@@ -377,6 +379,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
   const generalSettings = getGeneralSettings();
   const navigatorSettings = getNavigatorSettings();
   const themeSettings = getThemeSettings();
+  const categoriesSettings = getCategoriesSettings();
 
   return {
     props: {
@@ -386,6 +389,7 @@ export const getStaticProps: GetStaticProps<HomeProps> = async () => {
       generalSettings,
       navigatorSettings,
       themeSettings,
+      categoriesSettings,
     },
   };
 };

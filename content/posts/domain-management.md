@@ -1,38 +1,31 @@
 ---
-title: "Domain Management"
-date: "2025-01-07"
-author: "Milton Bolonha"
-type: "catalog"
-description: "Gerenciamento completo de domínios, DNS, SSL e infraestrutura web. Mantenha seus domínios organizados, seguros e otimizados."
-keywords: ["domain", "dns", "ssl", "domain management", "hosting", "infrastructure"]
-featuredImage: "/img/domain-management.jpg"
-category: "WEB"
+title: Domain Management
+date: '2025-01-07'
+author: Milton Bolonha
+type: catalog
+description: >-
+  Gerenciamento completo de domínios, DNS, SSL e infraestrutura web. Mantenha
+  seus domínios organizados, seguros e otimizados.
+keywords:
+  - domain
+  - dns
+  - ssl
+  - domain management
+  - hosting
+  - infrastructure
+featuredImage: /img/domain-management.jpg
+category: WEB
 public: true
 featured: false
-published: true
+published: false
+technologies:
+  - Cloudflare
+  - Route 53
+  - Let's Encrypt
 ---
-
 # Domain Management
 
-<div class="catalog-header">
 
-## Ficha Técnica
-
-| | |
-|---|---|
-| **Categoria** | 🌐 WEB Service - Gestão de Domínios |
-| **Tipo** | Serviço de gerenciamento completo |
-| **Serviços** | DNS, SSL, Email, Monitoramento |
-| **Tecnologias** | Cloudflare, Route 53, Let's Encrypt |
-| **Nível** | Todos os portes |
-| **Formato** | Serviço mensal recorrente |
-| **Domínios** | Até 20 (plano Professional) |
-| **Status** | ✅ Disponível |
-| **Garantia** | Nunca perca um domínio |
-
-</div>
-
----
 
 Gerenciamento profissional de domínios e DNS. Mantenha sua presença online organizada, segura e otimizada.
 

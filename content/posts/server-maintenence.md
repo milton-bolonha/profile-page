@@ -1,37 +1,32 @@
 ---
-title: "Server Maintenance"
-date: "2025-01-07"
-author: "Milton Bolonha"
-category: "WEB"
-type: "catalog"
-description: "Serviço de manutenção e monitoramento de servidores. Mantenha sua aplicação no ar, segura e performática 24/7."
-keywords: ["server", "maintenance", "devops", "monitoring", "security", "uptime"]
-featuredImage: "/img/server-maintenance.jpg"
+title: Server Maintenance
+date: '2025-01-07'
+author: Milton Bolonha
+category: WEB
+type: catalog
+description: >-
+  Serviço de manutenção e monitoramento de servidores. Mantenha sua aplicação no
+  ar, segura e performática 24/7.
+keywords:
+  - server
+  - maintenance
+  - devops
+  - monitoring
+  - security
+  - uptime
+featuredImage: /img/server-maintenance.jpg
 public: true
 featured: false
+published: false
+technologies:
+  - Docker
+  - Kubernetes
+  - Nginx
+  - PostgreSQL
 ---
-
 # Server Maintenance
 
-<div class="catalog-header">
 
-## Ficha Técnica
-
-| | |
-|---|---|
-| **Categoria** | 🌐 WEB Service - DevOps & Infra |
-| **Tipo** | Serviço de manutenção contínua |
-| **Stack Suportado** | AWS, Google Cloud, Azure, DigitalOcean |
-| **Tecnologias** | Docker, Kubernetes, Nginx, PostgreSQL |
-| **Nível** | Startups a Enterprise |
-| **Formato** | Serviço mensal recorrente |
-| **SLA** | 99.9% (plano Enterprise) |
-| **Status** | ✅ Disponível |
-| **Suporte** | 24/7 (planos Pro e Enterprise) |
-
-</div>
-
----
 
 Manutenção profissional de servidores e infraestrutura. Mantenha sua aplicação rodando com performance, segurança e disponibilidade máximas.
 

@@ -1,40 +1,30 @@
 ---
-title: "Web Development: Essential Guidance for Beginners and Web Agencies"
-date: "2025-01-07"
-author: "Milton Bolonha"
-type: "catalog"
-description: "Guia completo de desenvolvimento web moderno. Do básico ao avançado, com foco prático para iniciantes e agências que querem profissionalizar."
-keywords: ["book", "web development", "beginners", "agencies", "html", "css", "javascript", "next.js"]
-featuredImage: "/img/book-web-dev.jpg"
-category: "BOOK"
+title: 'Web Development: Essential Guidance for Beginners and Web Agencies'
+date: '2025-01-07'
+author: Milton Bolonha
+type: catalog
+description: >-
+  Guia completo de desenvolvimento web moderno. Do básico ao avançado, com foco
+  prático para iniciantes e agências que querem profissionalizar.
+keywords:
+  - book
+  - web development
+  - beginners
+  - agencies
+  - html
+  - css
+  - javascript
+  - next.js
+featuredImage: /img/book-web-dev.jpg
+category: BOOK
 public: true
 featured: false
 published: false
 ---
-
 # Web Development
 ## Essential Guidance for Beginners and Web Agencies
 
-<div class="catalog-header">
 
-## Ficha Técnica
-
-| | |
-|---|---|
-| **Categoria** | 📚 BOOK - Guia de Desenvolvimento |
-| **Tipo** | Curso completo em livro |
-| **Temas** | HTML, CSS, JavaScript, React, Next.js |
-| **Nível** | Iniciante a Intermediário |
-| **Público** | Iniciantes e agências |
-| **Formato** | Ebook + Impresso + Curso online (2026) |
-| **Páginas** | 400+ páginas |
-| **Investimento** | A definir |
-| **Status** | 🚧 Em produção |
-| **Lançamento** | Q4 2025 |
-
-</div>
-
----
 
 O guia definitivo de desenvolvimento web moderno. Tudo que você precisa saber para criar sites profissionais em 2025, seja você iniciante ou agência querendo se atualizar.
 

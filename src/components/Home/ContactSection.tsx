@@ -77,7 +77,7 @@ export default function ContactSection({
             {title}
           </h2>
           <p className="text-lg text-white/60 max-w-2xl mx-auto">
-            Entre em contato através das redes sociais ou envie uma mensagem diretamente.
+            Entre em contato, estou à disposição.
           </p>
         </div>
 

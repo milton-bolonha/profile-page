@@ -57,44 +57,44 @@ export const Menu = ({ isVisible, onClose }: MenuProps) => {
           <Link
             href="/"
             onClick={onClose}
-            className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+            className="text-gray-700 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-500 transition-colors duration-200"
           >
             {t('navigation.home')}
           </Link>
           <Link
             href="/sobre"
             onClick={onClose}
-            className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+            className="text-gray-700 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-500 transition-colors duration-200"
           >
             {t('navigation.about')}
           </Link>
           <div className="w-full flex flex-col items-center">
-             <Link
+            <Link
               href="/projetos"
               onClick={onClose}
-              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+              className="text-gray-700 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-500 transition-colors duration-200"
             >
               {t('navigation.projects')}
             </Link>
             {/* Submenu Mobile */}
             <div className="flex flex-wrap justify-center gap-4 mt-2 mb-2 px-4">
-               <Link href="/projetos?category=Web App" onClick={onClose} className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600">Web Apps</Link>
-               <Link href="/projetos?category=E-commerce" onClick={onClose} className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600">E-commerce</Link>
-               <Link href="/projetos?category=Landing Page" onClick={onClose} className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600">Landing Pages</Link>
-               <Link href="/projetos?category=Backend" onClick={onClose} className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600">Backend</Link>
+              <Link href="/projetos?category=Web App" onClick={onClose} className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600">Web Apps</Link>
+              <Link href="/projetos?category=E-commerce" onClick={onClose} className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600">E-commerce</Link>
+              <Link href="/projetos?category=Landing Page" onClick={onClose} className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600">Landing Pages</Link>
+              <Link href="/projetos?category=Backend" onClick={onClose} className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600">Backend</Link>
             </div>
           </div>
           <Link
             href="/blog"
             onClick={onClose}
-            className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+            className="text-gray-700 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-500 transition-colors duration-200"
           >
             {t('navigation.blog')}
           </Link>
           <Link
             href="/contato"
             onClick={onClose}
-            className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+            className="text-gray-700 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-500 transition-colors duration-200"
           >
             {t('navigation.contact')}
           </Link>
@@ -111,7 +111,7 @@ export const Menu = ({ isVisible, onClose }: MenuProps) => {
                 </div>
                 <CustomSignOutButton />
               </SignedIn>
-              
+
               <SignedOut>
                 <CustomSignInButton />
               </SignedOut>

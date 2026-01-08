@@ -1,40 +1,36 @@
 ---
-title: "OnDemand - Game Development Project"
-date: "2025-01-07"
-author: "Milton Bolonha"
-category: "GAME DEV"
-type: "catalog"
-description: "Projeto de desenvolvimento de jogo 3D. Experiência imersiva com Three.js, física realista e gameplay envolvente."
-keywords: ["game dev", "three.js", "3d", "webgl", "game", "javascript"]
-featuredImage: "/img/game-ondemand.jpg"
+title: OnDemand - Game Development Project
+date: '2025-01-07'
+author: Milton Bolonha
+category: GAME DEV
+type: catalog
+description: >-
+  Projeto de desenvolvimento de jogo 3D. Experiência imersiva com Three.js,
+  física realista e gameplay envolvente.
+keywords:
+  - game dev
+  - three.js
+  - 3d
+  - webgl
+  - game
+  - javascript
+featuredImage: /img/game-ondemand.jpg
 public: true
 featured: true
 published: true
+technologies:
+  - Three.js
+  - React Three Fiber
+  - TypeScript
+  - Rapier (física)
+  - Drei
+  - Vite
+  - Blender
 ---
-
 # OnDemand
 ## Game Development Project
 
-<div class="catalog-header">
 
-## Ficha Técnica
-
-| | |
-|---|---|
-| **Categoria** | 🎮 GAME DEV - Projeto 3D |
-| **Tipo** | Jogo web 3D |
-| **Stack Principal** | Three.js, React Three Fiber, TypeScript |
-| **Tecnologias** | Rapier (física), Drei, Vite, Blender |
-| **Gênero** | Exploração 3D + Mecânicas |
-| **Plataforma** | Web (navegador) |
-| **Formato** | Jogo completo jogável |
-| **Inspirações** | Neon Flight, Stranger Craft |
-| **Status** | 🚧 Em desenvolvimento ativo |
-| **Demo** | Em breve |
-
-</div>
-
----
 
 Projeto de desenvolvimento de jogo 3D para web usando Three.js. Combinando paixão por jogos com expertise em desenvolvimento web.
 

@@ -1,37 +1,34 @@
 ---
-title: "One Page Website"
-date: "2025-01-07"
-author: "Milton Bolonha"
-category: "WEB"
-type: "catalog"
-description: "Desenvolvimento de sites one-page modernos, responsivos e otimizados para conversão. Ideal para landing pages, portfólios e apresentações de produtos."
-keywords: ["one page", "landing page", "website", "next.js", "responsive", "seo"]
-featuredImage: "/img/one-page-website.jpg"
+title: One Page Website
+date: '2025-01-07'
+author: Milton Bolonha
+category: WEB
+type: catalog
+description: >-
+  Desenvolvimento de sites one-page modernos, responsivos e otimizados para
+  conversão. Ideal para landing pages, portfólios e apresentações de produtos.
+keywords:
+  - one page
+  - landing page
+  - website
+  - next.js
+  - responsive
+  - seo
+featuredImage: /img/one-page-website.jpg
 public: true
+published: true
 featured: false
+technologies:
+  - Next.js
+  - React
+  - Tailwind CSS
+  - Framer Motion
+  - React Hook Form
+  - TypeScript
 ---
-
 # One Page Website
 
-<div class="catalog-header">
 
-## Ficha Técnica
-
-| | |
-|---|---|
-| **Categoria** | 🌐 WEB Service - Desenvolvimento |
-| **Tipo** | Site completo one-page |
-| **Stack Principal** | Next.js, React, Tailwind CSS |
-| **Tecnologias** | Framer Motion, React Hook Form, TypeScript |
-| **Nível** | Todos os níveis |
-| **Formato** | Site responsivo + Código-fonte |
-| **Prazo de Entrega** | 7-10 dias úteis |
-| **Status** | ✅ Disponível |
-| **Suporte** | 30 dias de ajustes inclusos |
-
-</div>
-
----
 
 Sites one-page profissionais que convertem visitantes em clientes. Design moderno, performance excepcional e otimização para SEO.
 

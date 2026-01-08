@@ -3,54 +3,37 @@ import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
 import MagneticButton from "@/components/ui/MagneticButton";
 import { TextMotion } from "@/components/ui/TextMotion";
-import { useEffect, useRef, useState } from "react";
-import { PostData } from "@/lib/posts";
-import { FaRobot, FaGlobe, FaBook, FaGamepad, FaChalkboardTeacher, FaRocket, FaFilter } from "react-icons/fa";
+import { useEffect, useRef } from "react";
+import { FaRobot, FaGlobe, FaBook, FaGamepad, FaChalkboardTeacher, FaRocket } from "react-icons/fa";
+import { getCategoryGradient } from "@/lib/colors";
 
-interface FeaturedProjectsProps {
-  posts: PostData[];
+interface Category {
+  id: string;
+  label: string;
+  icon: string;
+  description: string;
 }
 
-const CATEGORIES = [
-  { id: "Todos", label: "Todos", icon: FaFilter },
-  { id: "AI", label: "AI & SaaS", icon: FaRobot },
-  { id: "WEB", label: "Web Services", icon: FaGlobe },
-  { id: "GAME DEV", label: "Game Dev", icon: FaGamepad },
-  { id: "BOOK", label: "Books", icon: FaBook },
-  { id: "MENTORIA", label: "Mentoria", icon: FaChalkboardTeacher },
-  { id: "ENTREPRENEUR", label: "Entrepreneur", icon: FaRocket },
-];
+interface FeaturedProjectsProps {
+  categories: Category[];
+}
 
-export const FeaturedProjects = ({ posts }: FeaturedProjectsProps) => {
+// Icon mapping
+const ICON_MAP: Record<string, any> = {
+  FaRobot,
+  FaGlobe,
+  FaGamepad,
+  FaBook,
+  FaChalkboardTeacher,
+  FaRocket,
+};
+
+export const FeaturedProjects = ({ categories }: FeaturedProjectsProps) => {
   const { t } = useLanguage();
   const tiltRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState("Todos");
-  const [filteredPosts, setFilteredPosts] = useState<PostData[]>([]);
-
-  // Filter posts logic
-  useEffect(() => {
-    let filtered = posts;
-
-    if (selectedCategory !== "Todos") {
-      filtered = posts.filter(post =>
-        post.category?.toUpperCase() === selectedCategory
-      );
-    }
-
-    // Sort by featured first, then date
-    filtered = filtered.sort((a, b) => {
-      if (a.featured && !b.featured) return -1;
-      if (!a.featured && b.featured) return 1;
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    });
-
-    // Limit to 6 items for the home page to keep it clean
-    setFilteredPosts(filtered.slice(0, 6));
-  }, [selectedCategory, posts]);
 
   useEffect(() => {
     import("vanilla-tilt").then((VanillaTilt) => {
-      // Re-init tilt on filtered items
       tiltRefs.current.forEach((ref) => {
         if (ref) {
           VanillaTilt.default.init(ref, {
@@ -71,7 +54,7 @@ export const FeaturedProjects = ({ posts }: FeaturedProjectsProps) => {
         }
       });
     };
-  }, [filteredPosts]); // Re-run when posts change
+  }, [categories]);
 
   return (
     <div className="relative w-full h-full min-h-screen">
@@ -96,9 +79,8 @@ export const FeaturedProjects = ({ posts }: FeaturedProjectsProps) => {
               lineHeight: "1.3",
             }}
           >
-            🚀{" "}
             <TextMotion trigger={true} stagger={0.05}>
-              Explore e Construa
+              O Que Você Procura?
             </TextMotion>
           </h2>
 
@@ -106,43 +88,23 @@ export const FeaturedProjects = ({ posts }: FeaturedProjectsProps) => {
           <p className="text-xl text-white/60 max-w-3xl mx-auto mb-10">
             De boilerplates de IA a mentorias de carreira, encontre a ferramenta certa para o seu próximo nível.
           </p>
-
-          {/* CATEGORY TABS */}
-          <div className="flex flex-wrap justify-center gap-3 mb-12">
-            {CATEGORIES.map((cat) => {
-              const Icon = cat.icon;
-              const isActive = selectedCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`
-                    flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300
-                    ${isActive
-                      ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)] scale-105"
-                      : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border border-white/10"}
-                  `}
-                >
-                  {Icon && <Icon className={isActive ? "text-blue-600" : ""} />}
-                  <span>{cat.label}</span>
-                </button>
-              );
-            })}
-          </div>
         </div>
 
-        {/* PROJECTS GRID */}
+        {/* CATEGORY CARDS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16 px-4">
-          {filteredPosts.length > 0 ? (
-            filteredPosts.map((post, index) => (
+          {categories.map((category, index) => {
+            const Icon = ICON_MAP[category.icon] || FaGlobe;
+            const gradient = getCategoryGradient(category.id);
+
+            return (
               <Link
-                key={post.slug}
-                href={`/catalogo/${post.slug}`}
+                key={category.id}
+                href={`/catalogo?category=${category.id}`}
                 onClick={() =>
                   trackEvent(
                     "click",
-                    "Project Card",
-                    `Project ${post.slug} - Home`
+                    "Category Card",
+                    `Category ${category.id} - Home`
                   )
                 }
                 className="group relative block h-full flex flex-col"
@@ -157,60 +119,38 @@ export const FeaturedProjects = ({ posts }: FeaturedProjectsProps) => {
                   style={{ transformStyle: "preserve-3d" }}
                 >
                   {/* Dynamic Background Gradient based on Category */}
-                  <div className={`absolute inset-0 bg-gradient-to-br opacity-20 group-hover:opacity-30 transition-opacity duration-500
-                    ${post.category === 'AI' ? 'from-purple-900 to-indigo-900' :
-                      post.category === 'WEB' ? 'from-blue-900 to-cyan-900' :
-                        post.category === 'GAME DEV' ? 'from-pink-900 to-rose-900' :
-                          post.category === 'MENTORIA' ? 'from-amber-900 to-orange-900' :
-                            post.category === 'BOOK' ? 'from-emerald-900 to-teal-900' :
-                              'from-gray-800 to-gray-900'}
-                  `} />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-20 group-hover:opacity-30 transition-opacity duration-500`} />
 
+                  {/* Hover Overlay */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
                     <span className="px-6 py-2 bg-white/10 backdrop-blur-md rounded-full text-white font-bold border border-white/20">
-                      Ver Detalhes
+                      Ver Categoria
                     </span>
                   </div>
 
-                  {/* Icon/Visual Placeholder */}
-                  <div className="text-6xl text-white/20 group-hover:text-white/40 transition-colors duration-500 transform group-hover:scale-110">
-                    {post.category === 'AI' ? <FaRobot /> :
-                      post.category === 'WEB' ? <FaGlobe /> :
-                        post.category === 'GAME DEV' ? <FaGamepad /> :
-                          post.category === 'MENTORIA' ? <FaChalkboardTeacher /> :
-                            post.category === 'BOOK' ? <FaBook /> :
-                              post.category === 'ENTREPRENEUR' ? <FaRocket /> :
-                                <FaGlobe />}
+                  {/* Icon */}
+                  <div className="text-6xl text-white/20 group-hover:text-white/40 transition-colors duration-500 transform group-hover:scale-110 z-10">
+                    <Icon />
                   </div>
 
-                  {post.featured && (
-                    <span className="absolute top-4 right-4 bg-yellow-500/20 text-yellow-200 text-xs font-bold px-3 py-1 rounded-full border border-yellow-500/30 z-20 backdrop-blur-sm">
-                      ⭐ Destaque
-                    </span>
-                  )}
-
-                  {post.category && (
-                    <span className="absolute top-4 left-4 bg-white/10 text-white/80 text-xs font-bold px-3 py-1 rounded-full border border-white/10 z-20 backdrop-blur-sm">
-                      {post.category}
-                    </span>
-                  )}
+                  {/* Category Label Badge */}
+                  <span className="absolute top-4 left-4 bg-white/10 text-white/80 text-xs font-bold px-3 py-1 rounded-full border border-white/10 z-20 backdrop-blur-sm">
+                    {category.label}
+                  </span>
                 </div>
 
+                {/* Category Info */}
                 <div className="mt-6 space-y-3 flex-1">
                   <h3 className="text-2xl font-bold text-white group-hover:text-blue-400 transition-colors line-clamp-1">
-                    {post.title}
+                    {category.label}
                   </h3>
                   <p className="text-white/60 leading-relaxed text-sm line-clamp-2">
-                    {post.description || "Clique para ver mais detalhes sobre este projeto."}
+                    {category.description}
                   </p>
                 </div>
               </Link>
-            ))
-          ) : (
-            <div className="col-span-3 text-center py-12 text-white/40">
-              <p>Nenhum item encontrado nesta categoria.</p>
-            </div>
-          )}
+            );
+          })}
         </div>
 
         <div className="text-center">

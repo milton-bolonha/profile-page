@@ -1,38 +1,35 @@
 ---
-title: "CMS for Agencies"
-date: "2025-01-07"
-author: "Milton Bolonha"
-type: "catalog"
-description: "Sistema de gerenciamento de conteúdo headless desenvolvido especificamente para agências digitais. Multi-cliente, white-label e escalável."
-keywords: ["cms", "headless cms", "agency", "multi-tenant", "white-label", "next.js"]
-category: "WEB"
-featuredImage: "/img/cms-agencies.jpg"
+title: CMS for Agencies
+date: '2025-01-07'
+author: Milton Bolonha
+type: catalog
+description: >-
+  Sistema de gerenciamento de conteúdo headless desenvolvido especificamente
+  para agências digitais. Multi-cliente, white-label e escalável.
+keywords:
+  - cms
+  - headless cms
+  - agency
+  - multi-tenant
+  - white-label
+  - next.js
+category: WEB
+featuredImage: /img/cms-agencies.jpg
 public: true
 featured: false
-published: true
+published: false
+technologies:
+  - Next.js 16
+  - Prisma
+  - tRPC
+  - PostgreSQL
+  - Clerk
+  - AWS S3
+  - Vercel
 ---
-
 # CMS for Agencies
 
-<div class="catalog-header">
 
-## Ficha Técnica
-
-| | |
-|---|---|
-| **Categoria** | 🌐 WEB Service - CMS Platform |
-| **Tipo** | Sistema headless multi-tenant |
-| **Stack Principal** | Next.js 16, Prisma, tRPC |
-| **Tecnologias** | PostgreSQL, Clerk, AWS S3, Vercel |
-| **Nível** | Agências e empresas |
-| **Formato** | Plataforma SaaS white-label |
-| **Clientes** | Até 25 (plano Professional) |
-| **Status** | ✅ Disponível |
-| **Trial** | 14 dias grátis |
-
-</div>
-
----
 
 Sistema de gerenciamento de conteúdo headless projetado para agências que gerenciam múltiplos clientes. Escalável, white-label e fácil de usar.
 

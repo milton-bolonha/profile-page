@@ -1,40 +1,28 @@
 ---
-title: "Programação Web, AI e SaaS - Mentoria"
-date: "2025-01-07"
-author: "Milton Bolonha"
-category: "MENTORIA"
-type: "catalog"
-description: "Mentoria avançada para desenvolvedores que querem dominar o stack moderno: Next.js, TypeScript, IA e arquitetura SaaS."
-keywords: ["mentoria", "web development", "ai", "saas", "next.js", "typescript"]
-featuredImage: "/img/mentoria-web-ai-saas.jpg"
+title: 'Programação Web, AI e SaaS - Mentoria'
+date: '2025-01-07'
+author: Milton Bolonha
+category: MENTORIA
+type: catalog
+description: >-
+  Mentoria avançada para desenvolvedores que querem dominar o stack moderno:
+  Next.js, TypeScript, IA e arquitetura SaaS.
+keywords:
+  - mentoria
+  - web development
+  - ai
+  - saas
+  - next.js
+  - typescript
+featuredImage: /img/mentoria-web-ai-saas.jpg
 public: true
 featured: true
 published: false
 ---
-
 # Programação Web, AI e SaaS
 ## Mentoria Avançada para Desenvolvedores
 
-<div class="catalog-header">
 
-## Ficha Técnica
-
-| | |
-|---|---|
-| **Categoria** | 🎯 MENTORIA - Avançado |
-| **Tipo** | Programa intensivo 4 meses |
-| **Temas** | Next.js 16, TypeScript, OpenAI, SaaS |
-| **Nível** | Pleno/Sênior |
-| **Formato** | Mentoria semanal 1h30 + Projeto real |
-| **Investimento** | R$ 7.997 (ou 4x R$ 2.197) |
-| **Entrega** | SaaS completo com IA em produção |
-| **Vagas** | 3 mentorados por turma |
-| **Status** | ✅ Disponível |
-| **ROI** | 50-100% aumento valor de mercado |
-
-</div>
-
----
 
 Programa intensivo de 4 meses para desenvolvedores que querem dominar o stack moderno e construir produtos SaaS com inteligência artificial.
 

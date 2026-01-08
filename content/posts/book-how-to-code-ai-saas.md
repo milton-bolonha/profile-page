@@ -1,40 +1,28 @@
 ---
-title: "How to Code and Manage AI SaaS - The Definitive Entrepreneur Roadmap"
-date: "2025-01-07"
-author: "Milton Bolonha"
-type: "catalog"
-description: "O guia definitivo para empreendedores que querem criar e gerenciar produtos SaaS com inteligência artificial. Da ideia ao lançamento."
-keywords: ["book", "saas", "ai", "entrepreneurship", "startup", "guide"]
-featuredImage: "/img/book-ai-saas.jpg"
-category: "BOOK"
+title: How to Code and Manage AI SaaS - The Definitive Entrepreneur Roadmap
+date: '2025-01-07'
+author: Milton Bolonha
+type: catalog
+description: >-
+  O guia definitivo para empreendedores que querem criar e gerenciar produtos
+  SaaS com inteligência artificial. Da ideia ao lançamento.
+keywords:
+  - book
+  - saas
+  - ai
+  - entrepreneurship
+  - startup
+  - guide
+featuredImage: /img/book-ai-saas.jpg
+category: BOOK
 public: true
 featured: true
 published: false
 ---
-
 # How to Code and Manage AI SaaS
 ## The Definitive Entrepreneur Roadmap
 
-<div class="catalog-header">
 
-## Ficha Técnica
-
-| | |
-|---|---|
-| **Categoria** | 📚 BOOK - Guia Técnico |
-| **Tipo** | Livro digital + Boilerplate |
-| **Temas** | SaaS, IA, Empreendedorismo, Next.js |
-| **Nível** | Intermediário a Avançado |
-| **Público** | Desenvolvedores empreendedores, CTOs |
-| **Formato** | Ebook (PDF, EPUB, MOBI) + Impresso |
-| **Páginas** | 300+ páginas |
-| **Investimento** | A definir |
-| **Status** | 🚧 Em produção |
-| **Lançamento** | Q2 2025 |
-
-</div>
-
----
 
 O livro que faltava para empreendedores técnicos que querem criar produtos SaaS com IA. Escrito por quem faz, não por quem teoriza.
 

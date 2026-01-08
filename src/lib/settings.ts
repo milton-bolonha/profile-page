@@ -52,6 +52,12 @@ if (isServer) {
         const fullPath = path.join(settingsDirectory, 'navegador.json');
         const fileContents = fs.readFileSync(fullPath, 'utf8');
         return JSON.parse(fileContents);
+      },
+      getCategoriesSettings: (lang: string = 'pt') => {
+        const fileName = lang === 'en' ? 'categories.json' : 'categorias.json';
+        const fullPath = path.join(settingsDirectory, fileName);
+        const fileContents = fs.readFileSync(fullPath, 'utf8');
+        return JSON.parse(fileContents);
       }
     };
   } catch (error) {
@@ -104,6 +110,16 @@ const clientSettings = {
   getLogosData: () => ({
     main: "/logo.png",
     alt: "Logo"
+  }),
+  getCategoriesSettings: () => ({
+    categories: [
+      { id: "AI", label: "AI & SaaS", icon: "FaRobot", description: "Intelligent AI solutions" },
+      { id: "WEB", label: "Web Services", icon: "FaGlobe", description: "High-performance web development" },
+      { id: "GAME DEV", label: "Game Dev", icon: "FaGamepad", description: "Games and 3D experiences" },
+      { id: "BOOK", label: "Books", icon: "FaBook", description: "Technical books" },
+      { id: "MENTORIA", label: "Mentoring", icon: "FaChalkboardTeacher", description: "Developer mentoring" },
+      { id: "ENTREPRENEUR", label: "Entrepreneur", icon: "FaRocket", description: "Entrepreneurial projects" }
+    ]
   })
 };
 
@@ -120,3 +136,4 @@ export const getThemeSettings = settings.getThemeSettings;
 export const getLogosData = settings.getLogosData;
 export const getLogos = settings.getLogosData;
 export const getNavigatorSettings = settings.getNavigatorSettings;
+export const getCategoriesSettings = settings.getCategoriesSettings;

@@ -60,62 +60,59 @@ export const Header = () => {
       <nav className="hidden md:flex items-center gap-2 text-md">
         <Link
           href="/"
-          className={`px-4 py-2 rounded-md transition-colors duration-200 ${
-            router.pathname === '/'
+          className={`px-4 py-2 rounded-md transition-colors duration-200 ${router.pathname === '/'
               ? 'bg-white text-black font-medium'
-              : 'text-white/80 hover:bg-white/10 hover:text-white'
-          }`}
+              : 'text-white/80 hover:bg-white/10 hover:text-yellow-500'
+            }`}
         >
           {t('navigation.home')}
         </Link>
         <Link
           href="/sobre"
-          className={`px-4 py-2 rounded-md transition-colors duration-200 ${
-            router.pathname === '/sobre'
+          className={`px-4 py-2 rounded-md transition-colors duration-200 ${router.pathname === '/sobre'
               ? 'bg-white text-black font-medium'
               : 'text-white/80 hover:bg-white/10 hover:text-white'
-          }`}
+            }`}
         >
           {t('navigation.about')}
         </Link>
         <div className="relative group">
           <Link
             href="/projetos"
-            className={`px-4 py-2 rounded-md transition-colors duration-200 flex items-center gap-1 ${
-              router.pathname === '/projetos'
+            className={`px-4 py-2 rounded-md transition-colors duration-200 flex items-center gap-1 ${router.pathname === '/projetos'
                 ? 'bg-white text-black font-medium'
                 : 'text-white/80 hover:bg-white/10 hover:text-white'
-            }`}
+              }`}
           >
             {t('navigation.projects')}
             <svg className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </Link>
-          
+
           {/* Dropdown Menu */}
           <div className="absolute left-0 mt-0 w-48 bg-gray-900 rounded-lg shadow-xl border border-white/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-left z-50">
             <div className="py-2">
-              <Link 
-                href="/projetos?category=Web App" 
+              <Link
+                href="/projetos?category=Web App"
                 className="block px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white"
               >
                 Web Apps
               </Link>
-              <Link 
-                href="/projetos?category=E-commerce" 
+              <Link
+                href="/projetos?category=E-commerce"
                 className="block px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white"
               >
                 E-commerce
               </Link>
-              <Link 
-                href="/projetos?category=Landing Page" 
+              <Link
+                href="/projetos?category=Landing Page"
                 className="block px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white"
               >
                 Landing Pages
               </Link>
-              <Link 
-                href="/projetos?category=Backend" 
+              <Link
+                href="/projetos?category=Backend"
                 className="block px-4 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white"
               >
                 Backend
@@ -125,21 +122,19 @@ export const Header = () => {
         </div>
         <Link
           href="/blog"
-          className={`px-4 py-2 rounded-md transition-colors duration-200 ${
-            router.pathname === '/blog'
+          className={`px-4 py-2 rounded-md transition-colors duration-200 ${router.pathname === '/blog'
               ? 'bg-white text-black font-medium'
               : 'text-white/80 hover:bg-white/10 hover:text-white'
-          }`}
+            }`}
         >
           {t('navigation.blog')}
         </Link>
         <Link
           href="/contato"
-          className={`px-4 py-2 rounded-md transition-colors duration-200 ${
-            router.pathname === '/contato'
+          className={`px-4 py-2 rounded-md transition-colors duration-200 ${router.pathname === '/contato'
               ? 'bg-white text-black font-medium'
               : 'text-white/80 hover:bg-white/10 hover:text-white'
-          }`}
+            }`}
         >
           {t('navigation.contact')}
         </Link>
@@ -154,7 +149,7 @@ export const Header = () => {
               <UserButton />
               <CustomSignOutButton />
             </SignedIn>
-           
+
             <SignedOut>
               <CustomSignInButton />
             </SignedOut>

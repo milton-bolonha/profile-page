@@ -1,40 +1,27 @@
 ---
-title: "Trilha Ignição - Mentoria"
-date: "2025-01-07"
-author: "Milton Bolonha"
-category: "MENTORIA"
-type: "catalog"
-description: "Mentoria intensiva para iniciantes em programação. Do zero ao primeiro projeto profissional em 12 semanas."
-keywords: ["mentoria", "programming", "beginners", "web development", "career"]
-featuredImage: "/img/mentoria-ignicao.jpg"
+title: Trilha Ignição - Mentoria
+date: '2025-01-07'
+author: Milton Bolonha
+category: MENTORIA
+type: catalog
+description: >-
+  Mentoria intensiva para iniciantes em programação. Do zero ao primeiro projeto
+  profissional em 12 semanas.
+keywords:
+  - mentoria
+  - programming
+  - beginners
+  - web development
+  - career
+featuredImage: /img/mentoria-ignicao.jpg
 public: true
 featured: true
 published: false
 ---
-
 # Trilha Ignição
 ## Mentoria para Iniciantes em Programação
 
-<div class="catalog-header">
 
-## Ficha Técnica
-
-| | |
-|---|---|
-| **Categoria** | 🎯 MENTORIA - Iniciantes |
-| **Tipo** | Programa intensivo 12 semanas |
-| **Temas** | HTML, CSS, JavaScript, React, Next.js |
-| **Nível** | Iniciante absoluto |
-| **Formato** | Aulas ao vivo + Mentoria 1-on-1 |
-| **Investimento** | R$ 1.997 (ou 12x R$ 197) |
-| **Carga Horária** | 10-15h/semana |
-| **Vagas** | 15 alunos por turma |
-| **Status** | ✅ Inscrições abertas |
-| **Próxima Turma** | Fevereiro 2025 |
-
-</div>
-
----
 
 Programa intensivo de 12 semanas para quem quer entrar no mercado de desenvolvimento web. Do zero ao primeiro projeto profissional.
 

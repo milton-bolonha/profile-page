@@ -1,37 +1,34 @@
 ---
-title: "SEO Business Page"
-date: "2025-01-07"
-author: "Milton Bolonha"
-category: "WEB"
-type: "catalog"
-description: "Desenvolvimento de páginas corporativas otimizadas para SEO. Ranqueamento orgânico, tráfego qualificado e conversão de leads."
-keywords: ["seo", "business page", "organic traffic", "google", "ranking", "lead generation"]
-featuredImage: "/img/seo-business.jpg"
+title: SEO Business Page
+date: '2025-01-07'
+author: Milton Bolonha
+category: WEB
+type: catalog
+description: >-
+  Desenvolvimento de páginas corporativas otimizadas para SEO. Ranqueamento
+  orgânico, tráfego qualificado e conversão de leads.
+keywords:
+  - seo
+  - business page
+  - organic traffic
+  - google
+  - ranking
+  - lead generation
+featuredImage: /img/seo-business.jpg
 public: true
 featured: false
+published: false
+technologies:
+  - Next.js 16
+  - TypeScript
+  - MDX
+  - Next SEO
+  - Tailwind CSS
+  - Analytics
 ---
-
 # SEO Business Page
 
-<div class="catalog-header">
 
-## Ficha Técnica
-
-| | |
-|---|---|
-| **Categoria** | 🌐 WEB Service - SEO + Desenvolvimento |
-| **Tipo** | Site institucional otimizado |
-| **Stack Principal** | Next.js 16, TypeScript, MDX |
-| **Tecnologias** | Next SEO, Tailwind CSS, Analytics |
-| **Nível** | Empresas B2B e B2C |
-| **Formato** | Site completo + Blog + SEO |
-| **Prazo** | Ranqueamento em 60-90 dias |
-| **Status** | ✅ Disponível |
-| **ROI** | 200-500% em tráfego orgânico |
-
-</div>
-
----
 
 Páginas corporativas desenvolvidas com foco em ranqueamento orgânico no Google. Não é só um site bonito - é uma máquina de gerar tráfego qualificado.
 

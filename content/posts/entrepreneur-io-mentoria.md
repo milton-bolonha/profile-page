@@ -14,23 +14,7 @@ published: false
 # I/O - Mentoria
 ## Input/Output: Transforme Conhecimento em Resultados
 
-<div class="catalog-header">
 
-## Ficha Técnica
-
-| | |
-|---|---|
-| **Categoria** | 🚀 ENTREPRENEUR - Mentoria Empresarial |
-| **Tipo** | Mentoria estratégica para founders |
-| **Temas** | Produto, Go-to-Market, Gestão, Crescimento |
-| **Nível** | Founders, CTOs, Líderes tech |
-| **Formato** | Sessões quinzenais 2h + Suporte |
-| **Foco** | Destravar crescimento |
-| **Empresa** | 21 Miles |
-| **Status** | ✅ Seleção ativa |
-| **ROI** | 2-5x crescimento em MRR |
-
-</div>
 
 ---
 

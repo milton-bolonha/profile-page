@@ -1,39 +1,27 @@
 ---
-title: "Autossuficiência Profissional - Mentoria"
-date: "2025-01-07"
-author: "Milton Bolonha"
-type: "catalog"
-description: "Mentoria para desenvolvedores que querem sair do emprego e viver de freela/consultoria. Liberdade financeira e profissional."
-keywords: ["mentoria", "freelancer", "autonomy", "consulting", "financial freedom"]
-featuredImage: "/img/mentoria-autossuficiencia.jpg"
-category: "MENTORIA"
+title: Autossuficiência Profissional - Mentoria
+date: '2025-01-07'
+author: Milton Bolonha
+type: catalog
+description: >-
+  Mentoria para desenvolvedores que querem sair do emprego e viver de
+  freela/consultoria. Liberdade financeira e profissional.
+keywords:
+  - mentoria
+  - freelancer
+  - autonomy
+  - consulting
+  - financial freedom
+featuredImage: /img/mentoria-autossuficiencia.jpg
+category: MENTORIA
 public: true
 featured: true
 published: false
 ---
-
 # Autossuficiência Profissional
 ## Mentoria para Desenvolvedores Freelancers
 
-<div class="catalog-header">
 
-## Ficha Técnica
-
-| | |
-|---|---|
-| **Categoria** | 🎯 MENTORIA - Freelancer |
-| **Tipo** | Programa 6 meses |
-| **Temas** | Freelancing, Clientes, Precificação, Upwork |
-| **Nível** | Desenvolvedores com 1+ ano exp |
-| **Formato** | Mentoria semanal 1h + Suporte WhatsApp |
-| **Meta** | R$ 15k-25k/mês em 6 meses |
-| **Vagas** | 5 mentorados por turma |
-| **Status** | ✅ 2 vagas restantes |
-| **Garantia** | 100% se não conseguir cliente em 3 meses |
-
-</div>
-
----
 
 Programa de mentoria para desenvolvedores que querem largar o emprego CLT e viver de freela/consultoria com liberdade e renda previsível.
 
