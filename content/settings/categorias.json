@@ -17,24 +17,6 @@
       "label": "Game Dev",
       "icon": "FaGamepad",
       "description": "Jogos e experiências interativas em 3D"
-    },
-    {
-      "id": "BOOK",
-      "label": "Books",
-      "icon": "FaBook",
-      "description": "Livros técnicos e conteúdo educacional"
-    },
-    {
-      "id": "MENTORIA",
-      "label": "Mentoria",
-      "icon": "FaChalkboardTeacher",
-      "description": "Mentorias personalizadas para desenvolvedores"
-    },
-    {
-      "id": "ENTREPRENEUR",
-      "label": "Entrepreneur",
-      "icon": "FaRocket",
-      "description": "Projetos empreendedores e inovação"
     }
   ]
 }

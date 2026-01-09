@@ -1,5 +1,5 @@
 ---
-title: WordPress Development
+title: Websites em WordPress - Web Development
 date: '2025-01-07'
 author: Milton Bolonha
 category: WEB
@@ -28,7 +28,7 @@ technologies:
 ---
 # WordPress Development
 
-Desenvolvimento profissional em WordPress. Não é só instalar um tema - é criar soluções customizadas, performáticas e escaláveis.
+Desenvolvo websites profissionais em WordPress desde 2009. Já foram centenas de projetos, curadoria responsável, soluções customizadas, otimizadas para alta performance e escaláveis.
 
 ## Experiência
 
@@ -65,7 +65,7 @@ Trabalho com WordPress desde os primeiros anos da plataforma. Mais de 20 anos de
 - Minificação de CSS/JS
 - Database optimization
 - Cache configuration (WP Rocket, W3 Total Cache)
-- CDN setup (Cloudflare, BunnyCDN)
+- CDN setup (Cloudflare, Cloudinary)
 
 ### SEO
 - Yoast SEO ou Rank Math configurado
@@ -82,42 +82,6 @@ Trabalho com WordPress desde os primeiros anos da plataforma. Mais de 20 anos de
 - 2FA para admin
 - Proteção contra brute force
 - Atualizações regulares
-
-## Stack e Ferramentas
-
-### Desenvolvimento
-- **PHP** (orientado a objetos)
-- **JavaScript/jQuery**
-- **SASS/SCSS**
-- **Webpack** para build
-- **Git** para versionamento
-- **Local/XAMPP** para ambiente local
-
-### Plugins Favoritos
-- ACF Pro
-- WooCommerce
-- Yoast SEO
-- WP Rocket
-- Wordfence
-- UpdraftPlus
-- Contact Form 7 / Gravity Forms
-
-### Builders (quando solicitado)
-- Elementor Pro
-- Divi
-- Oxygen Builder
-- Bricks Builder
-
-## Processo de Desenvolvimento
-
-1. **Briefing**: Entendimento das necessidades
-2. **Planejamento**: Arquitetura e funcionalidades
-3. **Design**: Mockups e aprovação
-4. **Desenvolvimento**: Código limpo e documentado
-5. **Testes**: Compatibilidade e performance
-6. **Deploy**: Migração para produção
-7. **Treinamento**: Como usar o painel admin
-8. **Suporte**: 30 dias de ajustes inclusos
 
 ## Tipos de Projeto
 
@@ -145,48 +109,7 @@ Trabalho com WordPress desde os primeiros anos da plataforma. Mais de 20 anos de
 - Sistemas de membros
 - Plataformas de cursos (LMS)
 
-## Diferenciais
-
-### Código Limpo
-- Seguindo WordPress Coding Standards
-- Comentários e documentação
-- Versionamento com Git
-- Code review
-
-### Performance
-- Otimização desde o início
-- Queries eficientes
-- Lazy loading nativo
-- Imagens otimizadas
-
-### Manutenibilidade
-- Código organizado
-- Documentação completa
-- Facilidade para outros devs
-- Escalabilidade
-
-### Suporte
-- Treinamento para o cliente
-- Documentação de uso
-- Suporte pós-entrega
-- Manutenção disponível
-
-## Quando NÃO Usar WordPress
-
-Sou honesto: nem sempre WordPress é a melhor solução. Para aplicações complexas, SaaS ou sites que precisam de performance extrema, recomendo Next.js ou outras tecnologias modernas.
-
-## Migração
-
-### De WordPress para Headless
-- Migração para Next.js + WordPress como CMS
-- Melhor performance
-- Flexibilidade de frontend
-
-### Para WordPress
-- Migração de outras plataformas
-- Preservação de SEO
-- Redirecionamentos 301
 
 ---
 
-**Precisa de um site WordPress profissional? [Vamos conversar](/contato) sobre seu projeto.**
+**Precisa de um site WordPress profissional? Vamos conversar sobre seu projeto.**

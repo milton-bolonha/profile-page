@@ -115,10 +115,10 @@ const clientSettings = {
     categories: [
       { id: "AI", label: "AI & SaaS", icon: "FaRobot", description: "Intelligent AI solutions" },
       { id: "WEB", label: "Web Services", icon: "FaGlobe", description: "High-performance web development" },
-      { id: "GAME DEV", label: "Game Dev", icon: "FaGamepad", description: "Games and 3D experiences" },
-      { id: "BOOK", label: "Books", icon: "FaBook", description: "Technical books" },
-      { id: "MENTORIA", label: "Mentoring", icon: "FaChalkboardTeacher", description: "Developer mentoring" },
-      { id: "ENTREPRENEUR", label: "Entrepreneur", icon: "FaRocket", description: "Entrepreneurial projects" }
+      { id: "GAME DEV", label: "Game Dev", icon: "FaGamepad", description: "Games and 3D experiences" }
+      // { id: "BOOK", label: "Books", icon: "FaBook", description: "Technical books" },
+      // { id: "MENTORIA", label: "Mentoring", icon: "FaChalkboardTeacher", description: "Developer mentoring" },
+      // { id: "ENTREPRENEUR", label: "Entrepreneur", icon: "FaRocket", description: "Entrepreneurial projects" }
     ]
   })
 };
