@@ -64,7 +64,7 @@ export const Inicio = () => {
 
               <MagneticButton>
                 <Link
-                  href="/projetos"
+                  href="/#projetos"
                   onClick={() => trackEvent("click", "CTA", "View Projects - Hero")}
                   className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-sm text-white hover:bg-white/10 font-medium py-4 px-8 rounded-full border border-white/10 transition-all duration-300"
                 >
