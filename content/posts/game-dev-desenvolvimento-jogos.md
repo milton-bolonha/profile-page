@@ -1,5 +1,5 @@
 ---
-title: Game Dev: Experiência Imersiva Com Desenvolvimento de Jogos 3D & Jogos Corporativos
+title: "Game Dev: Experiência Imersiva Com Desenvolvimento de Jogos 3D & Jogos Corporativos"
 date: '2025-01-07'
 author: Milton Bolonha
 category: GAME DEV
