@@ -10,7 +10,7 @@ import { FaInfoCircle } from "react-icons/fa";
 import heroPT from "../../../content/home/hero.json";
 import heroEN from "../../../content/home/hero.en.json";
 
-export const Inicio = ({ onNavigate }: { onNavigate: (index: number) => void }) => {
+export const Inicio = ({ onNavigate }: { onNavigate?: (index: number) => void }) => {
   const { language } = useLanguage();
   const content = language === 'pt' ? heroPT.hero : heroEN.hero;
 
@@ -50,10 +50,14 @@ export const Inicio = ({ onNavigate }: { onNavigate: (index: number) => void }) 
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <MagneticButton>
-                <button
-                  onClick={() => {
+                <Link
+                  href="/contato"
+                  onClick={(e) => {
                     trackEvent("click", "CTA", "Lets Talk - Hero");
-                    onNavigate(6); // Slide 6: Contato
+                    if (onNavigate) {
+                      e.preventDefault();
+                      onNavigate(6); // Slide 6: Contato
+                    }
                   }}
                   className="group relative inline-flex items-center gap-2 bg-white text-black hover:bg-white/90 font-medium py-4 px-8 rounded-full transition-all duration-300 cursor-pointer"
                 >
@@ -61,14 +65,18 @@ export const Inicio = ({ onNavigate }: { onNavigate: (index: number) => void }) 
                   <svg className="w-5 h-5 relative z-10 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
-                </button>
+                </Link>
               </MagneticButton>
 
               <MagneticButton>
-                <button
-                  onClick={() => {
+                <Link
+                  href="/#projetos"
+                  onClick={(e) => {
                     trackEvent("click", "CTA", "View Projects - Hero");
-                    onNavigate(3); // Slide 3: Projetos
+                    if (onNavigate) {
+                      e.preventDefault();
+                      onNavigate(3); // Slide 3: Projetos
+                    }
                   }}
                   className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-sm text-white hover:bg-white/10 font-medium py-4 px-8 rounded-full border border-white/10 transition-all duration-300 cursor-pointer"
                 >
@@ -76,7 +84,7 @@ export const Inicio = ({ onNavigate }: { onNavigate: (index: number) => void }) 
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
-                </button>
+                </Link>
               </MagneticButton>
             </div>
 
