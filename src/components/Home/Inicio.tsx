@@ -43,7 +43,7 @@ export const Inicio = ({ onNavigate }: { onNavigate: (index: number) => void }) 
               <h1 className="text-5xl md:text-6xl lg:text-7xl text-white leading-[0.95] font-semibold" style={{ fontFamily: 'Noto Serif Variable, serif' }}>
                 <SplitText text={content.title} delay={0.2} stagger={0.05} />
               </h1>
-              <p className="text-xl md:text-2xl text-white/60 font-normal max-w-xl mx-auto lg:mx-0 leading-relaxed">
+              <p className="text-xl text-white/80 font-normal max-w-xl mx-auto lg:mx-0 leading-relaxed">
                 {content.subtitle}
               </p>
             </div>
