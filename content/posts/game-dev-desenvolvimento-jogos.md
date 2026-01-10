@@ -26,8 +26,6 @@ technologies:
   - Vite
 ---
 
-# Game Dev: Experiência Imersiva Com Jogos 3D & Corporativos
-
 Desenvolvimento de jogos 3D, jogos 2D, jogos corporativos (Jogo da Memória, dentre outros) para web usando Three.js. Combinando paixão por jogos com expertise em desenvolvimento web.
 
 ## Clientes Satisfeitos

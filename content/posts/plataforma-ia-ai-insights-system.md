@@ -3,8 +3,18 @@ title: "Plataforma IA SaaS - AI Insights System"
 date: "2025-01-08"
 author: "Milton Bolonha"
 type: "catalog"
-description: "Sistema completo de SaaS com Inteligência Artificial que permite a geração de conteúdo inteligente com IA. Inclui integração com OpenAI, processamento de dados e dashboard interativo."
-keywords: ["ai", "openai", "data analysis", "next.js", "typescript", "dashboard", "boilerplate", "saas"]
+description: "Plataforma SaaS de Inteligência Artificial para geração de insights, conteúdo e chat contextual com OpenAI, arquitetura multi-tenant, cobrança recorrente e dashboard escalável."
+keywords:
+  - ai saas platform
+  - ai insights
+  - openai saas
+  - ai content generation
+  - next.js saas
+  - ai dashboard
+  - multi-tenant saas
+  - stripe saas
+  - clerk authentication
+  - mongodb saas
 featuredImage: "/img/ai-insights.jpg"
 category: "AI"
 public: true
@@ -19,52 +29,48 @@ technologies:
   - OpenAI
   - MongoDB
   - Cloudinary
-link: 'https://dashmasterpro.vercel.app/'
+link: "https://dashmasterpro.vercel.app/"
 ---
 
-# Plataforma IA SaaS - AI Insights System
+Plataforma SaaS completa com Inteligência Artificial, projetada para geração de conteúdo inteligente, chat contextual e regeneração de respostas utilizando OpenAI.
 
-Este é um sistema completo de SaaS com Inteligência Artificial que permite a geração de conteúdo inteligente, chat contextual e regeneração de respostas usando OpenAI.
+O sistema suporta múltiplos ambientes (multi-tenant), personalização de temas e escalabilidade desde a fase inicial até produção.
 
-Criação e gerenciamento de múltiplos ambientes com personalização de temas. E mais:
+### Estrutura do Sistema
 
-- **Workspaces**: Ambientes virtuais principais de cada usuário
-- **Dashboards**: Painéis que contêm coleções de tiles
+- **Workspaces**: Ambientes principais por usuário ou organização
+- **Dashboards**: Painéis compostos por coleções de tiles
 - **Tiles**: Unidades de conteúdo geradas por IA
-- **Notes**: Anotações livres
-- **Contacts**: Registros de contatos com conteúdo gerado por IA
+- **Notes**: Anotações livres com suporte a IA
+- **Contacts**: Registros enriquecidos com conteúdo inteligente
 
-Aqui o seu projeto já ganha vida na primeira semana, o nosso sistema pode facilmente ser manipulado para atender melhor as suas necessidades.
+A arquitetura permite lançar um SaaS funcional rapidamente, sem abrir mão de controle, segurança e escalabilidade.
 
-## 📋 Tipos de Usuário e Cobrança
+## Tipos de Usuário e Cobrança
 
-- **Guest (Convidado)**: Acesso sem login, workspace em localStorage, limites de uso
+### Guest (Convidado)
+- Acesso sem login
+- Workspace armazenado em localStorage
+- Limites de uso para experimentação
 
+### Member (Membro)
+- Autenticação via Clerk
+- Assinatura recorrente com Stripe
+- Dados persistidos em MongoDB
+- Limites e quotas processados no backend via `usage-service`
+- Migração automática de dados (Guest → Member)
 
-### Members
-- Limites processados no backend via `usage-service`.
-- Controle de quotas para Workspaces, Tiles e Contatos.
-- Integração direta com planos do Stripe.
-
-
-- **Member (Membro)**: Autenticado via Clerk, assinatura Stripe, dados em MongoDB com quotas server-side
-
-
-### Guests
-- Limites locais para experimentação.
-- Migração automática de dados ao fazer upgrade (Guest -> Member).
-
-
-## 🛠️ Stack Técnica
+## Stack Técnica
 
 - **Frontend**: Next.js 16 (App Router), React 19, Tailwind CSS
 - **Backend**: API Routes do Next.js
 - **Autenticação**: Clerk
 - **Pagamentos**: Stripe
-- **IA**: OpenAI (GPT-4/GPT-5)
+- **IA**: OpenAI (GPT-4 / GPT-5)
 - **Storage**: MongoDB + localStorage
 - **Arquivos**: Cloudinary
 
 ---
 
-**Lance seu SaaS de IA em dias, não meses. [Ver Demo ao Vivo](https://dashmasterpro.vercel.app/)**
+**Lance seu SaaS de IA com base sólida, arquitetura moderna e monetização integrada.  
+[Ver Demo ao Vivo](https://dashmasterpro.vercel.app/)**

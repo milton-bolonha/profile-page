@@ -202,7 +202,7 @@ const HomeContent = ({
           >
             {/* Slide 0: Hero */}
             <SectionWrapper id="inicio" vPadding="py-0" fullHeight>
-              <Inicio />
+              <Inicio onNavigate={handleSlideChange} />
             </SectionWrapper>
 
             {/* Slide 1: Showcase Merged */}

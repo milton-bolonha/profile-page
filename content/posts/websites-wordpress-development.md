@@ -26,7 +26,6 @@ technologies:
   - Elementor
   - Yoast SEO
 ---
-# WordPress Development
 
 Desenvolvo websites profissionais em WordPress desde 2009. Já foram centenas de projetos, curadoria responsável, soluções customizadas, otimizadas para alta performance e escaláveis.
 
