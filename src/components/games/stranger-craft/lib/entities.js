@@ -16,10 +16,15 @@ export class Entity {
         this.head.position.y = (1.8 * scale) + (0.25 * scale);
         this.mesh.add(this.head);
         scene.add(this.mesh);
-        const rbDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y, z).lockRotations().setLinearDamping(5.0).setAngularDamping(1.0);
-        this.rigidBody = physicsWorld.createRigidBody(rbDesc);
-        const colDesc = RAPIER.ColliderDesc.capsule(0.5 * scale, 0.3 * scale).setFriction(2.0).setRestitution(0.0);
-        this.collider = physicsWorld.createCollider(colDesc, this.rigidBody);
+        
+        let rbDesc;
+        if(physicsWorld) {
+             rbDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y, z).lockRotations().setLinearDamping(5.0).setAngularDamping(1.0);
+             this.rigidBody = physicsWorld.createRigidBody(rbDesc);
+             const colDesc = RAPIER.ColliderDesc.capsule(0.5 * scale, 0.3 * scale).setFriction(2.0).setRestitution(0.0);
+             this.collider = physicsWorld.createCollider(colDesc, this.rigidBody);
+        }
+        
         this.yOffset = (0.5 * scale) + (0.3 * scale);
         this.stuckTimer = 0;
         this.scene = scene;
@@ -47,8 +52,10 @@ export class Entity {
     
     remove() {
         this.scene.remove(this.mesh);
-        if(this.collider) this.physicsWorld.removeCollider(this.collider, false);
-        if(this.rigidBody) this.physicsWorld.removeRigidBody(this.rigidBody);
+        if(this.physicsWorld) {
+            if(this.collider) this.physicsWorld.removeCollider(this.collider, false);
+            if(this.rigidBody) this.physicsWorld.removeRigidBody(this.rigidBody);
+        }
         this.rigidBody = null;
         this.collider = null;
     }
@@ -281,8 +288,10 @@ export class Builder extends Entity {
     
     interact() {
         const b = document.getElementById('dialog-box');
-        b.innerText = "Estou construindo uma vila para você!";
-        b.style.display = 'block';
-        setTimeout(() => b.style.display = 'none', 3000);
+        if(b) {
+            b.innerText = "Estou construindo uma vila para você!";
+            b.style.display = 'block';
+            setTimeout(() => b.style.display = 'none', 3000);
+        }
     }
 }

@@ -86,19 +86,47 @@ export class Projectile {
     this.physicsWorld = physicsWorld;
 
     // Física
-    const RAPIER = physicsWorld.constructor;
+    // Import Rapier instance from physics world specifically if needed, but it seems we have it passed or it's global? 
+    // Wait, physicsWorld is an instance. We need RAPIER class/module to access RigidBodyDesc.
+    // In strict module environment, we need to import RAPIER.
+    // The original code accessed RAPIER from physicsWorld.constructor if passed? No, line 89: const RAPIER = physicsWorld.constructor;
+    // RAPIER.World.constructor is likely checking the class. This is a bit risky.
+    // I will import RAPIER at the top to be safe.
+  }
+  
+  // NOTE: I am patching the constructor to use imported RAPIER instead of accessing constructor from instance
+  // But wait, I need RAPIER import.
+}
+
+// Re-implementing Projectile with imported RAPIER
+import RAPIER from '@dimforge/rapier3d-compat';
+
+export class Projectile_Fixed {
+  constructor(x, y, z, vx, vy, vz, scene, physicsWorld) {
+    const geo = new THREE.SphereGeometry(0.2, 8, 8);
+    const mat = new THREE.MeshBasicMaterial({
+      color: 0xffff00,
+      emissive: 0xffff00,
+      emissiveIntensity: 0.5,
+    });
+    this.mesh = new THREE.Mesh(geo, mat);
+    this.mesh.position.set(x, y, z);
+    scene.add(this.mesh);
+
+    this.scene = scene;
+    this.physicsWorld = physicsWorld;
+
     const rbDesc = RAPIER.RigidBodyDesc.dynamic()
       .setTranslation(x, y, z)
-      .setGravityScale(0.3); // Gravidade reduzida
+      .setGravityScale(0.3);
     this.rigidBody = physicsWorld.createRigidBody(rbDesc);
 
-    const colDesc = RAPIER.ColliderDesc.ball(0.2).setSensor(true); // Não colide fisicamente
+    const colDesc = RAPIER.ColliderDesc.ball(0.2).setSensor(true);
     this.collider = physicsWorld.createCollider(colDesc, this.rigidBody);
 
-    // Aplicar impulso inicial
     this.rigidBody.setLinvel({ x: vx, y: vy, z: vz }, true);
 
-    this.lifetime = 5.0; // 5 segundos de vida
+    this.lifetime = 5.0;
   }
 
   update(dt, playerPos, takeDamage, getBlock, BLOCKS, BLOCK_PROPS) {
@@ -107,31 +135,29 @@ export class Projectile {
     this.lifetime -= dt;
     if (this.lifetime <= 0) {
       this.remove();
-      return true; // Sinaliza remoção
+      return true;
     }
 
     const pos = this.rigidBody.translation();
     this.mesh.position.set(pos.x, pos.y, pos.z);
 
-    // Verificar colisão com player
     const dx = pos.x - playerPos.x;
     const dy = pos.y - playerPos.y;
     const dz = pos.z - playerPos.z;
     const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
     if (dist < 1.0) {
-      takeDamage(15); // Dano do projétil
+      takeDamage(15);
       this.remove();
       return true;
     }
 
-    // Verificar colisão com blocos
     const blockType = getBlock(
       Math.floor(pos.x),
       Math.floor(pos.y),
       Math.floor(pos.z)
     );
-    if (blockType !== BLOCKS.AIR && BLOCK_PROPS[blockType].solid) {
+    if (blockType !== BLOCKS.AIR && BLOCK_PROPS[blockType] && BLOCK_PROPS[blockType].solid) {
       this.remove();
       return true;
     }
@@ -150,17 +176,16 @@ export class Projectile {
 }
 
 // --- Skeleton (Esqueleto) ---
-// Importar Entity base
 export class Skeleton {
   constructor(x, y, z, scene, physicsWorld, Entity) {
     // Usar Entity como base
-    const entity = new Entity(x, y, z, 0xffffff, 1); // Corpo branco
+    const entity = new Entity(x, y, z, 0xffffff, 1, scene, physicsWorld); // Added scene and physicsWorld passed to super-like constructor
     Object.assign(this, entity);
 
-    this.head.material.color.setHex(0xeeeeee); // Cabeça clara
+    this.head.material.color.setHex(0xeeeeee);
     this.speed = 4.0;
     this.attackCooldown = 0;
-    this.idealDistance = 15; // Distância ideal do jogador
+    this.idealDistance = 15;
     this.health = 80;
     this.maxHealth = 80;
 
@@ -174,8 +199,36 @@ export class Skeleton {
   }
 
   update(dt, playerPos, gameState, entities, Projectile) {
-    // Chamar update da Entity base
     if (!this.rigidBody) return;
+    
+    // Call Entity update manually since we did Object.assign
+    // Use prototype of Entity? No, just the method
+    // But `this` has the properties.
+    // However, `update` is on the prototype of Entity, so Object.assign(this, entity) does NOT copy methods from prototype unless we mixin prototypes.
+    // The original code relied on `Entity` being passed and likely `Skeleton` extending it or some prototype magic not shown fully, or `Entity` in original code returned an object with methods attached (not class).
+    // EXCEPT `Entity` in `entities.js` IS a class.
+    // `new Entity(...)` returns an object with `mesh`, `body`, etc.
+    // `Object.assign(this, entity)` copies those properties.
+    // It DOES NOT copy `update` method from `Entity.prototype`.
+    // So `super.update` call in original code `super.update(dt, playerPos)` suggests `Skeleton extends Entity`.
+    // BUT the constructor has `constructor(..., Entity)`.
+    // And `Object.assign(this, entity)`.
+    // This is very strange.
+    // The user provided code (lines 154-158):
+    // export class Skeleton {
+    //   constructor(x, y, z, scene, physicsWorld, Entity) {
+    //     const entity = new Entity(...);
+    //     Object.assign(this, entity);
+    // ...
+    //   update(...) {
+    //      // Chamar update da Entity base
+    //      if (!this.rigidBody) return;
+    //      ... logic duplicated from Entity.update? No.
+    //      Line 177: // Chamar update da Entity base
+    //      But it DOES NOT call super.update or entity.update. It RE-IMPLEMENTS the logic (lines 179-194 match Entity.update).
+    
+    // So I will just include the logic here.
+    
     const pos = this.rigidBody.translation();
     this.mesh.position.set(pos.x, pos.y - this.yOffset, pos.z);
     this.mesh.lookAt(playerPos.x, pos.y - this.yOffset, playerPos.z);
@@ -193,7 +246,6 @@ export class Skeleton {
       }
     }
 
-    // IA específica do Skeleton
     if (gameState.dimension !== "UPSIDE_DOWN") return;
 
     const dx = playerPos.x - pos.x;
@@ -201,21 +253,17 @@ export class Skeleton {
     const dist = Math.sqrt(dx * dx + dz * dz);
     const dy = playerPos.y - pos.y;
 
-    // IA de Distanciamento
     if (dist < 60) {
       let moveX = 0,
         moveZ = 0;
 
       if (dist < this.idealDistance - 2) {
-        // Muito perto - recuar
         moveX = -(dx / dist) * this.speed;
         moveZ = -(dz / dist) * this.speed;
       } else if (dist > this.idealDistance + 5) {
-        // Muito longe - aproximar
         moveX = (dx / dist) * this.speed;
         moveZ = (dz / dist) * this.speed;
       } else {
-        // Distância ideal - movimento lateral (strafing)
         moveX = -(dz / dist) * this.speed * 0.5;
         moveZ = (dx / dist) * this.speed * 0.5;
       }
@@ -229,7 +277,6 @@ export class Skeleton {
         true
       );
 
-      // Sistema de Ataque
       this.attackCooldown -= dt;
       if (
         this.attackCooldown <= 0 &&
@@ -238,7 +285,7 @@ export class Skeleton {
         Math.abs(dy) < 5
       ) {
         this.shootProjectile(playerPos, entities, Projectile);
-        this.attackCooldown = 2.0; // 2 segundos entre ataques
+        this.attackCooldown = 2.0;
       }
     }
   }
@@ -250,14 +297,13 @@ export class Skeleton {
     const dz = targetPos.z - pos.z;
     const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-    // Criar projétil
     const projectile = new Projectile(
       pos.x,
       pos.y + 1,
       pos.z,
-      (dx / dist) * 15, // Velocidade X
-      (dy / dist) * 15, // Velocidade Y
-      (dz / dist) * 15, // Velocidade Z
+      (dx / dist) * 15,
+      (dy / dist) * 15,
+      (dz / dist) * 15,
       this.scene,
       this.physicsWorld
     );
@@ -273,3 +319,6 @@ export class Skeleton {
     this.collider = null;
   }
 }
+
+// Export cleaned up Projectile class
+export { Projectile_Fixed as Projectile };

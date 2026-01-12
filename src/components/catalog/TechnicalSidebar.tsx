@@ -1,4 +1,5 @@
 import { TechnicalSpec } from '@/lib/extractTableData';
+import { useState, useEffect } from 'react';
 import { ImageGallery } from './ImageGallery';
 import { FaCheckCircle, FaExternalLinkAlt, FaPlus, FaCode, FaDatabase, FaServer, FaTools } from 'react-icons/fa';
 import Link from 'next/link';
@@ -19,6 +20,54 @@ interface TechnicalSidebarProps {
     relatedPosts?: PostData[];
     category?: string;
 }
+
+// Subcomponent to handle individual post card logic, specifically robust image error handling
+const RelatedPostCard = ({ post }: { post: PostData }) => {
+    const [imgSrc, setImgSrc] = useState(normalizeImage(post.featuredImage, post.title));
+    const [hasError, setHasError] = useState(false);
+
+    // Update image source when post changes
+    useEffect(() => {
+        setImgSrc(normalizeImage(post.featuredImage, post.title));
+        setHasError(false);
+    }, [post]);
+
+    const handleImageError = () => {
+        if (!hasError) {
+            setImgSrc(normalizeImage(null, post.title));
+            setHasError(true);
+        }
+    };
+
+    return (
+        <Link
+            href={`/catalogo/${post.slug}`}
+            className="block group relative rounded-xl overflow-hidden bg-white/5 hover:bg-white/10 transition-all duration-300"
+        >
+            {/* Image (if available) - using a simple height constraint */}
+            <div className="h-32 w-full relative">
+                <img
+                    src={imgSrc}
+                    alt={post.title}
+                    onError={handleImageError}
+                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent" />
+            </div>
+
+            <div className="p-4 relative mt-[-40px]">
+                <div className="text-base font-bold text-white group-hover:text-yellow-400 transition-colors shadow-lg">
+                    {post.title}
+                </div>
+                {post.description && (
+                    <div className="text-xs text-gray-300 mt-2 line-clamp-2 leading-relaxed">
+                        {post.description}
+                    </div>
+                )}
+            </div>
+        </Link>
+    );
+};
 
 export const TechnicalSidebar = ({ specs, images, title, link, technologies, relatedPosts, category }: TechnicalSidebarProps) => {
 
@@ -101,32 +150,7 @@ export const TechnicalSidebar = ({ specs, images, title, link, technologies, rel
                         </h3>
                         <div className="space-y-4">
                             {relatedPosts.map((post) => (
-                                <Link
-                                    key={post.slug}
-                                    href={`/catalogo/${post.slug}`}
-                                    className="block group relative rounded-xl overflow-hidden bg-white/5 hover:bg-white/10 transition-all duration-300"
-                                >
-                                    {/* Image (if available) - using a simple height constraint */}
-                                    <div className="h-32 w-full relative">
-                                        <img
-                                            src={normalizeImage(post.featuredImage, post.title)}
-                                            alt={post.title}
-                                            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent" />
-                                    </div>
-
-                                    <div className="p-4 relative mt-[-40px]">
-                                        <div className="text-base font-bold text-white group-hover:text-yellow-400 transition-colors shadow-lg">
-                                            {post.title}
-                                        </div>
-                                        {post.description && (
-                                            <div className="text-xs text-gray-300 mt-2 line-clamp-2 leading-relaxed">
-                                                {post.description}
-                                            </div>
-                                        )}
-                                    </div>
-                                </Link>
+                                <RelatedPostCard key={post.slug} post={post} />
                             ))}
                         </div>
                     </div>

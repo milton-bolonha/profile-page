@@ -99,7 +99,8 @@ const MAX_WORKERS = 4; // Número de workers simultâneos
 
 function getNextWorker() {
     if (chunkWorkers.length < MAX_WORKERS) {
-        const worker = new Worker(`./lib/chunk-worker.js?v=${Date.now()}`);
+        // FIXED PATH for public worker file
+        const worker = new Worker(`/games/stranger-craft/lib/chunk-worker.js?v=${Date.now()}`);
         chunkWorkers.push({ worker, busy: false, id: nextWorkerId++ });
         return chunkWorkers[chunkWorkers.length - 1];
     }
@@ -112,15 +113,19 @@ function getNextWorker() {
     return null;
 }
 
+export function cleanupWorkers() {
+    chunkWorkers.forEach(w => w.worker.terminate());
+    chunkWorkers = [];
+    nextWorkerId = 0;
+}
+
 export function generateChunkAsync(cx, cz, CHUNK_SIZE, CHUNK_HEIGHT, WATER_LEVEL, BLOCKS, BIOMES, gameState, noiseSeed, noiseFunction) {
     return new Promise((resolve, reject) => {
         const workerData = getNextWorker();
 
         if (!workerData) {
-            // Fallback para geração síncrona se todos workers estiverem ocupados
-            // Logger.warn('Todos workers ocupados, gerando chunk na main thread');
+            // Fallback para geração síncrona
             try {
-                // Usar a função noise passada (a mesma que o worker usaria)
                 const chunkData = generateChunk(cx, cz, CHUNK_SIZE, CHUNK_HEIGHT, WATER_LEVEL, BLOCKS, BIOMES, gameState, noiseFunction, getTerrainHeight, getCityInfo, getCaveDensity);
                 resolve(chunkData);
             } catch (err) {

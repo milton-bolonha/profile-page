@@ -13,7 +13,7 @@ export interface TabButton {
   onClick?: () => void;
   variant: 'primary' | 'secondary';
   icon?: React.ComponentType<any>;
-  action?: 'startGame';
+  action?: string;
 }
 
 export interface TabContent {
@@ -28,6 +28,7 @@ export interface TabContent {
   buttons?: TabButton[];
   // Para game
   gameComponent?: ReactNode;
+  games?: Record<string, ReactNode>;
   // Para placeholder
   placeholderIcon?: React.ComponentType<any>;
   placeholderTitle?: string;
@@ -211,6 +212,7 @@ export default function ExperienceShowcase({
 }: ExperienceShowcaseProps) {
   const [activeTab, setActiveTab] = useState<string>(defaultTab || tabs[0]?.id || '');
   const [isGameActive, setIsGameActive] = useState(false);
+  const [activeGameKey, setActiveGameKey] = useState<string | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [hoveredButtonIndex, setHoveredButtonIndex] = useState<number | null>(null);
   const [isPageVisible, setIsPageVisible] = useState(true);
@@ -279,6 +281,7 @@ export default function ExperienceShowcase({
                 onClick={() => {
                   setActiveTab(tab.id);
                   setIsGameActive(false);
+                  setActiveGameKey(null);
                   setCurrentSlide(0); // Reset slide on tab change 
                 }}
                 className={`
@@ -308,21 +311,41 @@ export default function ExperienceShowcase({
                 // manualSlideshow and hoveredIndex no longer needed as props
                 buttons={activeTabData.content.buttons}
                 onAction={(action) => {
-                  if (action === 'startGame') setIsGameActive(true);
+                  if (action === 'startGame') {
+                    setActiveGameKey(null);
+                    setIsGameActive(true);
+                  } else if (action && action.startsWith('playGame:')) {
+                    const key = action.split(':')[1];
+                    setActiveGameKey(key);
+                    setIsGameActive(true);
+                  }
                 }}
                 onHover={setHoveredButtonIndex}
               />
             )}
 
             {/* GAME CONTENT */}
-            {isGameActive && activeTabData.content.gameComponent && (
-              <GameContent gameComponent={
-                React.isValidElement(activeTabData.content.gameComponent)
-                  ? React.cloneElement(activeTabData.content.gameComponent as React.ReactElement<any>, {
-                    onExit: () => setIsGameActive(false)
-                  })
-                  : activeTabData.content.gameComponent
-              } />
+            {isGameActive && (
+              (() => {
+                const gameNode = activeGameKey && activeTabData.content.games
+                  ? activeTabData.content.games[activeGameKey]
+                  : activeTabData.content.gameComponent;
+
+                if (!gameNode) return null;
+
+                return (
+                  <GameContent gameComponent={
+                    React.isValidElement(gameNode)
+                      ? React.cloneElement(gameNode as React.ReactElement<any>, {
+                        onExit: () => {
+                          setIsGameActive(false);
+                          setActiveGameKey(null);
+                        }
+                      })
+                      : gameNode
+                  } />
+                );
+              })()
             )}
 
             {/* PLACEHOLDER CONTENT */}

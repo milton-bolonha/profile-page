@@ -24,6 +24,7 @@ export function buildChunk(cx, cz, chunks, scene, physicsWorld, playerBody, CHUN
 
     const opaque = { pos: [], norm: [], uv: [], idx: [], col: [] };
     const trans = { pos: [], norm: [], uv: [], idx: [], col: [] };
+    const phy = { pos: [], idx: [], map: new Map(), uniqueCount: 0 }; // Physics accumulator with Vertex Map for Welding
     let opIdx = 0, trIdx = 0;
     const dirs = [
         { dx:1, dy:0, dz:0, name:'side', light: 0.8 },
@@ -52,7 +53,19 @@ export function buildChunk(cx, cz, chunks, scene, physicsWorld, playerBody, CHUN
                     if(nType === BLOCKS.AIR) visible = true;
                     else if(nProps.transparent) { if(type !== nType) visible = true; else if(!props.fluid) visible = true; }
 
-                    if(visible) {
+                    // Physics Solid Definition: Anything that is NOT Air, Water, Corrupted Water.
+                    // (Glass and Leaves ARE Solid for physics, even if transparent for render)
+                    const isPhysicsSolid = (t) => {
+                        return t !== BLOCKS.AIR && t !== BLOCKS.WATER && t !== BLOCKS.CORRUPTED_WATER;
+                    };
+                    
+                    const myPhysicsSolid = isPhysicsSolid(type);
+                    const neighborPhysicsSolid = isPhysicsSolid(nType);
+                    
+                    // A physics face is needed if I am solid AND neighbor is NOT solid.
+                    const needPhysicsFace = myPhysicsSolid && !neighborPhysicsSolid;
+
+                    if(visible || needPhysicsFace) {
                         const target = props.transparent ? trans : opaque;
                         const idxOffset = props.transparent ? trIdx : opIdx;
                         const px = x + (dir.dx>0?1:0), py = y + (dir.dy>0?1:0), pz = z + (dir.dz>0?1:0);
@@ -62,42 +75,72 @@ export function buildChunk(cx, cz, chunks, scene, physicsWorld, playerBody, CHUN
 
                         if(dir.dx !== 0) {
                             v = [px,y,z, px,y,z+1, px,y+1,z, px,y+1,z+1];
-                            aos.push(calculateAO(sld(0,-1,0), sld(0,0,-1), sld(0,-1,-1)));
-                            aos.push(calculateAO(sld(0,-1,0), sld(0,0,1), sld(0,-1,1)));
-                            aos.push(calculateAO(sld(0,1,0), sld(0,0,-1), sld(0,1,-1)));
-                            aos.push(calculateAO(sld(0,1,0), sld(0,0,1), sld(0,1,1)));
+                            if(visible) {
+                                aos.push(calculateAO(sld(0,-1,0), sld(0,0,-1), sld(0,-1,-1)));
+                                aos.push(calculateAO(sld(0,-1,0), sld(0,0,1), sld(0,-1,1)));
+                                aos.push(calculateAO(sld(0,1,0), sld(0,0,-1), sld(0,1,-1)));
+                                aos.push(calculateAO(sld(0,1,0), sld(0,0,1), sld(0,1,1)));
+                            }
                         } else if(dir.dy !== 0) {
                             v = [x,py,z, x+1,py,z, x,py,z+1, x+1,py,z+1];
-                            aos.push(calculateAO(sld(-1,0,0), sld(0,0,-1), sld(-1,0,-1)));
-                            aos.push(calculateAO(sld(1,0,0), sld(0,0,-1), sld(1,0,-1)));
-                            aos.push(calculateAO(sld(-1,0,0), sld(0,0,1), sld(-1,0,1)));
-                            aos.push(calculateAO(sld(1,0,0), sld(0,0,1), sld(1,0,1)));
+                            if(visible) {
+                                aos.push(calculateAO(sld(-1,0,0), sld(0,0,-1), sld(-1,0,-1)));
+                                aos.push(calculateAO(sld(1,0,0), sld(0,0,-1), sld(1,0,-1)));
+                                aos.push(calculateAO(sld(-1,0,0), sld(0,0,1), sld(-1,0,1)));
+                                aos.push(calculateAO(sld(1,0,0), sld(0,0,1), sld(1,0,1)));
+                            }
                         } else {
                             v = [x,y,pz, x,y+1,pz, x+1,y,pz, x+1,y+1,pz];
-                            aos.push(calculateAO(sld(-1,0,0), sld(0,-1,0), sld(-1,-1,0)));
-                            aos.push(calculateAO(sld(-1,0,0), sld(0,1,0), sld(-1,1,0)));
-                            aos.push(calculateAO(sld(1,0,0), sld(0,-1,0), sld(1,-1,0)));
-                            aos.push(calculateAO(sld(1,0,0), sld(0,1,0), sld(1,1,0)));
+                            if(visible) {
+                                aos.push(calculateAO(sld(-1,0,0), sld(0,-1,0), sld(-1,-1,0)));
+                                aos.push(calculateAO(sld(-1,0,0), sld(0,1,0), sld(-1,1,0)));
+                                aos.push(calculateAO(sld(1,0,0), sld(0,-1,0), sld(1,-1,0)));
+                                aos.push(calculateAO(sld(1,0,0), sld(0,1,0), sld(1,1,0)));
+                            }
                         }
 
-                        for(let k=0; k<v.length; k+=3) {
-                            target.pos.push(v[k], v[k+1], v[k+2]);
-                            target.norm.push(dir.dx, dir.dy, dir.dz);
-                            const lightFactor = dir.light * aos[Math.floor(k/3)];
-                            target.col.push(lightFactor, lightFactor, lightFactor);
+                        if(visible) {
+                            for(let k=0; k<v.length; k+=3) {
+                                target.pos.push(v[k], v[k+1], v[k+2]);
+                                target.norm.push(dir.dx, dir.dy, dir.dz);
+                                const lightFactor = dir.light * aos[Math.floor(k/3)];
+                                target.col.push(lightFactor, lightFactor, lightFactor);
+                            }
+                            const uvs = getFaceUVs(type, dir.name);
+                            let m = [0,1,2,3];
+                            
+                            if(dir.dz !== 0) m = [0,2,1,3];
+                            
+                            for(let k=0; k<4; k++) target.uv.push(uvs[m[k]*2], uvs[m[k]*2+1]);
+                            if(dir.dx===1 || dir.dy===1 || dir.dz===1) target.idx.push(idxOffset, idxOffset+2, idxOffset+1, idxOffset+2, idxOffset+3, idxOffset+1);
+                            else target.idx.push(idxOffset, idxOffset+1, idxOffset+2, idxOffset+2, idxOffset+1, idxOffset+3);
+                            if(props.transparent) trIdx += 4; else opIdx += 4;
                         }
-                        const uvs = getFaceUVs(type, dir.name);
-                        let m = [0,1,2,3];
-                        
-                        // CORREÇÃO: Faces Z precisam de rotação UV para alinhar com a ordem dos vértices
-                        // Vértices Z: [x,y,pz, x,y+1,pz, x+1,y,pz, x+1,y+1,pz]
-                        // Ordem correta UV: [0,2,1,3] para rotacionar 90° no sentido horário
-                        if(dir.dz !== 0) m = [0,2,1,3];
-                        
-                        for(let k=0; k<4; k++) target.uv.push(uvs[m[k]*2], uvs[m[k]*2+1]);
-                        if(dir.dx===1 || dir.dy===1 || dir.dz===1) target.idx.push(idxOffset, idxOffset+2, idxOffset+1, idxOffset+2, idxOffset+3, idxOffset+1);
-                        else target.idx.push(idxOffset, idxOffset+1, idxOffset+2, idxOffset+2, idxOffset+1, idxOffset+3);
-                        if(props.transparent) trIdx += 4; else opIdx += 4;
+
+                        // -- Physics Accumulation (Welded) --
+                        if (needPhysicsFace) {
+                             const quadIndices = [];
+                             for(let k=0; k<v.length; k+=3) {
+                                 const vx = v[k], vy = v[k+1], vz = v[k+2];
+                                 const key = `${vx},${vy},${vz}`;
+                                 let idx = phy.map.get(key);
+                                 if (idx === undefined) {
+                                     idx = phy.uniqueCount++;
+                                     phy.map.set(key, idx);
+                                     phy.pos.push(vx, vy, vz);
+                                 }
+                                 quadIndices.push(idx);
+                             }
+                             
+                             const i0 = quadIndices[0], i1 = quadIndices[1], i2 = quadIndices[2], i3 = quadIndices[3];
+                             
+                             // User's Reference Winding Logic (Likely Correct for Rapier CCW)
+                             if(dir.dx===1 || dir.dy===-1 || dir.dz===-1) {
+                                 phy.idx.push(i0, i1, i2, i2, i1, i3);
+                             } else {
+                                 phy.idx.push(i0, i2, i1, i2, i3, i1);
+                             }
+                        }
                     }
                 }
             }
@@ -126,12 +169,12 @@ export function buildChunk(cx, cz, chunks, scene, physicsWorld, playerBody, CHUN
     const pcx = Math.floor(pPos.x / CHUNK_SIZE);
     const pcz = Math.floor(pPos.z / CHUNK_SIZE);
     
-    if (opaque.pos.length > 0 && Math.abs(cx - pcx) <= PHYSICS_DISTANCE && Math.abs(cz - pcz) <= PHYSICS_DISTANCE) {
+    if (phy.pos.length > 0 && Math.abs(cx - pcx) <= PHYSICS_DISTANCE && Math.abs(cz - pcz) <= PHYSICS_DISTANCE) {
         const rigidBodyDesc = RAPIER.RigidBodyDesc.fixed().setTranslation(cx * CHUNK_SIZE, 0, cz * CHUNK_SIZE);
         chunk.rigidBody = physicsWorld.createRigidBody(rigidBodyDesc);
-        const vertices = new Float32Array(opaque.pos);
-        const indices = new Uint32Array(opaque.idx);
-        const colliderDesc = RAPIER.ColliderDesc.trimesh(vertices, indices).setFriction(0.0).setRestitution(0.0);
+        const vertices = new Float32Array(phy.pos);
+        const indices = new Uint32Array(phy.idx);
+        const colliderDesc = RAPIER.ColliderDesc.trimesh(vertices, indices).setFriction(0.0).setRestitution(0.0).setCollisionGroups(0x0001FFFF);
         chunk.collider = physicsWorld.createCollider(colliderDesc, chunk.rigidBody);
     }
     chunk.dirty = false;

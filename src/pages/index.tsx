@@ -24,6 +24,11 @@ const NeonFlightGame = dynamic(
   { ssr: false }
 );
 
+const StrangerCraftGame = dynamic(
+  () => import("@/components/games/StrangerCraftGame"),
+  { ssr: false }
+);
+
 import { ClientOnly } from "@/components/commons/ClientOnly";
 import Seo from "@/components/commons/Seo";
 import FloatingNavigator from "@/components/commons/FloatingNavigator";
@@ -232,9 +237,9 @@ const HomeContent = ({
                             { bg: "/img/thumb-wp-a.jpg", fg: "/img/thumb-wp-b.jpg" }, // Placeholder 3
                           ],
                           buttons: [
-                            { text: 'AI Insights', variant: 'primary', link: '#' },
-                            { text: 'AI AutoBlog', variant: 'secondary', link: '#' },
-                            { text: 'WordPress Sites', variant: 'secondary', link: '#' },
+                            { text: 'AI Insights', variant: 'primary', link: '/catalogo/plataforma-ia-ai-insights-system' },
+                            { text: 'AI AutoBlog', variant: 'secondary', link: '/catalogo/ai-blog-automatic' },
+                            { text: 'WordPress Sites', variant: 'secondary', link: '/catalogo/websites-wordpress-development' },
                           ]
                         },
                       },
@@ -250,10 +255,15 @@ const HomeContent = ({
                             { bg: "/img/thumb-stranger-b.jpg", fg: "/img/thumb-stranger-a.jpg" },       // Button 2 Hover: Stranger Craft
                             { bg: "/img/fly-3-a.jpg", fg: "/img/fly-3-b.jpg" },       // Button 3 Hover: Air Flight
                           ],
+                          games: {
+                            neon: <NeonFlightGame onExit={() => { }} />,
+                            stranger: <StrangerCraftGame />
+                          },
+                          // gameComponent key kept for backward compatibility if needed, but not strictly required with new logic if using actions
                           gameComponent: <NeonFlightGame onExit={() => { }} />,
                           buttons: [
-                            { text: 'JOGAR DEMO', variant: 'primary', action: 'startGame' },
-                            { text: 'Stranger Craft', link: '/games/stranger-craft', variant: 'secondary', icon: FaGamepad },
+                            { text: 'JOGAR DEMO', variant: 'primary', action: 'playGame:neon' },
+                            { text: 'Jogar StrangerCraft', variant: 'primary', link: '/games/stranger-craft' },
                             { text: 'Air Flight', link: '/games/airplane', variant: 'secondary', icon: FaGamepad },
                           ],
                         },

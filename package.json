@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.31.8",
+    "@dimforge/rapier3d-compat": "^0.19.3",
     "@fontsource-variable/geologica": "^5.2.6",
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/noto-serif": "^5.2.9",
